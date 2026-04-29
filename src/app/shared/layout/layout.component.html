@@ -1,45 +1,92 @@
-<mat-sidenav-container class="sidenav-container">
-  <mat-sidenav mode="side" opened class="sidenav">
-    <div class="sidenav-brand">
-      <mat-icon class="brand-icon">church</mat-icon>
-      <div>
-        <div class="brand-title">SGI</div>
-        <div class="brand-subtitle">Gestión Integral</div>
+<mat-sidenav-container class="app-container">
+
+  <!-- ── Sidebar ─────────────────────────────────────────────── -->
+  <mat-sidenav
+    class="app-sidenav"
+    [mode]="isMobile() ? 'over' : 'side'"
+    [opened]="sidenavOpened()"
+    (closedStart)="sidenavOpened.set(false)"
+  >
+    <!-- Brand -->
+    <div class="brand">
+      <div class="brand-logo">
+        <mat-icon>church</mat-icon>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">SGI</span>
+        <span class="brand-sub">Gestión Integral</span>
       </div>
     </div>
-    <mat-divider />
-    <mat-nav-list>
+
+    <mat-divider class="brand-divider" />
+
+    <!-- Navegación -->
+    <nav class="sidenav-nav">
+      <p class="nav-section-label">MENÚ</p>
       @for (item of visibleNavItems; track item.path) {
-        <a mat-list-item [routerLink]="item.path" routerLinkActive="active-nav-item">
-          <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-          <span matListItemTitle>{{ item.label }}</span>
+        <a
+          class="nav-item"
+          [routerLink]="item.path"
+          routerLinkActive="nav-item--active"
+          [routerLinkActiveOptions]="{ exact: false }"
+        >
+          <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+          <span class="nav-label">{{ item.label }}</span>
         </a>
       }
-    </mat-nav-list>
+    </nav>
+
+    <!-- Perfil al fondo -->
+    <div class="sidenav-footer">
+      <mat-divider />
+      <div class="user-card">
+        <div class="user-avatar">{{ userInitials }}</div>
+        <div class="user-info">
+          <span class="user-name">{{ auth.currentUser()?.email }}</span>
+          <span class="user-sede">{{ auth.currentUser()?.sedeActiva }}</span>
+        </div>
+        <button mat-icon-button matTooltip="Cerrar sesión" (click)="auth.logout()" class="logout-btn">
+          <mat-icon>logout</mat-icon>
+        </button>
+      </div>
+    </div>
   </mat-sidenav>
 
-  <mat-sidenav-content>
-    <mat-toolbar color="primary" class="app-toolbar">
-      <span class="spacer"></span>
-      <span class="user-email">{{ auth.currentUser()?.email }}</span>
-      <button mat-icon-button [matMenuTriggerFor]="userMenu" aria-label="Menú usuario">
-        <mat-icon>account_circle</mat-icon>
+  <!-- ── Contenido principal ─────────────────────────────────── -->
+  <mat-sidenav-content class="app-content">
+
+    <!-- Toolbar -->
+    <mat-toolbar class="app-toolbar">
+      <button mat-icon-button class="menu-toggle" (click)="toggleSidenav()">
+        <mat-icon>{{ sidenavOpened() ? 'menu_open' : 'menu' }}</mat-icon>
       </button>
-      <mat-menu #userMenu>
-        <div class="user-menu-header">
+
+      <div class="toolbar-title">
+        <span class="page-title">{{ pageTitle() }}</span>
+      </div>
+
+      <span class="toolbar-spacer"></span>
+
+      <button mat-icon-button matTooltip="{{ auth.currentUser()?.email }}" [matMenuTriggerFor]="userMenu">
+        <div class="toolbar-avatar">{{ userInitials }}</div>
+      </button>
+
+      <mat-menu #userMenu xPosition="before">
+        <div class="menu-header">
           <strong>{{ auth.currentUser()?.email }}</strong>
-          <br />
-          <small>Sede: {{ auth.currentUser()?.sedeActiva }}</small>
+          <small>{{ auth.currentUser()?.roles?.join(', ') }}</small>
         </div>
         <mat-divider />
         <button mat-menu-item (click)="auth.logout()">
-          <mat-icon>logout</mat-icon>
-          Cerrar sesión
+          <mat-icon>logout</mat-icon> Cerrar sesión
         </button>
       </mat-menu>
     </mat-toolbar>
-    <main class="main-content">
+
+    <!-- Vista activa -->
+    <div class="page-wrapper">
       <router-outlet />
-    </main>
+    </div>
+
   </mat-sidenav-content>
 </mat-sidenav-container>

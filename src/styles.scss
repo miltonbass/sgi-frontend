@@ -1,43 +1,118 @@
+// ── Fuente y reset ──────────────────────────────────────────────
 html, body {
   height: 100%;
   margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  background: #f0f2f5;
+  color: #2d3748;
 }
 
-// Estado chips para miembros
+// ── Design tokens ───────────────────────────────────────────────
+:root {
+  --sgi-primary:        #3f51b5;
+  --sgi-primary-dark:   #303f9f;
+  --sgi-card-radius:    10px;
+  --sgi-card-shadow:    0 2px 12px rgba(0, 0, 0, 0.08);
+  --sgi-card-shadow-lg: 0 4px 24px rgba(0, 0, 0, 0.12);
+  --sgi-bg:             #f0f2f5;
+  --sgi-border:         #e2e8f0;
+}
+
+// ── Cards ────────────────────────────────────────────────────────
+mat-card, .sgi-card {
+  border-radius: var(--sgi-card-radius) !important;
+  box-shadow: var(--sgi-card-shadow) !important;
+  background: #fff !important;
+  border: none !important;
+}
+
+// ── Tablas Material ──────────────────────────────────────────────
+.mat-mdc-table {
+  background: transparent !important;
+  width: 100%;
+
+  .mat-mdc-header-row {
+    background: #f8f9fc;
+  }
+
+  .mat-mdc-header-cell {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #718096 !important;
+    border-bottom: 2px solid var(--sgi-border) !important;
+    padding: 0 16px !important;
+  }
+
+  .mat-mdc-row {
+    transition: background 0.15s;
+    border-bottom: 1px solid #f0f2f5 !important;
+
+    &:hover { background: #f8f9fc; }
+    &:last-child { border-bottom: none !important; }
+  }
+
+  .mat-mdc-cell {
+    font-size: 13.5px !important;
+    color: #4a5568;
+    padding: 0 16px !important;
+    height: 52px;
+  }
+}
+
+.table-card {
+  background: #fff;
+  border-radius: var(--sgi-card-radius);
+  box-shadow: var(--sgi-card-shadow);
+  overflow: hidden;
+}
+
+// ── Paginator ───────────────────────────────────────────────────
+.mat-mdc-paginator {
+  background: #fff !important;
+  border-top: 1px solid var(--sgi-border);
+  font-size: 13px !important;
+}
+
+// ── Chips de estado de miembros ─────────────────────────────────
 .chip-estado {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
   font-size: 12px;
-  font-weight: 500;
-  padding: 4px 10px;
-  border-radius: 12px;
-  display: inline-block;
+  font-weight: 600;
   white-space: nowrap;
 
-  &.estado-visitor   { background: #e3f2fd; color: #1565c0; }
-  &.estado-miembro   { background: #e8f5e9; color: #2e7d32; }
-  &.estado-inactivo  { background: #fce4ec; color: #c62828; }
-  &.estado-restaurado{ background: #fff3e0; color: #e65100; }
+  &.estado-visitor   { background: #ebf8ff; color: #2b6cb0; }
+  &.estado-miembro   { background: #f0fff4; color: #276749; }
+  &.estado-inactivo  { background: #fff5f5; color: #c53030; }
+  &.estado-restaurado{ background: #fffaf0; color: #c05621; }
 }
 
+// ── Páginas ──────────────────────────────────────────────────────
 .page-container {
   padding: 24px;
 }
 
-.spacer { flex: 1 1 auto; }
-
-.loading-center {
+.page-header {
   display: flex;
-  justify-content: center;
   align-items: center;
-  padding: 48px;
+  justify-content: space-between;
+  margin-bottom: 24px;
 }
 
+.page-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #2d3748;
+}
+
+// ── Formularios ──────────────────────────────────────────────────
 .full-width { width: 100%; }
-
-.mat-column-acciones {
-  width: 100px;
-  text-align: right;
-}
+.spacer     { flex: 1 1 auto; }
 
 .form-row {
   display: grid;
@@ -47,10 +122,89 @@ html, body {
 }
 
 .form-error {
-  background: #fce4ec;
-  color: #c62828;
+  background: #fff5f5;
+  color: #c53030;
+  border-left: 4px solid #fc8181;
   border-radius: 4px;
   padding: 10px 14px;
-  font-size: 14px;
+  font-size: 13px;
   margin-top: 12px;
+}
+
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #a0aec0;
+  margin: 16px 0 4px;
+}
+
+// ── Dialogs ──────────────────────────────────────────────────────
+.mat-mdc-dialog-container {
+  border-radius: var(--sgi-card-radius) !important;
+}
+
+.mat-mdc-dialog-title {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  color: #2d3748 !important;
+  padding: 20px 24px 12px !important;
+}
+
+.mat-mdc-dialog-content {
+  padding: 0 24px !important;
+  max-height: 70vh !important;
+}
+
+.mat-mdc-dialog-actions {
+  padding: 12px 24px 20px !important;
+  gap: 8px;
+}
+
+// ── Botones ──────────────────────────────────────────────────────
+.mat-mdc-raised-button {
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.3px !important;
+}
+
+.mat-mdc-outlined-button {
+  border-radius: 6px !important;
+}
+
+// ── Loading ──────────────────────────────────────────────────────
+.loading-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 64px;
+}
+
+// ── No data ──────────────────────────────────────────────────────
+.no-data {
+  text-align: center;
+  padding: 48px;
+  color: #a0aec0;
+  font-size: 14px;
+}
+
+// ── Acciones de tabla ────────────────────────────────────────────
+.mat-column-acciones {
+  width: 130px;
+  text-align: right;
+}
+
+// ── Scrollbar custom ─────────────────────────────────────────────
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 3px;
+  &:hover { background: #a0aec0; }
+}
+
+// ── Dialog content con secciones ─────────────────────────────────
+.dialog-content {
+  padding-top: 8px !important;
 }
