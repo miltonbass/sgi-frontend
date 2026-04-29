@@ -1,0 +1,120 @@
+<h2 mat-dialog-title>{{ title }}</h2>
+
+<mat-dialog-content class="dialog-content">
+  <form [formGroup]="form" novalidate>
+
+    <!-- Datos personales -->
+    <p class="section-label">Datos personales</p>
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Nombres *</mat-label>
+        <input matInput formControlName="nombres" />
+        @if (form.get('nombres')?.invalid && form.get('nombres')?.touched) {
+          <mat-error>Requerido</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Apellidos *</mat-label>
+        <input matInput formControlName="apellidos" />
+        @if (form.get('apellidos')?.invalid && form.get('apellidos')?.touched) {
+          <mat-error>Requerido</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Cédula / Documento</mat-label>
+        <input matInput formControlName="cedula" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Fecha de nacimiento</mat-label>
+        <input matInput formControlName="fechaNacimiento" type="date" />
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Género</mat-label>
+        <mat-select formControlName="genero">
+          <mat-option value="M">Masculino</mat-option>
+          <mat-option value="F">Femenino</mat-option>
+          <mat-option value="OTRO">Otro</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Estado civil</mat-label>
+        <mat-select formControlName="estadoCivil">
+          <mat-option value="SOLTERO">Soltero/a</mat-option>
+          <mat-option value="CASADO">Casado/a</mat-option>
+          <mat-option value="VIUDO">Viudo/a</mat-option>
+          <mat-option value="DIVORCIADO">Divorciado/a</mat-option>
+          <mat-option value="UNION_LIBRE">Unión libre</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <!-- Contacto -->
+    <p class="section-label">Contacto</p>
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Teléfono</mat-label>
+        <input matInput formControlName="telefono" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Correo electrónico</mat-label>
+        <input matInput formControlName="email" type="email" />
+        @if (form.get('email')?.hasError('email')) {
+          <mat-error>Correo inválido</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Ciudad</mat-label>
+        <input matInput formControlName="ciudad" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Dirección</mat-label>
+        <input matInput formControlName="direccion" />
+      </mat-form-field>
+    </div>
+
+    <!-- Iglesia -->
+    <p class="section-label">Información de iglesia</p>
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label># Miembro</mat-label>
+        <input matInput formControlName="numeroMiembro" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Fecha de ingreso</mat-label>
+        <input matInput formControlName="fechaIngreso" type="date" />
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Fecha de bautismo</mat-label>
+        <input matInput formControlName="fechaBautismo" type="date" />
+      </mat-form-field>
+    </div>
+
+    @if (error()) {
+      <div class="form-error">{{ error() }}</div>
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button [disabled]="loading()" (click)="cancel()">Cancelar</button>
+  <button
+    mat-raised-button
+    color="primary"
+    [disabled]="loading() || form.invalid"
+    (click)="submit()"
+  >
+    @if (loading()) { <mat-spinner diameter="18" /> } @else { Guardar }
+  </button>
+</mat-dialog-actions>

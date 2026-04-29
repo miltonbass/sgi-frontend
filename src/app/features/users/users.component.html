@@ -1,0 +1,80 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1 class="page-title">Usuarios</h1>
+    <button mat-raised-button color="primary" (click)="openCreate()">
+      <mat-icon>add</mat-icon>
+      Nuevo Usuario
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-center"><mat-spinner /></div>
+  } @else {
+    <div class="table-card">
+      <table mat-table [dataSource]="usuarios()" class="full-width">
+        <ng-container matColumnDef="nombre">
+          <th mat-header-cell *matHeaderCellDef>Nombre</th>
+          <td mat-cell *matCellDef="let u">{{ u.nombre }} {{ u.apellido }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef>Email</th>
+          <td mat-cell *matCellDef="let u">{{ u.email }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="username">
+          <th mat-header-cell *matHeaderCellDef>Username</th>
+          <td mat-cell *matCellDef="let u">{{ u.username }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="roles">
+          <th mat-header-cell *matHeaderCellDef>Roles</th>
+          <td mat-cell *matCellDef="let u">
+            <mat-chip-set>
+              @for (rol of getRoles(u); track rol) {
+                <mat-chip>{{ rol }}</mat-chip>
+              }
+            </mat-chip-set>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="estado">
+          <th mat-header-cell *matHeaderCellDef>Estado</th>
+          <td mat-cell *matCellDef="let u">
+            @if (u.activo) {
+              <span class="chip-estado estado-miembro">Activo</span>
+            } @else {
+              <span class="chip-estado estado-inactivo">Inactivo</span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let u">
+            <button mat-icon-button matTooltip="Editar" (click)="openEdit(u)">
+              <mat-icon>edit</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
+            No hay usuarios registrados
+          </td>
+        </tr>
+      </table>
+
+      <mat-paginator
+        [length]="total()"
+        [pageIndex]="pageIndex()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="[10, 20, 50]"
+        showFirstLastButtons
+        (page)="onPage($event)"
+      />
+    </div>
+  }
+</div>

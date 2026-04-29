@@ -1,0 +1,63 @@
+<div class="login-wrapper">
+  <mat-card class="login-card">
+    <mat-card-header>
+      <mat-card-title class="login-title">SGI</mat-card-title>
+      <mat-card-subtitle>Sistema de Gestión Integral</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Correo electrónico</mat-label>
+          <input matInput formControlName="email" type="email" autocomplete="email" />
+          <mat-icon matSuffix>email</mat-icon>
+          @if (form.get('email')?.touched && form.get('email')?.hasError('required')) {
+            <mat-error>El correo es requerido</mat-error>
+          }
+          @if (form.get('email')?.touched && form.get('email')?.hasError('email')) {
+            <mat-error>Correo inválido</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Contraseña</mat-label>
+          <input
+            matInput
+            formControlName="password"
+            [type]="hidePass() ? 'password' : 'text'"
+            autocomplete="current-password"
+          />
+          <button mat-icon-button matSuffix type="button" (click)="hidePass.set(!hidePass())">
+            <mat-icon>{{ hidePass() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (form.get('password')?.touched && form.get('password')?.hasError('required')) {
+            <mat-error>La contraseña es requerida</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Sede (Tenant ID)</mat-label>
+          <input matInput formControlName="tenantId" />
+        </mat-form-field>
+
+        @if (error()) {
+          <div class="login-error">{{ error() }}</div>
+        }
+
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          class="full-width login-btn"
+          [disabled]="loading() || form.invalid"
+        >
+          @if (loading()) {
+            <mat-spinner diameter="20" />
+          } @else {
+            Ingresar
+          }
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

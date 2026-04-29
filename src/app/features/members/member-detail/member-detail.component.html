@@ -1,0 +1,167 @@
+@if (loading()) {
+  <div class="loading-center" style="padding: 80px"><mat-spinner /></div>
+} @else if (perfil(); as p) {
+  <div class="detail-container">
+    <!-- Encabezado -->
+    <div class="detail-header">
+      <button mat-icon-button (click)="location.back()" matTooltip="Volver">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-info">
+        <h1 class="member-name">{{ p.datos.nombres }} {{ p.datos.apellidos }}</h1>
+        <span [ngClass]="['chip-estado', estadoClass(p.datos.estado)]">
+          {{ estadoLabel(p.datos.estado) }}
+        </span>
+      </div>
+      <span style="flex:1"></span>
+      @if (canEdit) {
+        <button mat-stroked-button (click)="openEdit()">
+          <mat-icon>edit</mat-icon> Editar
+        </button>
+      }
+      @if (canChangeStatus) {
+        <button mat-raised-button color="primary" (click)="openCambioEstado()">
+          <mat-icon>swap_horiz</mat-icon> Cambiar estado
+        </button>
+      }
+    </div>
+
+    <div class="detail-grid">
+      <!-- Datos personales -->
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Datos personales</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Cédula</span>
+              <span class="info-value">{{ p.datos.cedula || '—' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label"># Miembro</span>
+              <span class="info-value">{{ p.datos.numeroMiembro || '—' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Fecha de nacimiento</span>
+              <span class="info-value">{{ p.datos.fechaNacimiento ? (p.datos.fechaNacimiento | date:'dd/MM/yyyy') : '—' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Género</span>
+              <span class="info-value">{{ p.datos.genero === 'M' ? 'Masculino' : p.datos.genero === 'F' ? 'Femenino' : p.datos.genero || '—' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Estado civil</span>
+              <span class="info-value">{{ p.datos.estadoCivil || '—' }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Contacto -->
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Contacto</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Email</span>
+              <span class="info-value">{{ p.datos.email || '—' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Teléfono</span>
+              <span class="info-value">{{ p.datos.telefono || '—' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Ciudad</span>
+              <span class="info-value">{{ p.datos.ciudad || '—' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Dirección</span>
+              <span class="info-value">{{ p.datos.direccion || '—' }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Información de iglesia -->
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Información de iglesia</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Fecha de ingreso</span>
+              <span class="info-value">{{ p.datos.fechaIngreso ? (p.datos.fechaIngreso | date:'dd/MM/yyyy') : '—' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Fecha de bautismo</span>
+              <span class="info-value">{{ p.datos.fechaBautismo ? (p.datos.fechaBautismo | date:'dd/MM/yyyy') : '—' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Nivel de acceso</span>
+              <span class="info-value">{{ p.nivelAcceso }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Historial de estado (solo COMPLETO) -->
+      @if (p.nivelAcceso === 'COMPLETO' && p.historialEstado.length) {
+        <mat-card class="full-span">
+          <mat-card-header>
+            <mat-card-title>Historial de estado</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <table mat-table [dataSource]="p.historialEstado" class="full-width">
+              <ng-container matColumnDef="fecha">
+                <th mat-header-cell *matHeaderCellDef>Fecha</th>
+                <td mat-cell *matCellDef="let h">{{ h.creadoEn | date:'dd/MM/yyyy HH:mm' }}</td>
+              </ng-container>
+              <ng-container matColumnDef="anterior">
+                <th mat-header-cell *matHeaderCellDef>Estado anterior</th>
+                <td mat-cell *matCellDef="let h">
+                  <span [ngClass]="['chip-estado', estadoClass(h.estadoAnterior)]">{{ estadoLabel(h.estadoAnterior) }}</span>
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="nuevo">
+                <th mat-header-cell *matHeaderCellDef>Nuevo estado</th>
+                <td mat-cell *matCellDef="let h">
+                  <span [ngClass]="['chip-estado', estadoClass(h.estadoNuevo)]">{{ estadoLabel(h.estadoNuevo) }}</span>
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="motivo">
+                <th mat-header-cell *matHeaderCellDef>Motivo</th>
+                <td mat-cell *matCellDef="let h">{{ h.motivo }}</td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="historialColumns"></tr>
+              <tr mat-row *matRowDef="let r; columns: historialColumns;"></tr>
+            </table>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      <!-- Grupos (solo COMPLETO) -->
+      @if (p.nivelAcceso === 'COMPLETO' && p.grupos.length) {
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Grupos</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            @for (g of p.grupos; track g.grupoId) {
+              <div class="grupo-item">
+                <mat-icon class="grupo-icon">group</mat-icon>
+                <div>
+                  <div class="grupo-nombre">{{ g.nombre }}</div>
+                  <div class="grupo-meta">{{ g.tipo }} · {{ g.rol }} · Desde {{ g.fechaIngreso | date:'dd/MM/yyyy' }}</div>
+                </div>
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  </div>
+}

@@ -1,0 +1,45 @@
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav mode="side" opened class="sidenav">
+    <div class="sidenav-brand">
+      <mat-icon class="brand-icon">church</mat-icon>
+      <div>
+        <div class="brand-title">SGI</div>
+        <div class="brand-subtitle">Gestión Integral</div>
+      </div>
+    </div>
+    <mat-divider />
+    <mat-nav-list>
+      @for (item of visibleNavItems; track item.path) {
+        <a mat-list-item [routerLink]="item.path" routerLinkActive="active-nav-item">
+          <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+          <span matListItemTitle>{{ item.label }}</span>
+        </a>
+      }
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar color="primary" class="app-toolbar">
+      <span class="spacer"></span>
+      <span class="user-email">{{ auth.currentUser()?.email }}</span>
+      <button mat-icon-button [matMenuTriggerFor]="userMenu" aria-label="Menú usuario">
+        <mat-icon>account_circle</mat-icon>
+      </button>
+      <mat-menu #userMenu>
+        <div class="user-menu-header">
+          <strong>{{ auth.currentUser()?.email }}</strong>
+          <br />
+          <small>Sede: {{ auth.currentUser()?.sedeActiva }}</small>
+        </div>
+        <mat-divider />
+        <button mat-menu-item (click)="auth.logout()">
+          <mat-icon>logout</mat-icon>
+          Cerrar sesión
+        </button>
+      </mat-menu>
+    </mat-toolbar>
+    <main class="main-content">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

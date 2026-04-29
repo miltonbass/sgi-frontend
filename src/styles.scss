@@ -1,1 +1,56 @@
-/* You can add global styles to this file, and also import other style files */
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+// Estado chips para miembros
+.chip-estado {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 12px;
+  display: inline-block;
+  white-space: nowrap;
+
+  &.estado-visitor   { background: #e3f2fd; color: #1565c0; }
+  &.estado-miembro   { background: #e8f5e9; color: #2e7d32; }
+  &.estado-inactivo  { background: #fce4ec; color: #c62828; }
+  &.estado-restaurado{ background: #fff3e0; color: #e65100; }
+}
+
+.page-container {
+  padding: 24px;
+}
+
+.spacer { flex: 1 1 auto; }
+
+.loading-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 48px;
+}
+
+.full-width { width: 100%; }
+
+.mat-column-acciones {
+  width: 100px;
+  text-align: right;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  mat-form-field { width: 100%; }
+}
+
+.form-error {
+  background: #fce4ec;
+  color: #c62828;
+  border-radius: 4px;
+  padding: 10px 14px;
+  font-size: 14px;
+  margin-top: 12px;
+}

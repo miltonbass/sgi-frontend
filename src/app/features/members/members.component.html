@@ -1,0 +1,114 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1 class="page-title">Miembros</h1>
+    @if (canCreate) {
+      <button mat-raised-button color="primary" (click)="openCreate()">
+        <mat-icon>person_add</mat-icon>
+        Nuevo Miembro
+      </button>
+    }
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-row">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Buscar por nombre, cédula o email</mat-label>
+      <input matInput [formControl]="searchCtrl" />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="estado-field">
+      <mat-label>Estado</mat-label>
+      <mat-select [formControl]="estadoCtrl">
+        <mat-option value="">Todos</mat-option>
+        <mat-option value="VISITOR">Visitante</mat-option>
+        <mat-option value="MIEMBRO">Miembro</mat-option>
+        <mat-option value="INACTIVO">Inactivo</mat-option>
+        <mat-option value="RESTAURADO">Restaurado</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-center"><mat-spinner /></div>
+  } @else {
+    <div class="table-card">
+      <table mat-table [dataSource]="miembros()" class="full-width">
+
+        <ng-container matColumnDef="numeroMiembro">
+          <th mat-header-cell *matHeaderCellDef># Miembro</th>
+          <td mat-cell *matCellDef="let m">{{ m.numeroMiembro || '—' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="nombre">
+          <th mat-header-cell *matHeaderCellDef>Nombre completo</th>
+          <td mat-cell *matCellDef="let m">
+            <a [routerLink]="['/miembros', m.id]" class="member-link">
+              {{ m.nombres }} {{ m.apellidos }}
+            </a>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="cedula">
+          <th mat-header-cell *matHeaderCellDef>Cédula</th>
+          <td mat-cell *matCellDef="let m">{{ m.cedula || '—' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="telefono">
+          <th mat-header-cell *matHeaderCellDef>Teléfono</th>
+          <td mat-cell *matCellDef="let m">{{ m.telefono || '—' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="estado">
+          <th mat-header-cell *matHeaderCellDef>Estado</th>
+          <td mat-cell *matCellDef="let m">
+            <span class="chip-estado" [ngClass]="estadoClass(m.estado)">
+              {{ estadoLabel(m.estado) }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let m">
+            <button mat-icon-button [routerLink]="['/miembros', m.id]" matTooltip="Ver perfil">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            @if (canCreate) {
+              <button mat-icon-button matTooltip="Editar" (click)="openEdit(m)">
+                <mat-icon>edit</mat-icon>
+              </button>
+            }
+            @if (canChangeStatus) {
+              <button mat-icon-button matTooltip="Cambiar estado" (click)="openCambioEstado(m)">
+                <mat-icon>swap_horiz</mat-icon>
+              </button>
+            }
+            @if (canDelete && m.estado !== 'INACTIVO') {
+              <button mat-icon-button matTooltip="Inactivar" color="warn" (click)="openInactivar(m)">
+                <mat-icon>person_off</mat-icon>
+              </button>
+            }
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
+            No se encontraron miembros
+          </td>
+        </tr>
+      </table>
+
+      <mat-paginator
+        [length]="total()"
+        [pageIndex]="pageIndex()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="[10, 20, 50]"
+        showFirstLastButtons
+        (page)="onPage($event)"
+      />
+    </div>
+  }
+</div>

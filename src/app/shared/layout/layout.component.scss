@@ -1,0 +1,84 @@
+.sidenav-container {
+  height: 100vh;
+}
+
+.sidenav {
+  width: 240px;
+  background: #1a237e;
+  color: #fff;
+}
+
+.sidenav-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 16px;
+
+  .brand-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: #e8eaf6;
+  }
+
+  .brand-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+  }
+
+  .brand-subtitle {
+    font-size: 11px;
+    color: #9fa8da;
+    margin-top: 2px;
+  }
+}
+
+mat-nav-list {
+  padding-top: 8px;
+
+  a[mat-list-item] {
+    color: #c5cae9;
+    border-radius: 0 24px 24px 0;
+    margin-right: 8px;
+
+    mat-icon { color: #9fa8da; }
+
+    &:hover {
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      mat-icon { color: #fff; }
+    }
+
+    &.active-nav-item {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      font-weight: 500;
+      mat-icon { color: #e8eaf6; }
+    }
+  }
+}
+
+.app-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.user-email {
+  font-size: 14px;
+  margin-right: 8px;
+  opacity: 0.9;
+}
+
+.main-content {
+  min-height: calc(100vh - 64px);
+  background: #f5f5f5;
+}
+
+.user-menu-header {
+  padding: 12px 16px;
+  min-width: 200px;
+  line-height: 1.6;
+}
