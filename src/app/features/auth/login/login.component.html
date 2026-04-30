@@ -20,58 +20,104 @@
   <div class="login-right">
     <mat-card class="login-card">
       <mat-card-content>
-        <div class="login-heading">
-          <h2>Bienvenido</h2>
-          <p>Ingresa tus credenciales para continuar</p>
-        </div>
 
-        <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Correo electrónico</mat-label>
-            <input matInput formControlName="email" type="email" autocomplete="email" />
-            <mat-icon matSuffix>email</mat-icon>
-            @if (form.get('email')?.touched && form.get('email')?.hasError('required')) {
-              <mat-error>Correo requerido</mat-error>
-            }
-            @if (form.get('email')?.touched && form.get('email')?.hasError('email')) {
-              <mat-error>Correo inválido</mat-error>
-            }
-          </mat-form-field>
+        <!-- ── PASO 1: Email ───────────────────────────────── -->
+        @if (step() === 'email') {
+          <div class="login-heading">
+            <h2>Bienvenido</h2>
+            <p>Ingresa tu correo electrónico para continuar</p>
+          </div>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Contraseña</mat-label>
-            <input matInput formControlName="password"
-              [type]="hidePass() ? 'password' : 'text'"
-              autocomplete="current-password" />
-            <button mat-icon-button matSuffix type="button" (click)="hidePass.set(!hidePass())">
-              <mat-icon>{{ hidePass() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          <form [formGroup]="emailForm" (ngSubmit)="continuar()" novalidate>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Correo electrónico</mat-label>
+              <input matInput formControlName="email" type="email" autocomplete="email" />
+              <mat-icon matSuffix>email</mat-icon>
+              @if (emailForm.get('email')?.touched && emailForm.get('email')?.hasError('required')) {
+                <mat-error>Correo requerido</mat-error>
+              }
+              @if (emailForm.get('email')?.touched && emailForm.get('email')?.hasError('email')) {
+                <mat-error>Correo inválido</mat-error>
+              }
+            </mat-form-field>
+
+            @if (error()) {
+              <div class="form-error">{{ error() }}</div>
+            }
+
+            <button
+              mat-raised-button
+              color="primary"
+              type="submit"
+              class="full-width login-btn"
+              [disabled]="loading() || emailForm.invalid"
+            >
+              @if (loading()) { <mat-spinner diameter="20" /> }
+              @else { Continuar }
             </button>
-            @if (form.get('password')?.touched && form.get('password')?.hasError('required')) {
-              <mat-error>Contraseña requerida</mat-error>
+          </form>
+        }
+
+        <!-- ── PASO 2: Sede + Contraseña ──────────────────── -->
+        @if (step() === 'login') {
+          <div class="login-heading">
+            <h2>Selecciona tu sede</h2>
+            <div class="email-badge">
+              <mat-icon class="email-badge-icon">account_circle</mat-icon>
+              <span>{{ email }}</span>
+              <button mat-icon-button type="button" (click)="back()" matTooltip="Cambiar correo" class="back-btn">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <form [formGroup]="loginForm" (ngSubmit)="submit()" novalidate>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Sede</mat-label>
+              <mat-select formControlName="tenantId">
+                @for (sede of sedes(); track sede.id) {
+                  <mat-option [value]="sede.codigo">
+                    {{ sede.nombreCorto }}
+                  </mat-option>
+                }
+              </mat-select>
+              <mat-icon matSuffix>business</mat-icon>
+              @if (loginForm.get('tenantId')?.touched && loginForm.get('tenantId')?.hasError('required')) {
+                <mat-error>Selecciona una sede</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Contraseña</mat-label>
+              <input matInput formControlName="password"
+                [type]="hidePass() ? 'password' : 'text'"
+                autocomplete="current-password" />
+              <button mat-icon-button matSuffix type="button" (click)="hidePass.set(!hidePass())">
+                <mat-icon>{{ hidePass() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+              @if (loginForm.get('password')?.touched && loginForm.get('password')?.hasError('required')) {
+                <mat-error>Contraseña requerida</mat-error>
+              }
+            </mat-form-field>
+
+            @if (error()) {
+              <div class="form-error">{{ error() }}</div>
             }
-          </mat-form-field>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Sede (Tenant ID)</mat-label>
-            <input matInput formControlName="tenantId" />
-            <mat-icon matSuffix>business</mat-icon>
-          </mat-form-field>
+            <button
+              mat-raised-button
+              color="primary"
+              type="submit"
+              class="full-width login-btn"
+              [disabled]="loading() || loginForm.invalid"
+            >
+              @if (loading()) { <mat-spinner diameter="20" /> }
+              @else { Ingresar }
+            </button>
+          </form>
+        }
 
-          @if (error()) {
-            <div class="form-error">{{ error() }}</div>
-          }
-
-          <button
-            mat-raised-button
-            color="primary"
-            type="submit"
-            class="full-width login-btn"
-            [disabled]="loading() || form.invalid"
-          >
-            @if (loading()) { <mat-spinner diameter="20" /> }
-            @else { Ingresar }
-          </button>
-        </form>
       </mat-card-content>
     </mat-card>
   </div>

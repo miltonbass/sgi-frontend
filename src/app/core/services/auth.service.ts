@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap, catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
-import { LoginRequest, LoginResponse, UsuarioAuth, JwtClaims } from '../models/auth.model';
+import { LoginRequest, LoginResponse, UsuarioAuth, JwtClaims, SedeInfo } from '../models/auth.model';
 import { environment } from '../../../environments/environment';
 
 const TOKEN_KEY = 'sgi_access_token';
@@ -18,6 +18,10 @@ export class AuthService {
 
   readonly currentUser = signal<UsuarioAuth | null>(this.restoreUser());
   readonly isAuthenticated = signal<boolean>(this.checkValidToken());
+
+  getSedes(email: string) {
+    return this.http.get<SedeInfo[]>(`${this.baseUrl}/sedes`, { params: { email } });
+  }
 
   login(request: LoginRequest) {
     return this.http.post<LoginResponse>(`${this.baseUrl}/login`, request).pipe(
