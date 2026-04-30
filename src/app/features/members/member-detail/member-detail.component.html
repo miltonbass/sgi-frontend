@@ -24,6 +24,11 @@
           <mat-icon>swap_horiz</mat-icon> Cambiar estado
         </button>
       }
+      @if (canAsignarConsolidador) {
+        <button mat-stroked-button (click)="openConsolidador()">
+          <mat-icon>person_pin</mat-icon> Consolidador
+        </button>
+      }
     </div>
 
     <div class="detail-grid">
@@ -71,7 +76,11 @@
             </div>
             <div class="info-item">
               <span class="info-label">Teléfono</span>
-              <span class="info-value">{{ p.datos.telefono || '—' }}</span>
+              @if (esPastorPrincipal) {
+                <span class="info-value dato-oculto">••••••••</span>
+              } @else {
+                <span class="info-value">{{ p.datos.telefono || '—' }}</span>
+              }
             </div>
             <div class="info-item">
               <span class="info-label">Ciudad</span>
@@ -79,7 +88,11 @@
             </div>
             <div class="info-item">
               <span class="info-label">Dirección</span>
-              <span class="info-value">{{ p.datos.direccion || '—' }}</span>
+              @if (esPastorPrincipal) {
+                <span class="info-value dato-oculto">••••••••</span>
+              } @else {
+                <span class="info-value">{{ p.datos.direccion || '—' }}</span>
+              }
             </div>
           </div>
         </mat-card-content>
@@ -99,6 +112,10 @@
             <div class="info-item">
               <span class="info-label">Fecha de bautismo</span>
               <span class="info-value">{{ p.datos.fechaBautismo ? (p.datos.fechaBautismo | date:'dd/MM/yyyy') : '—' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Consolidador</span>
+              <span class="info-value">{{ p.datos.consolidadorNombre || '—' }}</span>
             </div>
             <div class="info-item">
               <span class="info-label">Nivel de acceso</span>

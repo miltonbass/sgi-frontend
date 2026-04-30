@@ -1,0 +1,101 @@
+import { Component, inject, signal, OnInit } from '@angular/core';
+import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
+import { debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
+import { GrupoService } from '../../../core/services/grupo.service';
+import { MemberService } from '../../../core/services/member.service';
+import { Grupo, TipoGrupo, TIPO_GRUPO_LABELS } from '../../../core/models/grupo.model';
+import { Miembro } from '../../../core/models/member.model';
+
+@Component({
+  selector: 'app-grupo-form',
+  standalone: true,
+  imports: [
+    ReactiveFormsModule, MatDialogModule, MatFormFieldModule,
+    MatInputModule, MatSelectModule, MatAutocompleteModule,
+    MatButtonModule, MatProgressSpinnerModule, MatIconModule,
+  ],
+  templateUrl: './grupo-form.component.html',
+})
+export class GrupoFormComponent implements OnInit {
+  private readonly fb           = inject(FormBuilder);
+  private readonly grupoService = inject(GrupoService);
+  private readonly memberService = inject(MemberService);
+  private readonly dialogRef    = inject(MatDialogRef<GrupoFormComponent>);
+  readonly data: Grupo | null   = inject(MAT_DIALOG_DATA);
+
+  readonly loading        = signal(false);
+  readonly error          = signal('');
+  readonly isEdit         = !!this.data;
+  readonly liderOpciones  = signal<Miembro[]>([]);
+  readonly tipos          = Object.keys(TIPO_GRUPO_LABELS) as TipoGrupo[];
+  readonly tipoLabels     = TIPO_GRUPO_LABELS;
+
+  form = this.fb.group({
+    nombre:      [this.data?.nombre      ?? '', Validators.required],
+    tipo:        [this.data?.tipo        ?? '' as TipoGrupo, Validators.required],
+    descripcion: [this.data?.descripcion ?? ''],
+    liderSearch: [this.data?.liderNombre ?? ''],
+    liderId:     [this.data?.liderId     ?? ''],
+  });
+
+  get title() { return this.isEdit ? 'Editar Grupo' : 'Nuevo Grupo'; }
+
+  ngOnInit() {
+    this.form.get('liderSearch')!.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(q => q && q.length >= 2
+        ? this.memberService.buscar({ q, size: 10 })
+        : of({ content: [] } as any)
+      ),
+    ).subscribe(res => this.liderOpciones.set(res.content ?? []));
+  }
+
+  seleccionarLider(miembro: Miembro) {
+    this.form.patchValue({
+      liderSearch: `${miembro.nombres} ${miembro.apellidos}`,
+      liderId: miembro.id,
+    });
+  }
+
+  limpiarLider() {
+    this.form.patchValue({ liderSearch: '', liderId: '' });
+    this.liderOpciones.set([]);
+  }
+
+  submit() {
+    if (this.form.invalid) return;
+    this.loading.set(true);
+    this.error.set('');
+
+    const raw = this.form.getRawValue();
+    const payload = {
+      nombre:      raw.nombre!,
+      tipo:        raw.tipo!,
+      descripcion: raw.descripcion || undefined,
+      liderId:     raw.liderId     || undefined,
+    };
+
+    const op$ = this.isEdit
+      ? this.grupoService.update(this.data!.id, payload)
+      : this.grupoService.create(payload);
+
+    op$.subscribe({
+      next: () => { this.loading.set(false); this.dialogRef.close(true); },
+      error: err => {
+        this.loading.set(false);
+        this.error.set(err.error?.mensaje ?? 'Error al guardar');
+      },
+    });
+  }
+
+  cancel() { this.dialogRef.close(false); }
+}

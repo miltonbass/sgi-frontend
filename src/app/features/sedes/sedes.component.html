@@ -1,0 +1,86 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1 class="page-title">Sedes</h1>
+    <button mat-raised-button color="primary" (click)="openCreate()">
+      <mat-icon>add</mat-icon>
+      Nueva Sede
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-center"><mat-spinner /></div>
+  } @else {
+    <div class="table-card">
+      <table mat-table [dataSource]="sedes()" class="full-width">
+
+        <ng-container matColumnDef="codigo">
+          <th mat-header-cell *matHeaderCellDef>Código</th>
+          <td mat-cell *matCellDef="let s">
+            <code class="sede-codigo">{{ s.codigo }}</code>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="nombreCorto">
+          <th mat-header-cell *matHeaderCellDef>Nombre corto</th>
+          <td mat-cell *matCellDef="let s">{{ s.nombreCorto }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="nombre">
+          <th mat-header-cell *matHeaderCellDef>Nombre completo</th>
+          <td mat-cell *matCellDef="let s">{{ s.nombre }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="ciudad">
+          <th mat-header-cell *matHeaderCellDef>Ciudad</th>
+          <td mat-cell *matCellDef="let s">{{ s.ciudad }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Estado</th>
+          <td mat-cell *matCellDef="let s">
+            @if (s.activa) {
+              <span class="chip-estado estado-miembro">Activa</span>
+            } @else {
+              <span class="chip-estado estado-inactivo">Inactiva</span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let s">
+            <button mat-icon-button matTooltip="Editar" (click)="openEdit(s)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            @if (s.activa) {
+              <button mat-icon-button matTooltip="Desactivar" (click)="toggleStatus(s)" class="btn-danger">
+                <mat-icon>block</mat-icon>
+              </button>
+            } @else {
+              <button mat-icon-button matTooltip="Activar" (click)="toggleStatus(s)" class="btn-success">
+                <mat-icon>check_circle</mat-icon>
+              </button>
+            }
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
+            No hay sedes registradas
+          </td>
+        </tr>
+      </table>
+
+      <mat-paginator
+        [length]="total()"
+        [pageIndex]="pageIndex()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="[10, 20, 50]"
+        showFirstLastButtons
+        (page)="onPage($event)"
+      />
+    </div>
+  }
+</div>

@@ -1,12 +1,18 @@
 <div class="page-container">
   <div class="page-header">
     <h1 class="page-title">Miembros</h1>
-    @if (canCreate) {
-      <button mat-raised-button color="primary" (click)="openCreate()">
-        <mat-icon>person_add</mat-icon>
-        Nuevo Miembro
-      </button>
-    }
+    <div class="header-actions">
+      @if (canCreate) {
+        <button mat-stroked-button (click)="openImport()">
+          <mat-icon>upload</mat-icon>
+          Importar CSV
+        </button>
+        <button mat-raised-button color="primary" (click)="openCreate()">
+          <mat-icon>person_add</mat-icon>
+          Nuevo Miembro
+        </button>
+      }
+    </div>
   </div>
 
   <!-- Filtros -->

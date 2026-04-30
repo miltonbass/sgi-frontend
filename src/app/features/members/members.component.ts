@@ -21,6 +21,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { Miembro, EstadoMiembro, ESTADO_LABELS, ESTADO_COLORS, TRANSICIONES_ESTADO } from '../../core/models/member.model';
 import { MemberFormComponent } from './member-form/member-form.component';
 import { MemberStatusDialogComponent } from './member-status-dialog/member-status-dialog.component';
+import { MemberImportDialogComponent } from './member-import-dialog/member-import-dialog.component';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 
 @Component({
@@ -104,6 +105,12 @@ export class MembersComponent implements OnInit, OnDestroy {
     this.pageIndex.set(e.pageIndex);
     this.pageSize.set(e.pageSize);
     this.load();
+  }
+
+  openImport() {
+    this.dialog
+      .open(MemberImportDialogComponent, { width: '520px', disableClose: true })
+      .afterClosed().subscribe(ok => ok && this.load());
   }
 
   openCreate() {

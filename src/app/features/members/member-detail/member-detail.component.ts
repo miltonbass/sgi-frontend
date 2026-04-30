@@ -15,6 +15,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { PerfilMiembro, ESTADO_LABELS, ESTADO_COLORS } from '../../../core/models/member.model';
 import { MemberFormComponent } from '../member-form/member-form.component';
 import { MemberStatusDialogComponent } from '../member-status-dialog/member-status-dialog.component';
+import { MemberConsolidadorDialogComponent } from '../member-consolidador-dialog/member-consolidador-dialog.component';
 
 @Component({
   selector: 'app-member-detail',
@@ -43,8 +44,10 @@ export class MemberDetailComponent implements OnInit {
 
   readonly historialColumns = ['fecha', 'anterior', 'nuevo', 'motivo'];
 
-  canEdit = this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'SECRETARIA', 'REGISTRO_SEDE']);
-  canChangeStatus = this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_PRINCIPAL', 'PASTOR_SEDE']);
+  canEdit           = this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'SECRETARIA', 'REGISTRO_SEDE']);
+  canChangeStatus   = this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_PRINCIPAL', 'PASTOR_SEDE']);
+  canAsignarConsolidador = this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'CONSOLIDACION_SEDE']);
+  esPastorPrincipal = this.auth.hasRole('PASTOR_PRINCIPAL');
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!;
@@ -78,6 +81,18 @@ export class MemberDetailComponent implements OnInit {
       .open(MemberStatusDialogComponent, { width: '420px', data: miembro })
       .afterClosed()
       .subscribe(ok => ok && this.load(miembro.id));
+  }
+
+  openConsolidador() {
+    const miembro = this.perfil()?.datos;
+    if (!miembro) return;
+    this.dialog.open(MemberConsolidadorDialogComponent, {
+      width: '460px',
+      data: {
+        miembroId: miembro.id,
+        consolidadorActual: miembro.consolidadorNombre ?? null,
+      },
+    }).afterClosed().subscribe(ok => ok && this.load(miembro.id));
   }
 
   estadoLabel(e: string) { return ESTADO_LABELS[e as keyof typeof ESTADO_LABELS] ?? e; }

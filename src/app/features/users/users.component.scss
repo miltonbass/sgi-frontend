@@ -2,7 +2,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 28px;
+  margin-bottom: 16px;
 }
 
 .page-title {
@@ -10,4 +10,33 @@
   font-weight: 700;
   color: #2d3748;
   margin: 0;
+}
+
+.filters-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+
+  .rol-field { width: 260px; }
+}
+
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-avatar-sm {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(60deg, #5c6bc0, #3949ab);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  text-transform: uppercase;
 }

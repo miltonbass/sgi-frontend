@@ -1,7 +1,11 @@
 <h2 mat-dialog-title>{{ title }}</h2>
 
-<mat-dialog-content>
+<mat-dialog-content class="dialog-content">
   <form [formGroup]="form" novalidate>
+
+    <!-- Datos personales -->
+    <p class="section-label">Datos personales</p>
+
     <div class="form-row">
       <mat-form-field appearance="outline">
         <mat-label>Nombre</mat-label>
@@ -22,7 +26,7 @@
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Correo electrónico</mat-label>
-      <input matInput formControlName="email" type="email" [readonly]="isEdit" />
+      <input matInput formControlName="email" type="email" />
       <mat-icon matSuffix>email</mat-icon>
       @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
         <mat-error>Requerido</mat-error>
@@ -53,21 +57,73 @@
       </mat-slide-toggle>
     }
 
+    <!-- ── Sedes (solo creación) ───────────────────────────── -->
+    @if (!isEdit) {
+      <mat-divider style="margin: 16px 0" />
+      <p class="section-label">Sede y roles (opcional)</p>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Sede inicial</mat-label>
+        <mat-select formControlName="sedeId">
+          <mat-option value="">Sin sede</mat-option>
+          @for (s of sedes(); track s.id) {
+            <mat-option [value]="s.id">{{ s.nombreCorto }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      @if (form.get('sedeId')?.value) {
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Roles en esta sede</mat-label>
+          <mat-select formControlName="sedesRoles" multiple>
+            @for (rol of roles; track rol) {
+              <mat-option [value]="rol">{{ rol }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      }
+    }
+
+    <!-- ── Sedes (modo edición) ───────────────────────────── -->
+    @if (isEdit) {
+      <mat-divider style="margin: 16px 0" />
+      <div class="sedes-header">
+        <p class="section-label" style="margin:0">Sedes asignadas</p>
+        <button mat-stroked-button type="button" (click)="openAsignarSede()">
+          <mat-icon>add</mat-icon> Agregar sede
+        </button>
+      </div>
+
+      @if (sedesUsuario().length === 0) {
+        <p class="no-sedes">Sin sedes asignadas</p>
+      } @else {
+        @for (sede of sedesUsuario(); track sede.sedeId) {
+          <div class="sede-item">
+            <div class="sede-item-info">
+              <span class="sede-item-nombre">{{ sede.sedeNombre }}</span>
+              <span class="sede-item-roles">{{ sede.roles.join(', ') }}</span>
+            </div>
+            <button mat-icon-button matTooltip="Quitar sede" type="button"
+              (click)="quitarSede(sede)" class="btn-danger-icon">
+              <mat-icon>remove_circle_outline</mat-icon>
+            </button>
+          </div>
+        }
+      }
+    }
+
     @if (error()) {
-      <div class="form-error">{{ error() }}</div>
+      <div class="form-error" style="margin-top:12px">{{ error() }}</div>
     }
   </form>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button (click)="cancel()" [disabled]="loading()">Cancelar</button>
-  <button
-    mat-raised-button
-    color="primary"
-    (click)="submit()"
-    [disabled]="loading() || form.invalid"
-  >
-    @if (loading()) { <mat-spinner diameter="18" /> }
-    @else { Guardar }
+  <button mat-button (click)="cancel()" [disabled]="loading()">
+    {{ isEdit ? 'Cerrar' : 'Cancelar' }}
+  </button>
+  <button mat-raised-button color="primary"
+    (click)="submit()" [disabled]="loading() || form.invalid">
+    @if (loading()) { <mat-spinner diameter="18" /> } @else { Guardar }
   </button>
 </mat-dialog-actions>

@@ -1,0 +1,65 @@
+<h2 mat-dialog-title>{{ title }}</h2>
+
+<mat-dialog-content class="dialog-content">
+  <form [formGroup]="form" novalidate>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Código</mat-label>
+      <input matInput formControlName="codigo" placeholder="Ej: PAI_BOG" />
+      <mat-icon matSuffix>tag</mat-icon>
+      @if (form.get('codigo')?.touched && form.get('codigo')?.hasError('required')) {
+        <mat-error>El código es requerido</mat-error>
+      }
+      @if (isEdit) {
+        <mat-hint>El código no se puede modificar</mat-hint>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Nombre corto</mat-label>
+      <input matInput formControlName="nombreCorto" placeholder="Ej: Iglesia PAI Bogotá" />
+      @if (form.get('nombreCorto')?.touched && form.get('nombreCorto')?.hasError('required')) {
+        <mat-error>El nombre corto es requerido</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Nombre completo</mat-label>
+      <input matInput formControlName="nombre" placeholder="Ej: Iglesia Pentecostal Unida — Bogotá Centro" />
+      @if (form.get('nombre')?.touched && form.get('nombre')?.hasError('required')) {
+        <mat-error>El nombre completo es requerido</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Ciudad</mat-label>
+        <input matInput formControlName="ciudad" />
+        @if (form.get('ciudad')?.touched && form.get('ciudad')?.hasError('required')) {
+          <mat-error>La ciudad es requerida</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>País</mat-label>
+        <input matInput formControlName="pais" />
+      </mat-form-field>
+    </div>
+
+    @if (error()) {
+      <div class="form-error">{{ error() }}</div>
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button [disabled]="loading()" (click)="cancel()">Cancelar</button>
+  <button
+    mat-raised-button
+    color="primary"
+    [disabled]="loading() || form.invalid"
+    (click)="submit()"
+  >
+    @if (loading()) { <mat-spinner diameter="18" /> } @else { Guardar }
+  </button>
+</mat-dialog-actions>

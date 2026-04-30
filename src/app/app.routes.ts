@@ -13,6 +13,19 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'miembros', pathMatch: 'full' },
       {
+        path: 'grupos',
+        loadComponent: () => import('./features/grupos/grupos.component').then(m => m.GruposComponent),
+      },
+      {
+        path: 'grupos/:id',
+        loadComponent: () => import('./features/grupos/grupo-detail/grupo-detail.component').then(m => m.GrupoDetailComponent),
+      },
+      {
+        path: 'sedes',
+        loadComponent: () => import('./features/sedes/sedes.component').then(m => m.SedesComponent),
+        canActivate: [roleGuard(['ADMIN_GLOBAL'])],
+      },
+      {
         path: 'usuarios',
         loadComponent: () => import('./features/users/users.component').then(m => m.UsersComponent),
         canActivate: [roleGuard(['ADMIN_GLOBAL', 'SUPER_ADMIN', 'ADMIN_SEDE'])],

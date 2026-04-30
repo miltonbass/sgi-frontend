@@ -8,6 +8,7 @@ import {
   PerfilMiembro,
   HistorialEstado,
   EstadoMiembro,
+  ImportResult,
 } from '../models/member.model';
 import { environment } from '../../../environments/environment';
 
@@ -64,6 +65,6 @@ export class MemberService {
     const formData = new FormData();
     formData.append('archivo', archivo);
     formData.append('estadoDefault', estadoDefault);
-    return this.http.post(`${this.baseUrl}/import`, formData);
+    return this.http.post<ImportResult>(`${this.baseUrl}/import`, formData);
   }
 }

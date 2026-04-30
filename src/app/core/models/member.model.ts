@@ -23,6 +23,7 @@ export interface Miembro {
   fechaBautismo: string;
   grupoId: string | null;
   consolidadorId: string | null;
+  consolidadorNombre: string | null;
   metadata: Record<string, unknown>;
   creadoEn: string;
   actualizadoEn: string;
@@ -52,6 +53,7 @@ export interface CreateMiembroRequest {
   fechaIngreso?: string;
   fechaBautismo?: string | null;
   grupoId?: string | null;
+  consolidadorId?: string | null;
   metadata?: Record<string, unknown>;
 }
 
@@ -90,6 +92,17 @@ export interface PerfilMiembro {
   grupos: GrupoMiembro[];
   asistenciaReciente: AsistenciaReciente[];
   nivelAcceso: 'COMPLETO' | 'BASICO';
+}
+
+export interface ImportError {
+  linea: number;
+  mensaje: string;
+}
+
+export interface ImportResult {
+  importados: number;
+  omitidos: number;
+  errores: ImportError[];
 }
 
 export const TRANSICIONES_ESTADO: Record<EstadoMiembro, EstadoMiembro[]> = {

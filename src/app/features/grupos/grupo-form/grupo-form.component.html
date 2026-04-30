@@ -1,0 +1,67 @@
+<h2 mat-dialog-title>{{ title }}</h2>
+
+<mat-dialog-content class="dialog-content">
+  <form [formGroup]="form" novalidate>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Nombre del grupo</mat-label>
+        <input matInput formControlName="nombre" />
+        @if (form.get('nombre')?.touched && form.get('nombre')?.hasError('required')) {
+          <mat-error>Requerido</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Tipo</mat-label>
+        <mat-select formControlName="tipo">
+          @for (t of tipos; track t) {
+            <mat-option [value]="t">{{ tipoLabels[t] }}</mat-option>
+          }
+        </mat-select>
+        @if (form.get('tipo')?.touched && form.get('tipo')?.hasError('required')) {
+          <mat-error>Requerido</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Descripción</mat-label>
+      <textarea matInput formControlName="descripcion" rows="2"></textarea>
+    </mat-form-field>
+
+    <!-- Búsqueda de líder con autocomplete -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Líder del grupo</mat-label>
+      <input matInput formControlName="liderSearch"
+        [matAutocomplete]="autoLider"
+        placeholder="Busca por nombre..." />
+      <mat-icon matSuffix>person_search</mat-icon>
+      @if (form.get('liderId')?.value) {
+        <button matSuffix mat-icon-button type="button" (click)="limpiarLider()" matTooltip="Quitar líder">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+      <mat-autocomplete #autoLider (optionSelected)="seleccionarLider($event.option.value)">
+        @for (m of liderOpciones(); track m.id) {
+          <mat-option [value]="m">
+            {{ m.nombres }} {{ m.apellidos }}
+            <small style="color:#a0aec0"> — {{ m.email }}</small>
+          </mat-option>
+        }
+      </mat-autocomplete>
+    </mat-form-field>
+
+    @if (error()) {
+      <div class="form-error">{{ error() }}</div>
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button [disabled]="loading()" (click)="cancel()">Cancelar</button>
+  <button mat-raised-button color="primary"
+    [disabled]="loading() || form.invalid" (click)="submit()">
+    @if (loading()) { <mat-spinner diameter="18" /> } @else { Guardar }
+  </button>
+</mat-dialog-actions>
