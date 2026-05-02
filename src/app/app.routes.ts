@@ -41,6 +41,12 @@ export const routes: Routes = [
             m => m.MemberDetailComponent,
           ),
       },
+      {
+        path: 'eventos',
+        loadComponent: () =>
+          import('./features/eventos/eventos.component').then(m => m.EventosComponent),
+        canActivate: [roleGuard(['ADMIN_SEDE', 'PASTOR_SEDE', 'LIDER_GRUPO', 'SECRETARIO_SEDE'])],
+      },
     ],
   },
   { path: '**', redirectTo: '' },

@@ -1,0 +1,123 @@
+<h2 mat-dialog-title>{{ title }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form">
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Título</mat-label>
+      <input matInput formControlName="titulo" maxlength="200" />
+      @if (form.get('titulo')?.touched && form.get('titulo')?.hasError('required')) {
+        <mat-error>El título es obligatorio</mat-error>
+      }
+      @if (form.get('titulo')?.hasError('maxlength')) {
+        <mat-error>Máximo 200 caracteres</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="flex-2">
+        <mat-label>Tipo</mat-label>
+        <mat-select formControlName="tipo">
+          @for (t of tiposEvento; track t) {
+            <mat-option [value]="t">{{ tipoLabels[t] }}</mat-option>
+          }
+        </mat-select>
+        @if (form.get('tipo')?.touched && form.get('tipo')?.hasError('required')) {
+          <mat-error>El tipo es obligatorio</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="flex-1">
+        <mat-label>Capacidad</mat-label>
+        <input matInput type="number" formControlName="capacidad" min="1" />
+        @if (form.get('capacidad')?.hasError('min')) {
+          <mat-error>Mínimo 1</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="flex-1">
+        <mat-label>Fecha y hora inicio</mat-label>
+        <input matInput type="datetime-local" formControlName="fechaInicio" />
+        @if (form.get('fechaInicio')?.touched && form.get('fechaInicio')?.hasError('required')) {
+          <mat-error>La fecha de inicio es obligatoria</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="flex-1">
+        <mat-label>Fecha y hora fin (opcional)</mat-label>
+        <input matInput type="datetime-local" formControlName="fechaFin" />
+        @if (form.hasError('fechaFinAnterior')) {
+          <mat-error>No puede ser anterior a la fecha de inicio</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Lugar (opcional)</mat-label>
+      <input matInput formControlName="lugar" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Descripción (opcional)</mat-label>
+      <textarea matInput formControlName="descripcion" rows="3"></textarea>
+    </mat-form-field>
+
+    <div class="recurrente-row">
+      <mat-checkbox formControlName="recurrente"
+        (change)="onRecurrenteChange($event.checked)">
+        Evento recurrente
+      </mat-checkbox>
+    </div>
+
+    @if (showPatron()) {
+      <div class="patron-section">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Frecuencia</mat-label>
+            <mat-select formControlName="patronFrecuencia">
+              @for (f of frecuencias; track f) {
+                <mat-option [value]="f">{{ frecuenciaLabels[f] }}</mat-option>
+              }
+            </mat-select>
+            @if (form.get('patronFrecuencia')?.touched && form.get('patronFrecuencia')?.hasError('required')) {
+              <mat-error>La frecuencia es obligatoria</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="flex-1">
+            <mat-label>Día de la semana (opcional)</mat-label>
+            <mat-select formControlName="patronDiaSemana">
+              <mat-option value="">Sin especificar</mat-option>
+              @for (d of diasSemana; track d) {
+                <mat-option [value]="d">{{ diaSemanaLabels[d] }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Hasta (fecha límite, opcional)</mat-label>
+          <input matInput type="date" formControlName="patronHasta" />
+        </mat-form-field>
+      </div>
+    }
+
+    @if (error()) {
+      <p class="error-msg">{{ error() }}</p>
+    }
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()" [disabled]="loading()">Cancelar</button>
+  <button mat-raised-button color="primary" (click)="submit()" [disabled]="loading()">
+    @if (loading()) {
+      <mat-spinner diameter="18" />
+    } @else {
+      {{ isEdit ? 'Guardar' : 'Crear' }}
+    }
+  </button>
+</mat-dialog-actions>

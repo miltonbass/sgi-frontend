@@ -1,0 +1,142 @@
+<div class="page-container">
+
+  <div class="page-header">
+    <h2 class="page-title">Eventos</h2>
+    @if (canWrite) {
+      <button mat-raised-button color="primary" (click)="openCreate()">
+        <mat-icon>add</mat-icon> Nuevo Evento
+      </button>
+    }
+  </div>
+
+  <div class="filters-row">
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Tipo</mat-label>
+      <mat-select [formControl]="tipoCtrl">
+        <mat-option value="">Todos</mat-option>
+        @for (t of tiposEvento; track t) {
+          <mat-option [value]="t">{{ tipoLabels[t] }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Estado</mat-label>
+      <mat-select [formControl]="estadoCtrl">
+        <mat-option value="">Todos</mat-option>
+        @for (e of estadosEvento; track e) {
+          <mat-option [value]="e">{{ estadoLabels[e] }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field filter-date">
+      <mat-label>Desde</mat-label>
+      <input matInput type="date" [formControl]="desdeCtrl" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field filter-date">
+      <mat-label>Hasta</mat-label>
+      <input matInput type="date" [formControl]="hastaCtrl" />
+    </mat-form-field>
+
+    <button mat-icon-button matTooltip="Limpiar filtros" (click)="clearFilters()">
+      <mat-icon>filter_list_off</mat-icon>
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="48" />
+    </div>
+  } @else {
+    <mat-table [dataSource]="eventos()" class="events-table">
+
+      <ng-container matColumnDef="titulo">
+        <mat-header-cell *matHeaderCellDef>Título</mat-header-cell>
+        <mat-cell *matCellDef="let e" class="titulo-cell">{{ e.titulo }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="tipo">
+        <mat-header-cell *matHeaderCellDef>Tipo</mat-header-cell>
+        <mat-cell *matCellDef="let e">
+          <span [class]="tipoClass(e.tipo)">{{ tipoLabels[e.tipo] }}</span>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="estado">
+        <mat-header-cell *matHeaderCellDef>Estado</mat-header-cell>
+        <mat-cell *matCellDef="let e">
+          <span [class]="estadoClass(e.estado)">{{ estadoLabels[e.estado] }}</span>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="fechaInicio">
+        <mat-header-cell *matHeaderCellDef>Fecha</mat-header-cell>
+        <mat-cell *matCellDef="let e">
+          {{ e.fechaInicio | date:'dd/MM/yyyy HH:mm':'UTC' }}
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="lugar">
+        <mat-header-cell *matHeaderCellDef>Lugar</mat-header-cell>
+        <mat-cell *matCellDef="let e">{{ e.lugar ?? '—' }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="recurrente">
+        <mat-header-cell *matHeaderCellDef class="center-header">Recurrente</mat-header-cell>
+        <mat-cell *matCellDef="let e" class="center-cell">
+          @if (e.recurrente) {
+            <mat-icon color="primary" matTooltip="Evento recurrente">repeat</mat-icon>
+          } @else {
+            <mat-icon class="muted-icon">remove</mat-icon>
+          }
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="acciones">
+        <mat-header-cell *matHeaderCellDef>Acciones</mat-header-cell>
+        <mat-cell *matCellDef="let e">
+          @if (canWrite) {
+            <button mat-icon-button
+              matTooltip="Editar"
+              [disabled]="!canEdit(e)"
+              (click)="openEdit(e)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button
+              matTooltip="Cambiar estado"
+              [disabled]="!canCambiarEstado(e)"
+              (click)="openCambiarEstado(e)">
+              <mat-icon>swap_horiz</mat-icon>
+            </button>
+            <button mat-icon-button color="warn"
+              matTooltip="Cancelar evento"
+              [disabled]="!canCancelar(e)"
+              (click)="openCancelar(e)">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          }
+        </mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns" />
+      <mat-row *matRowDef="let row; columns: displayedColumns;" />
+
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell no-data-cell" [attr.colspan]="displayedColumns.length">
+          No se encontraron eventos
+        </td>
+      </tr>
+    </mat-table>
+
+    <mat-paginator
+      [length]="total()"
+      [pageIndex]="pageIndex()"
+      [pageSize]="pageSize()"
+      [pageSizeOptions]="[10, 20, 50]"
+      (page)="onPage($event)"
+      showFirstLastButtons />
+  }
+
+</div>

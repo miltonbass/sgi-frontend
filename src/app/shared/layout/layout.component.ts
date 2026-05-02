@@ -27,6 +27,7 @@ const ROUTE_TITLES: { pattern: RegExp; title: string }[] = [
   { pattern: /\/grupos\/.+/,   title: 'Detalle del Grupo' },
   { pattern: /\/grupos/,       title: 'Grupos' },
   { pattern: /\/sedes/,        title: 'Sedes' },
+  { pattern: /\/eventos/,      title: 'Eventos' },
 ];
 
 @Component({
@@ -53,6 +54,7 @@ export class LayoutComponent {
   private readonly navItems: NavItem[] = [
     { path: '/miembros', label: 'Miembros',  icon: 'people',          roles: [] },
     { path: '/grupos',   label: 'Grupos',    icon: 'groups',          roles: [] },
+    { path: '/eventos',  label: 'Eventos',   icon: 'event',           roles: ['ADMIN_SEDE','PASTOR_SEDE','LIDER_GRUPO','SECRETARIO_SEDE'] },
     { path: '/usuarios', label: 'Usuarios',  icon: 'manage_accounts', roles: ['ADMIN_GLOBAL','SUPER_ADMIN','ADMIN_SEDE'] },
     { path: '/sedes',    label: 'Sedes',     icon: 'location_city',   roles: ['ADMIN_GLOBAL'] },
   ];
