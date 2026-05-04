@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -41,6 +42,7 @@ export class EventosComponent implements OnInit {
   private readonly auth          = inject(AuthService);
   private readonly dialog        = inject(MatDialog);
   private readonly snackBar      = inject(MatSnackBar);
+  private readonly router        = inject(Router);
 
   readonly loading   = signal(false);
   readonly eventos   = signal<Evento[]>([]);
@@ -62,6 +64,10 @@ export class EventosComponent implements OnInit {
 
   get canWrite() {
     return this.auth.hasAnyRole(['ADMIN_SEDE', 'PASTOR_SEDE']);
+  }
+
+  get canCheckinRole() {
+    return this.auth.hasAnyRole(['ADMIN_SEDE', 'PASTOR_SEDE', 'SECRETARIO_SEDE', 'REGISTRO_SEDE']);
   }
 
   ngOnInit() {
@@ -176,6 +182,10 @@ export class EventosComponent implements OnInit {
 
   canCancelar(evento: Evento): boolean {
     return evento.estado !== 'CERRADO' && evento.estado !== 'CANCELADO';
+  }
+
+  goToCheckin(evento: Evento) {
+    this.router.navigate(['/eventos', evento.id, 'checkin']);
   }
 
   estadoClass(estado: EstadoEvento): string {

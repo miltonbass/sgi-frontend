@@ -1,0 +1,179 @@
+<div class="checkin-container">
+
+  <!-- Header -->
+  <div class="checkin-header">
+    <div class="header-left">
+      <button mat-icon-button (click)="volver()" matTooltip="Volver a eventos">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-info">
+        <h2 class="evento-titulo">{{ resumen()?.eventoTitulo ?? 'Cargando...' }}</h2>
+        <span class="estado-badge" [class]="'estado-' + (resumen()?.eventoEstado ?? '').toLowerCase()">
+          {{ resumen()?.eventoEstado ?? '' }}
+        </span>
+      </div>
+    </div>
+
+    <div class="header-right">
+      @if (loadingResumen()) {
+        <mat-spinner diameter="24" />
+      } @else {
+        <div class="contador">
+          <mat-icon>people</mat-icon>
+          <span class="contador-texto">{{ contadorTexto }}</span>
+        </div>
+      }
+
+      @if (canCerrar && eventoAbierto) {
+        <button mat-stroked-button color="warn"
+          [disabled]="cerrandoEvento()"
+          (click)="cerrarRegistro()">
+          <mat-icon>lock</mat-icon>
+          Cerrar registro
+        </button>
+      }
+    </div>
+  </div>
+
+  <mat-divider />
+
+  @if (!eventoAbierto && resumen() !== null) {
+    <div class="evento-cerrado-msg">
+      <mat-icon>info</mat-icon>
+      El evento está <strong>{{ resumen()?.eventoEstado }}</strong> — no se pueden registrar más asistencias.
+    </div>
+  }
+
+  <!-- Paneles de registro -->
+  @if (eventoAbierto) {
+    <div class="registro-panels">
+
+      <!-- Buscar miembro -->
+      <div class="panel">
+        <h3 class="panel-title">
+          <mat-icon>search</mat-icon> Buscar miembro
+        </h3>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nombre o teléfono (mín. 2 caracteres)</mat-label>
+          <input matInput [formControl]="searchCtrl" autocomplete="off" />
+          <mat-icon matSuffix>{{ buscando() ? 'hourglass_empty' : 'person_search' }}</mat-icon>
+        </mat-form-field>
+
+        <div class="resultados-list">
+          @if (buscando()) {
+            <div class="buscando">
+              <mat-spinner diameter="20" /> Buscando...
+            </div>
+          }
+
+          @for (m of resultados(); track m.id) {
+            <div class="resultado-item" [class.ya-registrado]="m.yaRegistrado">
+              <div class="resultado-info">
+                <span class="resultado-nombre">{{ m.nombres }} {{ m.apellidos }}</span>
+                @if (m.telefono) {
+                  <span class="resultado-tel">{{ m.telefono }}</span>
+                }
+              </div>
+              <div class="resultado-accion">
+                @if (m.yaRegistrado) {
+                  <span class="registrado-badge">
+                    <mat-icon>check_circle</mat-icon> Ya registrado
+                  </span>
+                } @else {
+                  <button mat-flat-button color="primary"
+                    [disabled]="registrandoMiembroId() === m.id"
+                    (click)="registrarMiembro(m)">
+                    @if (registrandoMiembroId() === m.id) {
+                      <mat-spinner diameter="16" />
+                    } @else {
+                      Registrar
+                    }
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+          @if (!buscando() && resultados().length === 0 && (searchCtrl.value?.length ?? 0) >= 2) {
+            <p class="sin-resultados">Sin resultados</p>
+          }
+        </div>
+      </div>
+
+      <!-- Registrar visitante -->
+      <div class="panel">
+        <h3 class="panel-title">
+          <mat-icon>person_add</mat-icon> Visitante no registrado
+        </h3>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nombre completo *</mat-label>
+          <input matInput [formControl]="visitanteNombreCtrl" />
+          @if (visitanteNombreCtrl.touched && visitanteNombreCtrl.hasError('required')) {
+            <mat-error>El nombre es obligatorio</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Teléfono (opcional)</mat-label>
+          <input matInput [formControl]="visitanteTelefonoCtrl" type="tel" />
+        </mat-form-field>
+
+        <button mat-raised-button color="accent" class="full-width"
+          [disabled]="registrandoVisitante()"
+          (click)="registrarVisitante()">
+          @if (registrandoVisitante()) {
+            <mat-spinner diameter="18" />
+          } @else {
+            <mat-icon>add</mat-icon> Registrar visitante
+          }
+        </button>
+      </div>
+
+    </div>
+  }
+
+  <mat-divider />
+
+  <!-- Lista de asistencias -->
+  <div class="asistencias-section">
+    <h3 class="asistencias-title">
+      Asistencias registradas
+      <span class="count-badge">{{ resumen()?.totalPresentes ?? 0 }}</span>
+    </h3>
+
+    @if (loadingResumen()) {
+      <div class="loading-list"><mat-spinner diameter="32" /></div>
+    } @else if ((resumen()?.asistencias?.length ?? 0) === 0) {
+      <p class="sin-asistencias">Aún no hay registros de asistencia.</p>
+    } @else {
+      <div class="asistencias-list">
+        @for (a of resumen()!.asistencias; track a.id) {
+          <div class="asistencia-item">
+            <mat-icon class="tipo-icon" [class.miembro-icon]="esMiembro(a)">
+              {{ esMiembro(a) ? 'badge' : 'person_outline' }}
+            </mat-icon>
+
+            <div class="asistencia-info">
+              <span class="asistencia-nombre">{{ getNombre(a) }}</span>
+              <span class="asistencia-meta">
+                <span class="tipo-label">{{ esMiembro(a) ? 'Miembro' : 'Visitante' }}</span>
+                · {{ a.creadoEn | date:'HH:mm':'UTC' }}
+              </span>
+            </div>
+
+            @if (canDelete) {
+              <button mat-icon-button color="warn"
+                matTooltip="Eliminar registro"
+                (click)="eliminarAsistencia(a)">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+</div>

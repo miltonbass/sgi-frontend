@@ -97,6 +97,13 @@
       <ng-container matColumnDef="acciones">
         <mat-header-cell *matHeaderCellDef>Acciones</mat-header-cell>
         <mat-cell *matCellDef="let e">
+          @if (canCheckinRole && e.estado === 'ABIERTO') {
+            <button mat-icon-button color="primary"
+              matTooltip="Check-in de asistencia"
+              (click)="goToCheckin(e)">
+              <mat-icon>how_to_reg</mat-icon>
+            </button>
+          }
           @if (canWrite) {
             <button mat-icon-button
               matTooltip="Editar"

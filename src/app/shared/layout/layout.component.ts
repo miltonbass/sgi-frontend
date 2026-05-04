@@ -27,7 +27,8 @@ const ROUTE_TITLES: { pattern: RegExp; title: string }[] = [
   { pattern: /\/grupos\/.+/,   title: 'Detalle del Grupo' },
   { pattern: /\/grupos/,       title: 'Grupos' },
   { pattern: /\/sedes/,        title: 'Sedes' },
-  { pattern: /\/eventos/,      title: 'Eventos' },
+  { pattern: /\/eventos\/.+\/checkin/, title: 'Check-in de Asistencia' },
+  { pattern: /\/eventos/,              title: 'Eventos' },
 ];
 
 @Component({
