@@ -1,7 +1,26 @@
 <h2 mat-dialog-title>{{ title }}</h2>
 
 <mat-dialog-content class="dialog-content">
-  <form [formGroup]="form" novalidate>
+
+  <!-- ── Panel de éxito con contraseña temporal ── -->
+  @if (usuarioCreado()) {
+    <div class="creado-panel">
+      <mat-icon class="creado-icon">check_circle</mat-icon>
+      <p class="creado-titulo">Usuario creado correctamente</p>
+      <p class="creado-detalle">
+        <strong>{{ usuarioCreado()!.nombre }} {{ usuarioCreado()!.apellido }}</strong><br>
+        Usuario: <code>{{ usuarioCreado()!.username }}</code><br>
+        Correo: <code>{{ usuarioCreado()!.email }}</code>
+      </p>
+      <div class="password-box">
+        <span class="password-label">Contraseña temporal</span>
+        <code class="password-valor">{{ usuarioCreado()!.passwordTemporal }}</code>
+      </div>
+      <p class="creado-aviso">Comparte esta contraseña con el usuario. Deberá cambiarla al iniciar sesión por primera vez.</p>
+    </div>
+  }
+
+  <form [formGroup]="form" novalidate [style.display]="usuarioCreado() ? 'none' : 'block'">
 
     <!-- Datos personales -->
     <p class="section-label">Datos personales</p>
@@ -57,6 +76,36 @@
       </mat-slide-toggle>
     }
 
+    <!-- ── Contraseña (solo creación) ──────────────────────── -->
+    @if (!isEdit) {
+      <mat-divider style="margin: 16px 0" />
+      <p class="section-label">Contraseña inicial</p>
+
+      <div class="password-row">
+        <mat-form-field appearance="outline" class="password-field">
+          <mat-label>Contraseña</mat-label>
+          <input matInput formControlName="password"
+            [type]="showPassword() ? 'text' : 'password'" />
+          <button mat-icon-button matSuffix type="button"
+            (click)="showPassword.set(!showPassword())"
+            [matTooltip]="showPassword() ? 'Ocultar' : 'Mostrar'">
+            <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <button mat-icon-button type="button" matTooltip="Generar nueva contraseña"
+          (click)="regenerarPassword()">
+          <mat-icon>refresh</mat-icon>
+        </button>
+
+        <button mat-icon-button type="button"
+          [matTooltip]="copiado() ? 'Copiado' : 'Copiar contraseña'"
+          (click)="copiarPassword()">
+          <mat-icon>{{ copiado() ? 'check' : 'content_copy' }}</mat-icon>
+        </button>
+      </div>
+    }
+
     <!-- ── Sedes (solo creación) ───────────────────────────── -->
     @if (!isEdit) {
       <mat-divider style="margin: 16px 0" />
@@ -67,7 +116,7 @@
         <mat-select formControlName="sedeId">
           <mat-option value="">Sin sede</mat-option>
           @for (s of sedes(); track s.id) {
-            <mat-option [value]="s.id">{{ s.nombreCorto }}</mat-option>
+            <mat-option [value]="s.id">{{ sedeLabel(s) }}</mat-option>
           }
         </mat-select>
       </mat-form-field>
@@ -122,8 +171,10 @@
   <button mat-button (click)="cancel()" [disabled]="loading()">
     {{ isEdit ? 'Cerrar' : 'Cancelar' }}
   </button>
-  <button mat-raised-button color="primary"
-    (click)="submit()" [disabled]="loading() || form.invalid">
-    @if (loading()) { <mat-spinner diameter="18" /> } @else { Guardar }
-  </button>
+  @if (!usuarioCreado()) {
+    <button mat-raised-button color="primary"
+      (click)="submit()" [disabled]="loading() || form.invalid">
+      @if (loading()) { <mat-spinner diameter="18" /> } @else { Guardar }
+    </button>
+  }
 </mat-dialog-actions>

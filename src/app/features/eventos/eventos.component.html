@@ -104,6 +104,13 @@
               <mat-icon>how_to_reg</mat-icon>
             </button>
           }
+          @if (canWrite && e.estado === 'CERRADO') {
+            <button mat-icon-button
+              matTooltip="Ver resumen de asistencia"
+              (click)="goToResumen(e)">
+              <mat-icon>bar_chart</mat-icon>
+            </button>
+          }
           @if (canWrite) {
             <button mat-icon-button
               matTooltip="Editar"

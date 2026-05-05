@@ -7,7 +7,8 @@ export interface LoginRequest {
 export interface SedeInfo {
   id: string;
   codigo: string;
-  nombreCorto: string;
+  nombreCorto?: string;
+  nombre?: string;
 }
 
 export interface UsuarioAuth {

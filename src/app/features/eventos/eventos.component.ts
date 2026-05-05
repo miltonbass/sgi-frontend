@@ -188,6 +188,10 @@ export class EventosComponent implements OnInit {
     this.router.navigate(['/eventos', evento.id, 'checkin']);
   }
 
+  goToResumen(evento: Evento) {
+    this.router.navigate(['/eventos', evento.id, 'resumen']);
+  }
+
   estadoClass(estado: EstadoEvento): string {
     return `chip chip-${estado.toLowerCase()}`;
   }

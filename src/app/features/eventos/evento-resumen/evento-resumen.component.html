@@ -1,0 +1,149 @@
+<div class="resumen-container">
+
+  <!-- Header -->
+  <div class="resumen-header">
+    <div class="header-left">
+      <button mat-icon-button (click)="volver()" matTooltip="Volver a eventos">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h2 class="evento-titulo">{{ resumen()?.titulo ?? resumen()?.eventoTitulo ?? 'Sin título' }}</h2>
+        <p class="evento-meta">
+          {{ resumen()?.fechaInicio | date:'EEEE dd \'de\' MMMM yyyy · HH:mm':'UTC':'es' }}
+          @if (resumen()?.lugar) { · {{ resumen()?.lugar }} }
+        </p>
+      </div>
+    </div>
+
+    <button mat-raised-button color="primary"
+      [disabled]="exportando() || !resumen()"
+      (click)="exportar()">
+      @if (exportando()) {
+        <mat-spinner diameter="18" />
+      } @else {
+        <mat-icon>download</mat-icon>
+      }
+      Exportar Excel
+    </button>
+  </div>
+
+  <mat-divider />
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="48" />
+    </div>
+  } @else if (resumen()) {
+
+    <!-- Tarjetas métricas -->
+    <div class="metricas-grid">
+
+      <div class="metrica-card primary">
+        <span class="metrica-valor">{{ resumen()!.totalPresentes }}</span>
+        <span class="metrica-label">Total presentes</span>
+      </div>
+
+      <div class="metrica-card">
+        @if (resumen()!.porcentajeCapacidad !== null) {
+          <span class="metrica-valor">{{ resumen()!.porcentajeCapacidad! / 100 | percent:'1.0-0' }}</span>
+          <span class="metrica-label">de capacidad ({{ resumen()!.capacidad }})</span>
+        } @else {
+          <span class="metrica-valor">—</span>
+          <span class="metrica-label">Sin aforo definido</span>
+        }
+      </div>
+
+      <div class="metrica-card accent">
+        <span class="metrica-valor">{{ resumen()!.primerasVisitas }}</span>
+        <span class="metrica-label">Primeras visitas</span>
+      </div>
+
+      <div class="metrica-card">
+        <span class="metrica-valor">{{ resumen()!.miembrosActivos }}</span>
+        <span class="metrica-label">Miembros activos</span>
+      </div>
+
+      <div class="metrica-card">
+        <span class="metrica-valor">{{ resumen()!.otrosAsistentes }}</span>
+        <span class="metrica-label">Visitantes / otros</span>
+      </div>
+
+    </div>
+
+    <mat-divider />
+
+    <!-- Comparativa últimas 4 semanas -->
+    @if ((resumen()?.comparativa?.length ?? 0) > 0) {
+      <div class="comparativa-section">
+        <h3 class="section-title">
+          <mat-icon>bar_chart</mat-icon>
+          Comparativa — últimas semanas
+        </h3>
+
+        <div class="comparativa-list">
+          @for (item of (resumen()?.comparativa ?? []); track item.fecha) {
+            <div class="comparativa-item" [class.actual]="esActual(item)">
+              <span class="comp-fecha">{{ item.fecha | date:'dd MMM':'UTC':'es' }}</span>
+
+              <div class="comp-barra-wrap">
+                <div class="comp-barra" [style.width]="barWidth(item)">
+                </div>
+              </div>
+
+              <span class="comp-num">{{ item.totalPresentes }}</span>
+
+              @if (item.porcentajeCapacidad !== null) {
+                <span class="comp-pct">({{ item.porcentajeCapacidad }}%)</span>
+              }
+
+              @if (esActual(item)) {
+                <span class="actual-badge">Actual</span>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <mat-divider />
+    }
+
+    <!-- Listado de asistentes -->
+    <div class="asistentes-section">
+      <h3 class="section-title">
+        <mat-icon>list</mat-icon>
+        Listado de asistentes ({{ resumen()?.asistentes?.length ?? 0 }})
+      </h3>
+
+      <mat-table [dataSource]="resumen()?.asistentes ?? []" class="asistentes-table">
+
+        <ng-container matColumnDef="nombre">
+          <mat-header-cell *matHeaderCellDef>Nombre</mat-header-cell>
+          <mat-cell *matCellDef="let a">{{ getNombreAsistente(a) }}</mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="tipo">
+          <mat-header-cell *matHeaderCellDef>Tipo</mat-header-cell>
+          <mat-cell *matCellDef="let a">
+            <span [class]="'tipo-badge tipo-' + a.tipo.toLowerCase()">
+              {{ a.tipo === 'MIEMBRO' ? 'Miembro' : 'Visitante' }}
+            </span>
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="hora">
+          <mat-header-cell *matHeaderCellDef>Hora de ingreso</mat-header-cell>
+          <mat-cell *matCellDef="let a">{{ a.hora | date:'HH:mm':'UTC' }}</mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="asistentesColumns" />
+        <mat-row *matRowDef="let row; columns: asistentesColumns;" />
+
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell no-data" colspan="3">Sin asistentes registrados</td>
+        </tr>
+      </mat-table>
+    </div>
+
+  }
+
+</div>

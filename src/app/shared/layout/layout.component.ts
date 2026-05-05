@@ -28,6 +28,7 @@ const ROUTE_TITLES: { pattern: RegExp; title: string }[] = [
   { pattern: /\/grupos/,       title: 'Grupos' },
   { pattern: /\/sedes/,        title: 'Sedes' },
   { pattern: /\/eventos\/.+\/checkin/, title: 'Check-in de Asistencia' },
+  { pattern: /\/eventos\/.+\/resumen/, title: 'Resumen de Asistencia' },
   { pattern: /\/eventos/,              title: 'Eventos' },
 ];
 

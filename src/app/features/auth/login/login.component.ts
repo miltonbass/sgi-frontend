@@ -91,4 +91,8 @@ export class LoginComponent {
     this.loginForm.reset();
     this.sedes.set([]);
   }
+
+  sedeLabel(sede: SedeInfo): string {
+    return sede.nombre ?? sede.nombreCorto ?? sede.codigo;
+  }
 }

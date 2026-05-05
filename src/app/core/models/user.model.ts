@@ -14,8 +14,10 @@ export interface Usuario {
   telefono: string;
   activo: boolean;
   debeActivar: boolean;
+  debeCambiarPassword?: boolean;
   ultimoLogin: string;
   sedes: SedeUsuario[];
+  passwordTemporal?: string;
 }
 
 export interface UsuariosResponse {
@@ -31,6 +33,7 @@ export interface CreateUsuarioRequest {
   apellido: string;
   username: string;
   telefono?: string;
+  password?: string;
   sedeId?: string;
   roles?: string[];
 }

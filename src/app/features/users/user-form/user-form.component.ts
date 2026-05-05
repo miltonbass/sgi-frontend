@@ -12,8 +12,9 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { UserService } from '../../../core/services/user.service';
 import { SedeService } from '../../../core/services/sede.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Usuario, ROLES_DISPONIBLES } from '../../../core/models/user.model';
-import { Sede } from '../../../core/models/sede.model';
+import { SedeInfo } from '../../../core/models/auth.model';
 import { SedeUsuario } from '../../../core/models/user.model';
 import { UserSedeDialogComponent } from '../user-sede-dialog/user-sede-dialog.component';
 import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
@@ -34,17 +35,21 @@ export class UserFormComponent implements OnInit {
   private readonly fb          = inject(FormBuilder);
   private readonly userService = inject(UserService);
   private readonly sedeService = inject(SedeService);
+  private readonly auth        = inject(AuthService);
   private readonly dialog      = inject(MatDialog);
   private readonly dialogRef   = inject(MatDialogRef<UserFormComponent>);
   readonly data: Usuario | null = inject(MAT_DIALOG_DATA);
 
-  readonly loading  = signal(false);
-  readonly error    = signal('');
-  readonly isEdit   = !!this.data;
-  readonly roles    = ROLES_DISPONIBLES;
-  readonly sedes    = signal<Sede[]>([]);
-  readonly sedesUsuario = signal<SedeUsuario[]>(this.data?.sedes ?? []);
-  readonly changed  = signal(false);
+  readonly loading       = signal(false);
+  readonly error         = signal('');
+  readonly isEdit        = !!this.data;
+  readonly roles         = ROLES_DISPONIBLES;
+  readonly sedes         = signal<SedeInfo[]>([]);
+  readonly sedesUsuario  = signal<SedeUsuario[]>(this.data?.sedes ?? []);
+  readonly changed       = signal(false);
+  readonly usuarioCreado = signal<Usuario | null>(null);
+  readonly showPassword  = signal(false);
+  readonly copiado       = signal(false);
 
   form = this.fb.group({
     email:    [{ value: this.data?.email ?? '', disabled: this.isEdit }, [Validators.required, Validators.email]],
@@ -54,18 +59,50 @@ export class UserFormComponent implements OnInit {
     telefono: [this.data?.telefono ?? ''],
     activo:   [this.data?.activo   ?? true],
     // solo creación
-    sedeId:   [''],
+    password:   [this.generarPassword(), [Validators.required, Validators.minLength(8)]],
+    sedeId:     [''],
     sedesRoles: [[] as string[]],
   });
 
   get title() { return this.isEdit ? 'Editar Usuario' : 'Nuevo Usuario'; }
 
+  generarPassword(): string {
+    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789@#$!';
+    return Array.from({ length: 10 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+  }
+
+  regenerarPassword() {
+    this.form.get('password')!.setValue(this.generarPassword());
+    this.copiado.set(false);
+  }
+
+  copiarPassword() {
+    const pwd = this.form.get('password')!.value ?? '';
+    navigator.clipboard.writeText(pwd).then(() => {
+      this.copiado.set(true);
+      setTimeout(() => this.copiado.set(false), 2000);
+    });
+  }
+
   ngOnInit() {
     if (!this.isEdit) {
       this.sedeService.getAll({ size: 100 }).subscribe({
         next: res => this.sedes.set(res.content),
+        error: () => this.cargarSedesDeAuth(),
       });
     }
+  }
+
+  sedeLabel(s: SedeInfo): string {
+    return s.nombre ?? s.nombreCorto ?? s.codigo;
+  }
+
+  private cargarSedesDeAuth() {
+    const email = this.auth.currentUser()?.email;
+    if (!email) return;
+    this.auth.getSedes(email).subscribe({
+      next: sedes => this.sedes.set(sedes),
+    });
   }
 
   submit() {
@@ -88,14 +125,19 @@ export class UserFormComponent implements OnInit {
           apellido: raw.apellido!,
           username: raw.username!,
           telefono: raw.telefono ?? undefined,
+          password: raw.password ?? undefined,
           sedeId:   raw.sedeId   || undefined,
           roles:    raw.sedesRoles?.length ? raw.sedesRoles : undefined,
         });
 
     op$.subscribe({
-      next: () => {
+      next: res => {
         this.loading.set(false);
-        this.dialogRef.close(true);
+        if (!this.isEdit) {
+          this.usuarioCreado.set({ ...(res as Usuario), passwordTemporal: raw.password ?? undefined });
+        } else {
+          this.dialogRef.close(true);
+        }
       },
       error: err => {
         this.loading.set(false);

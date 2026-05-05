@@ -38,4 +38,8 @@ export class UserService {
   quitarSede(id: string, sedeId: string) {
     return this.http.delete(`${this.baseUrl}/${id}/sedes/${sedeId}`);
   }
+
+  resetPassword(id: string, passwordNueva: string) {
+    return this.http.patch(`${this.baseUrl}/${id}/password`, { passwordNueva });
+  }
 }

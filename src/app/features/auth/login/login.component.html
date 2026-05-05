@@ -77,9 +77,7 @@
               <mat-label>Sede</mat-label>
               <mat-select formControlName="tenantId">
                 @for (sede of sedes(); track sede.id) {
-                  <mat-option [value]="sede.codigo">
-                    {{ sede.nombreCorto }}
-                  </mat-option>
+                  <mat-option [value]="sede.codigo">{{ sedeLabel(sede) }}</mat-option>
                 }
               </mat-select>
               <mat-icon matSuffix>business</mat-icon>

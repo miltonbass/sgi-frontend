@@ -42,3 +42,78 @@
 }
 
 .btn-danger-icon { color: #e53e3e !important; }
+
+// Fila de contraseña
+.password-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  .password-field { flex: 1; }
+}
+
+// Panel de usuario creado
+.creado-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 8px 0 16px;
+}
+
+.creado-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #38a169;
+  margin-bottom: 8px;
+}
+
+.creado-titulo {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0 0 8px;
+}
+
+.creado-detalle {
+  font-size: 13px;
+  color: #4a5568;
+  margin: 0 0 16px;
+  line-height: 1.8;
+}
+
+.password-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: #ebf8ff;
+  border: 1px solid #90cdf4;
+  border-radius: 8px;
+  padding: 14px 32px;
+  margin-bottom: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.password-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #2b6cb0;
+}
+
+.password-valor {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a365d;
+  letter-spacing: 2px;
+}
+
+.creado-aviso {
+  font-size: 12px;
+  color: #718096;
+  margin: 0;
+}

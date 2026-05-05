@@ -17,6 +17,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { UserService } from '../../core/services/user.service';
 import { Usuario, ROLES_DISPONIBLES } from '../../core/models/user.model';
 import { UserFormComponent } from './user-form/user-form.component';
+import { UserPasswordDialogComponent } from './user-password-dialog/user-password-dialog.component';
 
 @Component({
   selector: 'app-users',
@@ -90,6 +91,14 @@ export class UsersComponent implements OnInit, OnDestroy {
     this.dialog
       .open(UserFormComponent, { width: '580px', disableClose: true, data: user })
       .afterClosed().subscribe(ok => ok && this.load());
+  }
+
+  openResetPassword(user: Usuario) {
+    this.dialog
+      .open(UserPasswordDialogComponent, { width: '440px', data: user })
+      .afterClosed().subscribe(ok => {
+        if (ok) this.snackBar.open('Contraseña actualizada', '', { duration: 2500 });
+      });
   }
 
   getRoles(user: Usuario): string[] {
