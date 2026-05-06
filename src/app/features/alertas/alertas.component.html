@@ -1,0 +1,138 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="header-left">
+      <h1 class="page-title">Alertas de Ausencia</h1>
+      @if (umbral() !== null) {
+        <span class="umbral-badge">Umbral: {{ umbral() }} semanas</span>
+      }
+    </div>
+    @if (isAdminSede) {
+      <button mat-stroked-button (click)="editandoUmbral.set(!editandoUmbral())">
+        <mat-icon>tune</mat-icon>
+        Configurar umbral
+      </button>
+    }
+  </div>
+
+  @if (editandoUmbral()) {
+    <mat-card class="config-card">
+      <mat-card-content>
+        <div class="config-row">
+          <mat-form-field appearance="outline" class="umbral-field">
+            <mat-label>Semanas de ausencia para activar alerta</mat-label>
+            <input matInput type="number" [formControl]="umbralCtrl" min="1" max="52">
+            <mat-hint>Entre 1 y 52 semanas</mat-hint>
+          </mat-form-field>
+          <button mat-raised-button color="primary" [disabled]="umbralCtrl.invalid" (click)="guardarUmbral()">
+            Guardar
+          </button>
+          <button mat-button (click)="editandoUmbral.set(false)">Cancelar</button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <div class="filtros-row">
+    <button mat-stroked-button [class.active]="estadoActivo() === 'PENDIENTE'" (click)="filtrar('PENDIENTE')">
+      <mat-icon>notifications_active</mat-icon>
+      Pendientes
+    </button>
+    <button mat-stroked-button [class.active]="estadoActivo() === 'GESTIONADA'" (click)="filtrar('GESTIONADA')">
+      <mat-icon>check_circle</mat-icon>
+      Atendidas
+    </button>
+    <button mat-stroked-button [class.active]="estadoActivo() === 'DESCARTADA'" (click)="filtrar('DESCARTADA')">
+      <mat-icon>cancel</mat-icon>
+      Descartadas
+    </button>
+  </div>
+
+  @if (detectando()) {
+    <div class="detecting-banner">
+      <mat-spinner diameter="20"></mat-spinner>
+      <span>Detectando miembros ausentes...</span>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading-center"><mat-spinner /></div>
+  } @else if (alertas().length === 0) {
+    <div class="empty-state">
+      <mat-icon class="empty-icon">notifications_none</mat-icon>
+      <p>No hay alertas {{ estadoActivo() === 'PENDIENTE' ? 'pendientes' : estadoActivo() === 'GESTIONADA' ? 'atendidas' : 'descartadas' }}</p>
+    </div>
+  } @else {
+    <div class="alertas-grid">
+      @for (alerta of alertas(); track alerta.id) {
+        <mat-card class="alerta-card" [class.pendiente]="alerta.estado === 'PENDIENTE'"
+                  [class.gestionada]="alerta.estado === 'GESTIONADA'"
+                  [class.descartada]="alerta.estado === 'DESCARTADA'">
+          <mat-card-content>
+            <div class="alerta-header">
+              <div class="miembro-info">
+                <div class="avatar">{{ alerta.miembroNombres[0] }}{{ alerta.miembroApellidos[0] }}</div>
+                <div>
+                  <div class="miembro-nombre">{{ alerta.miembroNombres }} {{ alerta.miembroApellidos }}</div>
+                  <div class="semanas-badge">
+                    <mat-icon class="semanas-icon">warning</mat-icon>
+                    {{ alerta.semanasAusente }} {{ alerta.semanasAusente === 1 ? 'semana' : 'semanas' }} sin asistir
+                  </div>
+                </div>
+              </div>
+              <span class="estado-chip" [class]="'estado-' + alerta.estado.toLowerCase()">
+                {{ alerta.estado }}
+              </span>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <div class="alerta-detalle">
+              <div class="detalle-item">
+                <mat-icon>phone</mat-icon>
+                <span>{{ alerta.miembroTelefono || 'Sin teléfono' }}</span>
+              </div>
+              <div class="detalle-item">
+                <mat-icon>supervisor_account</mat-icon>
+                <span>{{ getNombreConsolidador(alerta) }}</span>
+              </div>
+              @if (alerta.notas) {
+                <div class="detalle-item notas">
+                  <mat-icon>notes</mat-icon>
+                  <span>{{ alerta.notas }}</span>
+                </div>
+              }
+              @if (alerta.gestionadaEn) {
+                <div class="detalle-item">
+                  <mat-icon>schedule</mat-icon>
+                  <span>Gestionada: {{ alerta.gestionadaEn | date:'dd/MM/yyyy' }}</span>
+                </div>
+              }
+            </div>
+
+            @if (alerta.estado === 'PENDIENTE') {
+              <div class="alerta-acciones">
+                <button mat-stroked-button color="primary" (click)="gestionar(alerta)">
+                  <mat-icon>check</mat-icon>
+                  Atender
+                </button>
+                <button mat-stroked-button color="warn" (click)="descartar(alerta)">
+                  <mat-icon>close</mat-icon>
+                  Descartar
+                </button>
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+
+    <mat-paginator
+      [length]="total()"
+      [pageIndex]="pageIndex()"
+      [pageSize]="pageSize()"
+      [pageSizeOptions]="[10, 20, 50]"
+      showFirstLastButtons
+      (page)="onPage($event)"
+    />
+  }
+</div>

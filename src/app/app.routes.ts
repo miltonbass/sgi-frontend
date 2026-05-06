@@ -59,6 +59,12 @@ export const routes: Routes = [
           import('./features/eventos/evento-resumen/evento-resumen.component').then(m => m.EventoResumenComponent),
         canActivate: [roleGuard(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_SEDE'])],
       },
+      {
+        path: 'alertas',
+        loadComponent: () =>
+          import('./features/alertas/alertas.component').then(m => m.AlertasComponent),
+        canActivate: [roleGuard(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_SEDE'])],
+      },
     ],
   },
   { path: '**', redirectTo: '' },
