@@ -57,7 +57,7 @@ export class LayoutComponent {
 
   private readonly navItems: NavItem[] = [
     { path: '/miembros', label: 'Miembros',  icon: 'people',          roles: [] },
-    { path: '/grupos',   label: 'Grupos',    icon: 'groups',          roles: [] },
+    { path: '/grupos',   label: 'Grupos',    icon: 'groups',          roles: ['ADMIN_GLOBAL','SUPER_ADMIN','ADMIN_SEDE','PASTOR_SEDE','LIDER_GRUPO','SECRETARIO_SEDE','REGISTRO_SEDE'] },
     { path: '/eventos',  label: 'Eventos',   icon: 'event',           roles: ['ADMIN_GLOBAL','ADMIN_SEDE','PASTOR_SEDE','LIDER_GRUPO','SECRETARIO_SEDE'] },
     { path: '/alertas',        label: 'Alertas',        icon: 'notifications_active', roles: ['ADMIN_GLOBAL','ADMIN_SEDE','PASTOR_SEDE'] },
     { path: '/consolidacion',  label: 'Consolidación',  icon: 'handshake',            roles: ['ADMIN_GLOBAL','ADMIN_SEDE','PASTOR_SEDE','CONSOLIDACION_SEDE'] },
