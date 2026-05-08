@@ -61,6 +61,10 @@ export class MemberService {
     return this.http.delete(`${this.baseUrl}/${id}`, { body: { motivo } });
   }
 
+  asignarConsolidador(id: string, consolidadorId: string | null) {
+    return this.http.patch<Miembro>(`${this.baseUrl}/${id}/consolidador`, { consolidadorId });
+  }
+
   importar(archivo: File, estadoDefault: 'VISITOR' | 'MIEMBRO' = 'VISITOR') {
     const formData = new FormData();
     formData.append('archivo', archivo);

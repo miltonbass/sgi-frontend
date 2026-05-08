@@ -101,6 +101,25 @@
       </mat-form-field>
     </div>
 
+    <!-- Consolidador (solo al crear) -->
+    @if (!isEdit) {
+      <p class="section-label">Consolidador asignado</p>
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Consolidador (opcional)</mat-label>
+          <mat-select formControlName="consolidadorId">
+            <mat-option value="">Sin asignar</mat-option>
+            @for (c of consolidadores(); track c.id) {
+              <mat-option [value]="c.id" [disabled]="c.asignadosActivos >= c.maxAsignados">
+                {{ consolidadorLabel(c) }}
+              </mat-option>
+            }
+          </mat-select>
+          <mat-hint>El consolidador acompañará al visitante en su proceso de integración</mat-hint>
+        </mat-form-field>
+      </div>
+    }
+
     @if (error()) {
       <div class="form-error">{{ error() }}</div>
     }

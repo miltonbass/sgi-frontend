@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,6 +8,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MemberService } from '../../../core/services/member.service';
+import { ConsolidacionService } from '../../../core/services/consolidacion.service';
+import { ConsolidadorResponse } from '../../../core/models/consolidacion.model';
 import { Miembro } from '../../../core/models/member.model';
 
 @Component({
@@ -20,33 +22,49 @@ import { Miembro } from '../../../core/models/member.model';
   ],
   templateUrl: './member-form.component.html',
 })
-export class MemberFormComponent {
+export class MemberFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly memberService = inject(MemberService);
+  private readonly consolidacionService = inject(ConsolidacionService);
   private readonly dialogRef = inject(MatDialogRef<MemberFormComponent>);
   readonly data: Miembro | null = inject(MAT_DIALOG_DATA);
 
-  readonly loading = signal(false);
-  readonly error = signal('');
-  readonly isEdit = !!this.data;
+  readonly loading       = signal(false);
+  readonly error         = signal('');
+  readonly isEdit        = !!this.data;
+  readonly consolidadores = signal<ConsolidadorResponse[]>([]);
 
   form = this.fb.group({
-    nombres:        [this.data?.nombres        ?? '', Validators.required],
-    apellidos:      [this.data?.apellidos      ?? '', Validators.required],
-    cedula:         [this.data?.cedula         ?? ''],
-    genero:         [this.data?.genero         ?? ''],
-    fechaNacimiento:[this.data?.fechaNacimiento ?? ''],
-    estadoCivil:    [this.data?.estadoCivil    ?? ''],
-    telefono:       [this.data?.telefono       ?? ''],
-    email:          [this.data?.email          ?? '', Validators.email],
-    ciudad:         [this.data?.ciudad         ?? ''],
-    direccion:      [this.data?.direccion      ?? ''],
-    numeroMiembro:  [this.data?.numeroMiembro  ?? ''],
-    fechaIngreso:   [this.data?.fechaIngreso   ?? ''],
-    fechaBautismo:  [this.data?.fechaBautismo  ?? ''],
+    nombres:         [this.data?.nombres         ?? '', Validators.required],
+    apellidos:       [this.data?.apellidos       ?? '', Validators.required],
+    cedula:          [this.data?.cedula          ?? ''],
+    genero:          [this.data?.genero          ?? ''],
+    fechaNacimiento: [this.data?.fechaNacimiento ?? ''],
+    estadoCivil:     [this.data?.estadoCivil     ?? ''],
+    telefono:        [this.data?.telefono        ?? ''],
+    email:           [this.data?.email           ?? '', Validators.email],
+    ciudad:          [this.data?.ciudad          ?? ''],
+    direccion:       [this.data?.direccion       ?? ''],
+    numeroMiembro:   [this.data?.numeroMiembro   ?? ''],
+    fechaIngreso:    [this.data?.fechaIngreso    ?? ''],
+    fechaBautismo:   [this.data?.fechaBautismo   ?? ''],
+    consolidadorId:  [this.data?.consolidadorId  ?? ''],
   });
 
-  get title() { return this.isEdit ? 'Editar Miembro' : 'Nuevo Miembro'; }
+  get title() { return this.isEdit ? 'Editar Miembro' : 'Nuevo Visitante / Miembro'; }
+
+  ngOnInit() {
+    if (!this.isEdit) {
+      this.consolidacionService.getConsolidadores().subscribe({
+        next: lista => this.consolidadores.set(lista),
+      });
+    }
+  }
+
+  consolidadorLabel(c: ConsolidadorResponse): string {
+    const lleno = c.asignadosActivos >= c.maxAsignados;
+    return `${c.nombres} ${c.apellidos} — ${c.asignadosActivos}/${c.maxAsignados}${lleno ? ' (lleno)' : ''}`;
+  }
 
   submit() {
     if (this.form.invalid) return;
@@ -54,9 +72,8 @@ export class MemberFormComponent {
     this.error.set('');
 
     const raw = this.form.getRawValue();
-    // Limpiar strings vacíos a undefined
     const payload = Object.fromEntries(
-      Object.entries(raw).filter(([, v]) => v !== ''),
+      Object.entries(raw).filter(([, v]) => v !== '' && v !== null),
     ) as any;
 
     const op$ = this.isEdit

@@ -1,0 +1,212 @@
+<div class="page-container">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <h2>Consolidación</h2>
+      @if (maxAsignados() !== null) {
+        <span class="badge badge-info">Máx. {{ maxAsignados() }} por consolidador</span>
+      }
+    </div>
+    @if (isAdminSede) {
+      <button mat-stroked-button (click)="editandoConfig.set(!editandoConfig())">
+        <mat-icon>settings</mat-icon> Configurar
+      </button>
+    }
+  </div>
+
+  <!-- Config card -->
+  @if (editandoConfig()) {
+    <mat-card class="config-card">
+      <mat-card-content>
+        <p class="config-title">Máximo de visitantes por consolidador</p>
+        <div class="config-row">
+          <mat-form-field appearance="outline" class="config-field">
+            <mat-label>Máximo asignados</mat-label>
+            <input matInput type="number" [formControl]="maxCtrl" min="1" max="100" />
+            @if (maxCtrl.hasError('min') || maxCtrl.hasError('max')) {
+              <mat-error>Debe estar entre 1 y 100</mat-error>
+            }
+          </mat-form-field>
+          <div class="config-actions">
+            <button mat-raised-button color="primary" [disabled]="maxCtrl.invalid" (click)="guardarConfig()">
+              Guardar
+            </button>
+            <button mat-button (click)="editandoConfig.set(false)">Cancelar</button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Vista toggle -->
+  <div class="vista-toggle">
+    <button mat-raised-button
+      [color]="vista() === 'consolidadores' ? 'primary' : ''"
+      (click)="cambiarVista('consolidadores')">
+      <mat-icon>people</mat-icon> Consolidadores
+    </button>
+    <button mat-raised-button
+      [color]="vista() === 'tareas' ? 'primary' : ''"
+      (click)="cambiarVista('tareas')">
+      <mat-icon>task_alt</mat-icon> Tareas
+    </button>
+  </div>
+
+  <!-- ── VISTA CONSOLIDADORES ── -->
+  @if (vista() === 'consolidadores') {
+    @if (loadingConsolidadores()) {
+      <div class="center-spinner">
+        <mat-spinner diameter="48" />
+      </div>
+    } @else if (consolidadores().length === 0) {
+      <div class="empty-state">
+        <mat-icon>people_outline</mat-icon>
+        <p>No hay consolidadores registrados en esta sede.</p>
+      </div>
+    } @else {
+      <div class="consolidadores-grid">
+        @for (c of consolidadores(); track c.id) {
+          <mat-card class="consolidador-card" [class.lleno]="estaLleno(c)">
+            <mat-card-content>
+              <div class="card-top">
+                <div class="avatar">{{ c.nombres[0] }}{{ c.apellidos[0] }}</div>
+                <div class="card-info">
+                  <p class="nombre">{{ c.nombres }} {{ c.apellidos }}</p>
+                  @if (c.telefono) {
+                    <p class="telefono"><mat-icon>phone</mat-icon> {{ c.telefono }}</p>
+                  }
+                </div>
+                @if (estaLleno(c)) {
+                  <span class="badge badge-warn">Lleno</span>
+                }
+              </div>
+
+              <mat-divider class="divider" />
+
+              <div class="carga-section">
+                <div class="carga-header">
+                  <span>Visitantes asignados</span>
+                  <strong>{{ c.asignadosActivos }} / {{ c.maxAsignados }}</strong>
+                </div>
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill"
+                    [style.width.%]="cargaPercent(c)"
+                    [class.warn]="cargaPercent(c) >= 80"
+                    [class.full]="estaLleno(c)">
+                  </div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+    }
+  }
+
+  <!-- ── VISTA TAREAS ── -->
+  @if (vista() === 'tareas') {
+    <!-- Filtros -->
+    <mat-card class="filtros-card">
+      <mat-card-content>
+        <div class="filtros-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Estado</mat-label>
+            <mat-select [formControl]="estadoCtrl">
+              <mat-option value="">Todos</mat-option>
+              <mat-option value="PENDIENTE">Pendiente</mat-option>
+              <mat-option value="COMPLETADA">Completada</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Consolidador</mat-label>
+            <mat-select [formControl]="consolidadorCtrl">
+              <mat-option value="">Todos</mat-option>
+              @for (c of consolidadores(); track c.id) {
+                <mat-option [value]="c.id">{{ c.nombres }} {{ c.apellidos }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <button mat-raised-button color="primary" (click)="aplicarFiltros()">
+            <mat-icon>filter_list</mat-icon> Filtrar
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    @if (loadingTareas()) {
+      <div class="center-spinner">
+        <mat-spinner diameter="48" />
+      </div>
+    } @else if (tareas().length === 0) {
+      <div class="empty-state">
+        <mat-icon>task_alt</mat-icon>
+        <p>No hay tareas con los filtros seleccionados.</p>
+      </div>
+    } @else {
+      <div class="tareas-list">
+        @for (t of tareas(); track t.id) {
+          <mat-card class="tarea-card" [class.completada]="t.estado === 'COMPLETADA'">
+            <mat-card-content>
+              <div class="tarea-top">
+                <div class="tarea-info">
+                  <p class="tarea-miembro">{{ t.miembroNombres }} {{ t.miembroApellidos }}</p>
+                  @if (t.miembroTelefono) {
+                    <p class="tarea-sub"><mat-icon>phone</mat-icon> {{ t.miembroTelefono }}</p>
+                  }
+                </div>
+                <span class="estado-chip" [class.estado-pendiente]="t.estado === 'PENDIENTE'" [class.estado-completada]="t.estado === 'COMPLETADA'">
+                  {{ t.estado === 'PENDIENTE' ? 'Pendiente' : 'Completada' }}
+                </span>
+              </div>
+
+              <div class="tarea-meta">
+                <span class="tipo-badge">{{ t.tipo === 'PRIMER_CONTACTO' ? 'Primer contacto' : 'Seguimiento' }}</span>
+                <span class="consolidador-name">
+                  <mat-icon>person</mat-icon> {{ t.consolidadorNombres }} {{ t.consolidadorApellidos }}
+                </span>
+              </div>
+
+              @if (t.descripcion) {
+                <p class="tarea-desc">{{ t.descripcion }}</p>
+              }
+
+              @if (t.notas) {
+                <p class="tarea-notas"><mat-icon>notes</mat-icon> {{ t.notas }}</p>
+              }
+
+              <div class="tarea-footer">
+                @if (t.completadaEn) {
+                  <span class="fecha-completada">
+                    <mat-icon>check_circle</mat-icon>
+                    Completada {{ t.completadaEn | date:'dd/MM/yyyy' }}
+                  </span>
+                } @else {
+                  <span class="fecha-creada">Creada {{ t.creadoEn | date:'dd/MM/yyyy' }}</span>
+                }
+
+                @if (t.estado === 'PENDIENTE') {
+                  <button mat-raised-button color="primary" (click)="completar(t)">
+                    <mat-icon>check</mat-icon> Completar
+                  </button>
+                }
+              </div>
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+
+      <mat-paginator
+        [length]="total()"
+        [pageIndex]="pageIndex()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="[10, 20, 50]"
+        (page)="onPage($event)"
+        showFirstLastButtons
+      />
+    }
+  }
+
+</div>
