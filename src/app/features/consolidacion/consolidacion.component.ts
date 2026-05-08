@@ -24,6 +24,14 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from '../../shared/confirm-dialog/confirm-dialog.component';
+import {
+  ContactoFormDialogComponent,
+  ContactoFormDialogData,
+} from './contacto-form-dialog/contacto-form-dialog.component';
+import {
+  ContactoHistorialDialogComponent,
+  ContactoHistorialDialogData,
+} from './contacto-historial-dialog/contacto-historial-dialog.component';
 
 type Vista = 'consolidadores' | 'tareas';
 
@@ -152,6 +160,33 @@ export class ConsolidacionComponent implements OnInit {
 
   estaLleno(c: ConsolidadorResponse): boolean {
     return c.asignadosActivos >= c.maxAsignados;
+  }
+
+  registrarContacto(tarea: TareaConsolidacionResponse) {
+    this.dialog
+      .open(ContactoFormDialogComponent, {
+        width: '500px',
+        data: {
+          miembroId: tarea.miembroId,
+          miembroNombres: tarea.miembroNombres,
+          miembroApellidos: tarea.miembroApellidos,
+        } satisfies ContactoFormDialogData,
+      })
+      .afterClosed()
+      .subscribe(ok => {
+        if (ok) this.snackBar.open('Contacto registrado', '', { duration: 2500 });
+      });
+  }
+
+  verHistorial(tarea: TareaConsolidacionResponse) {
+    this.dialog.open(ContactoHistorialDialogComponent, {
+      width: '560px',
+      data: {
+        miembroId: tarea.miembroId,
+        miembroNombres: tarea.miembroNombres,
+        miembroApellidos: tarea.miembroApellidos,
+      } satisfies ContactoHistorialDialogData,
+    });
   }
 
   get isAdminSede(): boolean {

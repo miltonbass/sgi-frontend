@@ -1,0 +1,74 @@
+<h2 mat-dialog-title>Registrar contacto</h2>
+
+<mat-dialog-content style="min-width:360px; padding-top:8px">
+  <p style="margin:0 0 16px; font-size:13px; color:#4a5568">
+    Miembro: <strong>{{ data.miembroNombres }} {{ data.miembroApellidos }}</strong>
+  </p>
+
+  <form [formGroup]="form" style="display:flex; flex-direction:column; gap:12px">
+
+    <div style="display:flex; gap:12px">
+      <mat-form-field appearance="outline" style="flex:1">
+        <mat-label>Fecha</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="fecha" [max]="today" />
+        <mat-datepicker-toggle matSuffix [for]="picker" />
+        <mat-datepicker #picker />
+        @if (form.get('fecha')?.invalid && form.get('fecha')?.touched) {
+          <mat-error>Requerido</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" style="flex:1">
+        <mat-label>Tipo</mat-label>
+        <mat-select formControlName="tipo">
+          @for (t of tipos; track t) {
+            <mat-option [value]="t">{{ tipoLabels[t] }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Resumen del contacto</mat-label>
+      <textarea matInput formControlName="resumen" rows="3"
+        placeholder="¿Cómo estuvo la conversación?"></textarea>
+      @if (form.get('resumen')?.hasError('required') && form.get('resumen')?.touched) {
+        <mat-error>Requerido</mat-error>
+      }
+      @if (form.get('resumen')?.hasError('minlength') && form.get('resumen')?.touched) {
+        <mat-error>Mínimo 5 caracteres</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Próxima acción (opcional)</mat-label>
+      <input matInput formControlName="proximaAccion"
+        placeholder="Ej: Enviar información sobre clases" />
+    </mat-form-field>
+
+    <div style="display:flex; gap:12px; align-items:center">
+      <mat-form-field appearance="outline" style="flex:1">
+        <mat-label>Fecha próxima acción (opcional)</mat-label>
+        <input matInput [matDatepicker]="picker2" formControlName="fechaProximaAccion" [min]="today" />
+        <mat-datepicker-toggle matSuffix [for]="picker2" />
+        <mat-datepicker #picker2 />
+      </mat-form-field>
+
+      <mat-slide-toggle formControlName="recordatorioActivo" style="white-space:nowrap">
+        Recordatorio
+      </mat-slide-toggle>
+    </div>
+
+  </form>
+
+  @if (error()) {
+    <p style="color:#e53e3e; font-size:13px; margin:8px 0 0">{{ error() }}</p>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button [disabled]="loading()" (click)="ref.close(false)">Cancelar</button>
+  <button mat-raised-button color="primary" [disabled]="loading()" (click)="guardar()">
+    @if (loading()) { <mat-spinner diameter="18" /> } @else { Guardar }
+  </button>
+</mat-dialog-actions>

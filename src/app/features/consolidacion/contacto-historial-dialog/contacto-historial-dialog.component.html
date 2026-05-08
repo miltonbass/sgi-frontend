@@ -1,0 +1,92 @@
+<h2 mat-dialog-title>Historial de contactos</h2>
+
+<mat-dialog-content style="min-width:480px; max-height:70vh; padding-top:8px">
+  <p style="margin:0 0 16px; font-size:13px; color:#4a5568">
+    <strong>{{ data.miembroNombres }} {{ data.miembroApellidos }}</strong>
+  </p>
+
+  <!-- Resumen -->
+  @if (loadingResumen()) {
+    <div style="display:flex; justify-content:center; padding:12px 0">
+      <mat-spinner diameter="32" />
+    </div>
+  } @else if (resumen(); as r) {
+    <div class="resumen-row">
+      <div class="resumen-item">
+        <span class="resumen-valor">{{ r.totalContactos }}</span>
+        <span class="resumen-label">Contactos</span>
+      </div>
+      <div class="resumen-item">
+        <span class="resumen-valor">
+          {{ r.diasDesdeUltimoContacto !== null ? r.diasDesdeUltimoContacto : '—' }}
+        </span>
+        <span class="resumen-label">Días sin contacto</span>
+      </div>
+      @if (r.proximaAccionPendiente) {
+        <div class="resumen-proxima">
+          <mat-icon [class.alerta]="r.ultimoContacto?.recordatorioActivo ?? false">
+            {{ (r.ultimoContacto?.recordatorioActivo ?? false) ? 'notifications_active' : 'event_note' }}
+          </mat-icon>
+          <div>
+            <p class="proxima-texto">{{ r.proximaAccionPendiente }}</p>
+            @if (r.fechaProximaAccion) {
+              <p class="proxima-fecha">{{ r.fechaProximaAccion | date:'dd/MM/yyyy' }}</p>
+            }
+          </div>
+        </div>
+      }
+    </div>
+    <mat-divider style="margin:12px 0" />
+  }
+
+  <!-- Lista de contactos -->
+  @if (loadingContactos()) {
+    <div style="display:flex; justify-content:center; padding:16px 0">
+      <mat-spinner diameter="36" />
+    </div>
+  } @else if (contactos().length === 0) {
+    <p style="text-align:center; color:#718096; padding:16px 0">
+      No hay contactos registrados.
+    </p>
+  } @else {
+    <div class="contactos-list">
+      @for (c of contactos(); track c.id) {
+        <div class="contacto-item">
+          <div class="contacto-header">
+            <div class="tipo-row">
+              <mat-icon class="tipo-icon">{{ tipoIcons[c.tipo] }}</mat-icon>
+              <span class="tipo-label">{{ tipoLabels[c.tipo] }}</span>
+              @if (c.recordatorioActivo) {
+                <mat-icon class="alerta" style="font-size:16px">notifications_active</mat-icon>
+              }
+            </div>
+            <span class="contacto-fecha">{{ c.fecha | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <p class="contacto-resumen">{{ c.resumen }}</p>
+          @if (c.proximaAccion) {
+            <p class="contacto-proxima">
+              <mat-icon style="font-size:14px; vertical-align:middle">arrow_forward</mat-icon>
+              {{ c.proximaAccion }}
+              @if (c.fechaProximaAccion) {
+                · {{ c.fechaProximaAccion | date:'dd/MM/yyyy' }}
+              }
+            </p>
+          }
+        </div>
+      }
+    </div>
+
+    <mat-paginator
+      [length]="total()"
+      [pageIndex]="pageIndex()"
+      [pageSize]="pageSize()"
+      [pageSizeOptions]="[5, 10, 20]"
+      (page)="onPage($event)"
+      showFirstLastButtons
+    />
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="ref.close()">Cerrar</button>
+</mat-dialog-actions>

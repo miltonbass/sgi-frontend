@@ -187,11 +187,21 @@
                   <span class="fecha-creada">Creada {{ t.creadoEn | date:'dd/MM/yyyy' }}</span>
                 }
 
-                @if (t.estado === 'PENDIENTE') {
-                  <button mat-raised-button color="primary" (click)="completar(t)">
-                    <mat-icon>check</mat-icon> Completar
+                <div class="tarea-actions">
+                  <button mat-stroked-button matTooltip="Ver historial de contactos"
+                    (click)="verHistorial(t)">
+                    <mat-icon>history</mat-icon> Historial
                   </button>
-                }
+                  <button mat-stroked-button color="accent" matTooltip="Registrar nuevo contacto"
+                    (click)="registrarContacto(t)">
+                    <mat-icon>add_call</mat-icon> Contacto
+                  </button>
+                  @if (t.estado === 'PENDIENTE') {
+                    <button mat-raised-button color="primary" (click)="completar(t)">
+                      <mat-icon>check</mat-icon> Completar
+                    </button>
+                  }
+                </div>
               </div>
             </mat-card-content>
           </mat-card>
