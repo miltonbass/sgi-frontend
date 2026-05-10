@@ -38,3 +38,47 @@ export interface TareasPage {
 export interface ConsolidacionConfiguracion {
   maxAsignadosConsolidador: number;
 }
+
+export type MiembroEstadoDashboard = 'VISITOR' | 'MIEMBRO' | 'INACTIVO' | 'RESTAURADO';
+export type Prioridad = 'ALTA' | 'MEDIA' | 'BAJA';
+
+export interface DashboardResumen {
+  totalAsignados: number;
+  sinContactoReciente: number;
+  conAccionVencida: number;
+  contactosHoy: number;
+}
+
+export interface DashboardMiembro {
+  miembroId: string;
+  nombres: string;
+  apellidos: string;
+  telefono: string | null;
+  estado: MiembroEstadoDashboard;
+  prioridad: Prioridad;
+  ultimoContactoFecha: string | null;
+  ultimoContactoTipo: string | null;
+  ultimoContactoResumen: string | null;
+  diasSinContacto: number | null;
+  proximaAccion: string | null;
+  fechaProximaAccion: string | null;
+  accionVencida: boolean;
+  alertaSinContacto: boolean;
+}
+
+export interface DashboardResponse {
+  resumen: DashboardResumen;
+  miembros: DashboardMiembro[];
+  pageNumber: number;
+  pageSize: number;
+  totalElements: number;
+  totalPages: number;
+}
+
+export interface DashboardFiltros {
+  estado?: MiembroEstadoDashboard;
+  prioridad?: Prioridad;
+  soloVencidas?: boolean;
+  page?: number;
+  size?: number;
+}

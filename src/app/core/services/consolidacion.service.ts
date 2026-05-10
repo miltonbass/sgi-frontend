@@ -6,6 +6,8 @@ import {
   TareasPage,
   TareaEstado,
   ConsolidacionConfiguracion,
+  DashboardResponse,
+  DashboardFiltros,
 } from '../models/consolidacion.model';
 import { environment } from '../../../environments/environment';
 
@@ -43,5 +45,15 @@ export class ConsolidacionService {
       `${this.baseUrl}/configuracion`,
       { maxAsignadosConsolidador },
     );
+  }
+
+  getDashboard(filtros?: DashboardFiltros) {
+    let p = new HttpParams();
+    if (filtros?.estado)                   p = p.set('estado', filtros.estado);
+    if (filtros?.prioridad)                p = p.set('prioridad', filtros.prioridad);
+    if (filtros?.soloVencidas !== undefined) p = p.set('soloVencidas', filtros.soloVencidas);
+    if (filtros?.page !== undefined)        p = p.set('page', filtros.page);
+    if (filtros?.size !== undefined)        p = p.set('size', filtros.size);
+    return this.http.get<DashboardResponse>(`${this.baseUrl}/dashboard`, { params: p });
   }
 }

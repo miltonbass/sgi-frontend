@@ -41,17 +41,186 @@
 
   <!-- Vista toggle -->
   <div class="vista-toggle">
-    <button mat-raised-button
-      [color]="vista() === 'consolidadores' ? 'primary' : ''"
-      (click)="cambiarVista('consolidadores')">
-      <mat-icon>people</mat-icon> Consolidadores
-    </button>
+    @if (auth.hasAnyRole(['CONSOLIDACION_SEDE'])) {
+      <button mat-raised-button
+        [color]="vista() === 'dashboard' ? 'primary' : ''"
+        (click)="cambiarVista('dashboard')">
+        <mat-icon>dashboard</mat-icon> Mi Dashboard
+      </button>
+    }
+    @if (isAdminSede || auth.hasAnyRole(['PASTOR_SEDE'])) {
+      <button mat-raised-button
+        [color]="vista() === 'consolidadores' ? 'primary' : ''"
+        (click)="cambiarVista('consolidadores')">
+        <mat-icon>people</mat-icon> Consolidadores
+      </button>
+    }
     <button mat-raised-button
       [color]="vista() === 'tareas' ? 'primary' : ''"
       (click)="cambiarVista('tareas')">
       <mat-icon>task_alt</mat-icon> Tareas
     </button>
   </div>
+
+  <!-- ── VISTA DASHBOARD ── -->
+  @if (vista() === 'dashboard') {
+    @if (loadingDashboard() && dashboardResumen() === null) {
+      <div class="center-spinner"><mat-spinner diameter="48" /></div>
+    } @else {
+
+      <!-- Tarjetas de resumen -->
+      @if (dashboardResumen(); as r) {
+        <div class="dash-resumen">
+          <div class="dash-card">
+            <span class="dash-valor">{{ r.totalAsignados }}</span>
+            <span class="dash-label">Total asignados</span>
+          </div>
+          <div class="dash-card alerta" [class.activo]="r.sinContactoReciente > 0">
+            <mat-icon>warning_amber</mat-icon>
+            <span class="dash-valor">{{ r.sinContactoReciente }}</span>
+            <span class="dash-label">Sin contacto reciente</span>
+          </div>
+          <div class="dash-card critico" [class.activo]="r.conAccionVencida > 0">
+            <mat-icon>event_busy</mat-icon>
+            <span class="dash-valor">{{ r.conAccionVencida }}</span>
+            <span class="dash-label">Acciones vencidas</span>
+          </div>
+          <div class="dash-card ok" [class.activo]="r.contactosHoy > 0">
+            <mat-icon>check_circle</mat-icon>
+            <span class="dash-valor">{{ r.contactosHoy }}</span>
+            <span class="dash-label">Contactos hoy</span>
+          </div>
+        </div>
+      }
+
+      <!-- Filtros -->
+      <mat-card class="filtros-card">
+        <mat-card-content>
+          <div class="filtros-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Estado miembro</mat-label>
+              <mat-select [formControl]="dashboardEstadoCtrl">
+                <mat-option value="">Todos</mat-option>
+                <mat-option value="VISITOR">Visitante</mat-option>
+                <mat-option value="MIEMBRO">Miembro</mat-option>
+                <mat-option value="INACTIVO">Inactivo</mat-option>
+                <mat-option value="RESTAURADO">Restaurado</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Prioridad</mat-label>
+              <mat-select [formControl]="dashboardPrioridadCtrl">
+                <mat-option value="">Todas</mat-option>
+                <mat-option value="ALTA">Alta</mat-option>
+                <mat-option value="MEDIA">Media</mat-option>
+                <mat-option value="BAJA">Baja</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <div class="filtro-toggle">
+              <mat-slide-toggle [formControl]="soloVencidasCtrl">
+                Solo vencidas
+              </mat-slide-toggle>
+            </div>
+
+            <button mat-raised-button color="primary" (click)="aplicarFiltrosDashboard()">
+              <mat-icon>filter_list</mat-icon> Filtrar
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Lista de miembros -->
+      @if (loadingDashboard()) {
+        <div class="center-spinner"><mat-spinner diameter="40" /></div>
+      } @else if (dashboardMiembros().length === 0) {
+        <div class="empty-state">
+          <mat-icon>people_outline</mat-icon>
+          <p>No hay miembros con los filtros seleccionados.</p>
+        </div>
+      } @else {
+        <div class="dash-miembros">
+          @for (m of dashboardMiembros(); track m.miembroId) {
+            <mat-card class="dash-miembro-card"
+              [class.alerta-borde]="m.alertaSinContacto"
+              [class.critico-borde]="m.accionVencida">
+              <mat-card-content>
+
+                <div class="dm-top">
+                  <div class="dm-info">
+                    <p class="dm-nombre">{{ m.nombres }} {{ m.apellidos }}</p>
+                    @if (m.telefono) {
+                      <p class="dm-telefono"><mat-icon>phone</mat-icon> {{ m.telefono }}</p>
+                    }
+                  </div>
+                  <div class="dm-badges">
+                    <span class="prioridad-badge prioridad-{{ m.prioridad.toLowerCase() }}">
+                      {{ m.prioridad }}
+                    </span>
+                    <span class="estado-chip-sm">{{ m.estado }}</span>
+                  </div>
+                </div>
+
+                <div class="dm-contacto">
+                  @if (m.diasSinContacto !== null) {
+                    <span class="dias-badge dias-{{ diasColor(m.diasSinContacto) }}">
+                      <mat-icon>schedule</mat-icon>
+                      {{ m.diasSinContacto === 0 ? 'Hoy' : m.diasSinContacto + ' días sin contacto' }}
+                    </span>
+                  } @else {
+                    <span class="dias-badge dias-sin-contacto">
+                      <mat-icon>person_off</mat-icon> Nunca contactado
+                    </span>
+                  }
+                  @if (m.ultimoContactoTipo) {
+                    <span class="ultimo-tipo">{{ m.ultimoContactoTipo }}</span>
+                  }
+                </div>
+
+                @if (m.ultimoContactoResumen) {
+                  <p class="dm-resumen">{{ m.ultimoContactoResumen }}</p>
+                }
+
+                @if (m.proximaAccion) {
+                  <div class="dm-proxima" [class.vencida]="m.accionVencida">
+                    <mat-icon>{{ m.accionVencida ? 'event_busy' : 'event_note' }}</mat-icon>
+                    <div>
+                      <p class="proxima-texto">{{ m.proximaAccion }}</p>
+                      @if (m.fechaProximaAccion) {
+                        <p class="proxima-fecha">{{ m.fechaProximaAccion | date:'dd/MM/yyyy' }}
+                          @if (m.accionVencida) { <span class="badge-vencida">Vencida</span> }
+                        </p>
+                      }
+                    </div>
+                  </div>
+                }
+
+                <div class="dm-actions">
+                  <button mat-stroked-button (click)="verHistorialDashboard(m)">
+                    <mat-icon>history</mat-icon> Historial
+                  </button>
+                  <button mat-raised-button color="primary" (click)="registrarContactoDashboard(m)">
+                    <mat-icon>add_call</mat-icon> Registrar contacto
+                  </button>
+                </div>
+
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+
+        <mat-paginator
+          [length]="dashboardTotal()"
+          [pageIndex]="dashboardPage()"
+          [pageSize]="dashboardSize()"
+          [pageSizeOptions]="[10, 20, 50]"
+          (page)="onPageDashboard($event)"
+          showFirstLastButtons
+        />
+      }
+    }
+  }
 
   <!-- ── VISTA CONSOLIDADORES ── -->
   @if (vista() === 'consolidadores') {

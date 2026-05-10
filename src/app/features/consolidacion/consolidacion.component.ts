@@ -13,12 +13,17 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ConsolidacionService } from '../../core/services/consolidacion.service';
 import { AuthService } from '../../core/services/auth.service';
 import {
   ConsolidadorResponse,
   TareaConsolidacionResponse,
   TareaEstado,
+  DashboardMiembro,
+  DashboardResumen,
+  MiembroEstadoDashboard,
+  Prioridad,
 } from '../../core/models/consolidacion.model';
 import {
   ConfirmDialogComponent,
@@ -33,7 +38,7 @@ import {
   ContactoHistorialDialogData,
 } from './contacto-historial-dialog/contacto-historial-dialog.component';
 
-type Vista = 'consolidadores' | 'tareas';
+type Vista = 'dashboard' | 'consolidadores' | 'tareas';
 
 @Component({
   selector: 'app-consolidacion',
@@ -43,7 +48,7 @@ type Vista = 'consolidadores' | 'tareas';
     MatCardModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatPaginatorModule,
     MatFormFieldModule, MatInputModule, MatSelectModule,
-    MatTooltipModule, MatDividerModule,
+    MatTooltipModule, MatDividerModule, MatSlideToggleModule,
   ],
   templateUrl: './consolidacion.component.html',
   styleUrl: './consolidacion.component.scss',
@@ -54,7 +59,7 @@ export class ConsolidacionComponent implements OnInit {
   private readonly dialog   = inject(MatDialog);
   readonly auth = inject(AuthService);
 
-  readonly vista         = signal<Vista>('consolidadores');
+  readonly vista         = signal<Vista>(this.auth.hasAnyRole(['CONSOLIDACION_SEDE']) ? 'dashboard' : 'consolidadores');
   readonly loadingConsolidadores = signal(false);
   readonly loadingTareas = signal(false);
   readonly consolidadores = signal<ConsolidadorResponse[]>([]);
@@ -71,9 +76,24 @@ export class ConsolidacionComponent implements OnInit {
     Validators.required, Validators.min(1), Validators.max(100),
   ]);
 
+  // Dashboard
+  readonly dashboardResumen  = signal<DashboardResumen | null>(null);
+  readonly dashboardMiembros = signal<DashboardMiembro[]>([]);
+  readonly dashboardTotal    = signal(0);
+  readonly dashboardPage     = signal(0);
+  readonly dashboardSize     = signal(20);
+  readonly loadingDashboard  = signal(false);
+  readonly dashboardEstadoCtrl    = new FormControl<MiembroEstadoDashboard | ''>('');
+  readonly dashboardPrioridadCtrl = new FormControl<Prioridad | ''>('');
+  readonly soloVencidasCtrl       = new FormControl(false);
+
   ngOnInit() {
     this.cargarConfiguracion();
-    this.cargarConsolidadores();
+    if (this.auth.hasAnyRole(['CONSOLIDACION_SEDE'])) {
+      this.cargarDashboard();
+    } else {
+      this.cargarConsolidadores();
+    }
   }
 
   cargarConfiguracion() {
@@ -93,6 +113,8 @@ export class ConsolidacionComponent implements OnInit {
   cambiarVista(v: Vista) {
     this.vista.set(v);
     if (v === 'tareas' && this.tareas().length === 0) this.cargarTareas();
+    if (v === 'consolidadores' && this.consolidadores().length === 0) this.cargarConsolidadores();
+    if (v === 'dashboard' && this.dashboardMiembros().length === 0) this.cargarDashboard();
   }
 
   cargarTareas() {
@@ -160,6 +182,65 @@ export class ConsolidacionComponent implements OnInit {
 
   estaLleno(c: ConsolidadorResponse): boolean {
     return c.asignadosActivos >= c.maxAsignados;
+  }
+
+  cargarDashboard() {
+    this.loadingDashboard.set(true);
+    this.service.getDashboard({
+      estado: this.dashboardEstadoCtrl.value || undefined,
+      prioridad: this.dashboardPrioridadCtrl.value || undefined,
+      soloVencidas: this.soloVencidasCtrl.value ?? false,
+      page: this.dashboardPage(),
+      size: this.dashboardSize(),
+    }).subscribe({
+      next: res => {
+        this.dashboardResumen.set(res.resumen);
+        this.dashboardMiembros.set(res.miembros);
+        this.dashboardTotal.set(res.totalElements);
+        this.loadingDashboard.set(false);
+      },
+      error: () => {
+        this.loadingDashboard.set(false);
+        this.snackBar.open('Error al cargar el dashboard', 'Cerrar', { duration: 3000 });
+      },
+    });
+  }
+
+  aplicarFiltrosDashboard() {
+    this.dashboardPage.set(0);
+    this.cargarDashboard();
+  }
+
+  onPageDashboard(e: PageEvent) {
+    this.dashboardPage.set(e.pageIndex);
+    this.dashboardSize.set(e.pageSize);
+    this.cargarDashboard();
+  }
+
+  diasColor(dias: number | null): string {
+    if (dias === null) return 'sin-contacto';
+    if (dias >= 15) return 'critico';
+    if (dias >= 7)  return 'alerta';
+    return 'ok';
+  }
+
+  registrarContactoDashboard(m: DashboardMiembro) {
+    this.dialog
+      .open(ContactoFormDialogComponent, {
+        width: '500px',
+        data: { miembroId: m.miembroId, miembroNombres: m.nombres, miembroApellidos: m.apellidos } satisfies ContactoFormDialogData,
+      })
+      .afterClosed()
+      .subscribe(ok => {
+        if (ok) { this.snackBar.open('Contacto registrado', '', { duration: 2500 }); this.cargarDashboard(); }
+      });
+  }
+
+  verHistorialDashboard(m: DashboardMiembro) {
+    this.dialog.open(ContactoHistorialDialogComponent, {
+      width: '560px',
+      data: { miembroId: m.miembroId, miembroNombres: m.nombres, miembroApellidos: m.apellidos } satisfies ContactoHistorialDialogData,
+    });
   }
 
   registrarContacto(tarea: TareaConsolidacionResponse) {
