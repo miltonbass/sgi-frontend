@@ -1,5 +1,5 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,6 +14,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 import { ConsolidacionService } from '../../core/services/consolidacion.service';
 import { AuthService } from '../../core/services/auth.service';
 import {
@@ -24,6 +26,8 @@ import {
   DashboardResumen,
   MiembroEstadoDashboard,
   Prioridad,
+  ReporteResponse,
+  ReporteConsolidador,
 } from '../../core/models/consolidacion.model';
 import {
   ConfirmDialogComponent,
@@ -38,17 +42,18 @@ import {
   ContactoHistorialDialogData,
 } from './contacto-historial-dialog/contacto-historial-dialog.component';
 
-type Vista = 'dashboard' | 'consolidadores' | 'tareas';
+type Vista = 'dashboard' | 'consolidadores' | 'tareas' | 'reporte';
 
 @Component({
   selector: 'app-consolidacion',
   standalone: true,
   imports: [
-    DatePipe, ReactiveFormsModule,
+    DatePipe, DecimalPipe, ReactiveFormsModule,
     MatCardModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatPaginatorModule,
     MatFormFieldModule, MatInputModule, MatSelectModule,
     MatTooltipModule, MatDividerModule, MatSlideToggleModule,
+    MatDatepickerModule, MatNativeDateModule,
   ],
   templateUrl: './consolidacion.component.html',
   styleUrl: './consolidacion.component.scss',
@@ -87,8 +92,16 @@ export class ConsolidacionComponent implements OnInit {
   readonly dashboardPrioridadCtrl = new FormControl<Prioridad | ''>('');
   readonly soloVencidasCtrl       = new FormControl(false);
 
+  // Reporte
+  readonly reporte         = signal<ReporteResponse | null>(null);
+  readonly loadingReporte  = signal(false);
+  private readonly _hoy    = new Date();
+  private readonly _hace6  = new Date(Date.now() - 6 * 86400000);
+  readonly fechaDesdeCtrl  = new FormControl<Date>(this._hace6, { nonNullable: true });
+  readonly fechaHastaCtrl  = new FormControl<Date>(this._hoy,   { nonNullable: true });
+
   ngOnInit() {
-    this.cargarConfiguracion();
+    if (this.isAdminSede) this.cargarConfiguracion();
     if (this.auth.hasAnyRole(['CONSOLIDACION_SEDE'])) {
       this.cargarDashboard();
     } else {
@@ -99,6 +112,7 @@ export class ConsolidacionComponent implements OnInit {
   cargarConfiguracion() {
     this.service.getConfiguracion().subscribe({
       next: cfg => { this.maxAsignados.set(cfg.maxAsignadosConsolidador); this.maxCtrl.setValue(cfg.maxAsignadosConsolidador); },
+      error: () => {},
     });
   }
 
@@ -115,6 +129,7 @@ export class ConsolidacionComponent implements OnInit {
     if (v === 'tareas' && this.tareas().length === 0) this.cargarTareas();
     if (v === 'consolidadores' && this.consolidadores().length === 0) this.cargarConsolidadores();
     if (v === 'dashboard' && this.dashboardMiembros().length === 0) this.cargarDashboard();
+    if (v === 'reporte' && this.reporte() === null) this.cargarReporte();
   }
 
   cargarTareas() {
@@ -182,6 +197,25 @@ export class ConsolidacionComponent implements OnInit {
 
   estaLleno(c: ConsolidadorResponse): boolean {
     return c.asignadosActivos >= c.maxAsignados;
+  }
+
+  private fmtDate(d: Date): string {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  cargarReporte() {
+    this.loadingReporte.set(true);
+    this.service.getReporte(
+      this.fmtDate(this.fechaDesdeCtrl.value),
+      this.fmtDate(this.fechaHastaCtrl.value),
+    ).subscribe({
+      next: r  => { this.reporte.set(r); this.loadingReporte.set(false); },
+      error: () => { this.loadingReporte.set(false); this.snackBar.open('Error al cargar el reporte', 'Cerrar', { duration: 3000 }); },
+    });
+  }
+
+  pendientesPercent(c: ReporteConsolidador): number {
+    return c.totalAsignados > 0 ? Math.round((c.pendientes / c.totalAsignados) * 100) : 0;
   }
 
   cargarDashboard() {

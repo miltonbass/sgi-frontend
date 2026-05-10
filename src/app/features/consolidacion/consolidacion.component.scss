@@ -179,3 +179,25 @@ mat-paginator { margin-top: 8px; }
   display: inline-block; background: #f44336; color: #fff;
   font-size: 0.7rem; padding: 1px 6px; border-radius: 8px; font-weight: 700;
 }
+
+// ── Reporte ──
+.reporte-periodo { font-size: 0.85rem; color: #757575; margin: 0 0 16px; }
+
+.reporte-consolidadores { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+
+.rep-card {
+  .rep-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .rep-info { flex: 1; .rep-nombre { margin: 0; font-weight: 600; } .rep-sub { margin: 2px 0 0; font-size: 0.82rem; color: #757575; } }
+  .rep-metricas { display: flex; gap: 12px; }
+  .metrica {
+    display: flex; flex-direction: column; align-items: center; background: #f5f5f5;
+    border-radius: 8px; padding: 6px 14px; min-width: 64px;
+    .metrica-valor { font-size: 1.3rem; font-weight: 700; color: #424242; }
+    .metrica-label { font-size: 0.72rem; color: #757575; }
+    &.ok    { background: #e8f5e9; .metrica-valor { color: #2e7d32; } }
+    &.alerta { background: #fff8e1; .metrica-valor { color: #e65100; } }
+  }
+  .rep-barra-bg { height: 6px; background: #e0e0e0; border-radius: 3px; overflow: hidden; margin-bottom: 4px; }
+  .rep-barra-fill { height: 100%; background: #4caf50; border-radius: 3px; transition: width 0.3s; &.warn { background: #ff9800; } }
+  .rep-barra-label { font-size: 0.78rem; color: #757575; margin: 0; }
+}

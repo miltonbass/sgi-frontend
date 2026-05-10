@@ -82,3 +82,26 @@ export interface DashboardFiltros {
   page?: number;
   size?: number;
 }
+
+export interface ReporteResumen {
+  visitantesEnProceso: number;
+  convertidosEnPeriodo: number;
+  tasaConversion: number;
+  tiempoPromedioConsolidacion: number | null;
+}
+
+export interface ReporteConsolidador {
+  consolidadorId: string;
+  nombres: string;
+  apellidos: string;
+  totalAsignados: number;
+  contactadosEnPeriodo: number;
+  pendientes: number;
+}
+
+export interface ReporteResponse {
+  resumen: ReporteResumen;
+  consolidadores: ReporteConsolidador[];
+  fechaDesde: string;
+  fechaHasta: string;
+}

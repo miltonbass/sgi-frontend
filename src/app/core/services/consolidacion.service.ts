@@ -8,6 +8,7 @@ import {
   ConsolidacionConfiguracion,
   DashboardResponse,
   DashboardFiltros,
+  ReporteResponse,
 } from '../models/consolidacion.model';
 import { environment } from '../../../environments/environment';
 
@@ -55,5 +56,12 @@ export class ConsolidacionService {
     if (filtros?.page !== undefined)        p = p.set('page', filtros.page);
     if (filtros?.size !== undefined)        p = p.set('size', filtros.size);
     return this.http.get<DashboardResponse>(`${this.baseUrl}/dashboard`, { params: p });
+  }
+
+  getReporte(fechaDesde?: string, fechaHasta?: string) {
+    let p = new HttpParams();
+    if (fechaDesde) p = p.set('fechaDesde', fechaDesde);
+    if (fechaHasta) p = p.set('fechaHasta', fechaHasta);
+    return this.http.get<ReporteResponse>(`${this.baseUrl}/reporte`, { params: p });
   }
 }

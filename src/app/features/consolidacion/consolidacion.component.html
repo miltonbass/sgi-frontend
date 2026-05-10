@@ -54,6 +54,11 @@
         (click)="cambiarVista('consolidadores')">
         <mat-icon>people</mat-icon> Consolidadores
       </button>
+      <button mat-raised-button
+        [color]="vista() === 'reporte' ? 'primary' : ''"
+        (click)="cambiarVista('reporte')">
+        <mat-icon>bar_chart</mat-icon> Reporte
+      </button>
     }
     <button mat-raised-button
       [color]="vista() === 'tareas' ? 'primary' : ''"
@@ -218,6 +223,116 @@
           (page)="onPageDashboard($event)"
           showFirstLastButtons
         />
+      }
+    }
+  }
+
+  <!-- ── VISTA REPORTE ── -->
+  @if (vista() === 'reporte') {
+
+    <!-- Selector de fechas -->
+    <mat-card class="filtros-card">
+      <mat-card-content>
+        <div class="filtros-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Desde</mat-label>
+            <input matInput [matDatepicker]="pickerDesde" [formControl]="fechaDesdeCtrl" />
+            <mat-datepicker-toggle matSuffix [for]="pickerDesde" />
+            <mat-datepicker #pickerDesde />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Hasta</mat-label>
+            <input matInput [matDatepicker]="pickerHasta" [formControl]="fechaHastaCtrl" />
+            <mat-datepicker-toggle matSuffix [for]="pickerHasta" />
+            <mat-datepicker #pickerHasta />
+          </mat-form-field>
+
+          <button mat-raised-button color="primary" (click)="cargarReporte()">
+            <mat-icon>search</mat-icon> Consultar
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    @if (loadingReporte()) {
+      <div class="center-spinner"><mat-spinner diameter="48" /></div>
+    } @else if (reporte(); as r) {
+
+      <!-- Tarjetas de resumen -->
+      <div class="dash-resumen" style="margin-bottom:24px">
+        <div class="dash-card">
+          <span class="dash-valor">{{ r.resumen.visitantesEnProceso }}</span>
+          <span class="dash-label">Visitantes en proceso</span>
+        </div>
+        <div class="dash-card ok" [class.activo]="r.resumen.convertidosEnPeriodo > 0">
+          <mat-icon>how_to_reg</mat-icon>
+          <span class="dash-valor">{{ r.resumen.convertidosEnPeriodo }}</span>
+          <span class="dash-label">Convertidos en período</span>
+        </div>
+        <div class="dash-card ok" [class.activo]="r.resumen.tasaConversion > 0">
+          <mat-icon>percent</mat-icon>
+          <span class="dash-valor">{{ r.resumen.tasaConversion | number:'1.1-1' }}%</span>
+          <span class="dash-label">Tasa de conversión</span>
+        </div>
+        <div class="dash-card">
+          <mat-icon>timer</mat-icon>
+          <span class="dash-valor">
+            {{ r.resumen.tiempoPromedioConsolidacion !== null ? r.resumen.tiempoPromedioConsolidacion : '—' }}
+          </span>
+          <span class="dash-label">
+            {{ r.resumen.tiempoPromedioConsolidacion !== null ? 'Días prom. consolidación' : 'Sin datos' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Período consultado -->
+      <p class="reporte-periodo">
+        Período: <strong>{{ r.fechaDesde | date:'dd/MM/yyyy' }}</strong> al <strong>{{ r.fechaHasta | date:'dd/MM/yyyy' }}</strong>
+      </p>
+
+      <!-- Tabla de consolidadores -->
+      @if (r.consolidadores.length === 0) {
+        <div class="empty-state">
+          <mat-icon>people_outline</mat-icon>
+          <p>No hay consolidadores registrados en esta sede.</p>
+        </div>
+      } @else {
+        <div class="reporte-consolidadores">
+          @for (c of r.consolidadores; track c.consolidadorId) {
+            <mat-card class="rep-card">
+              <mat-card-content>
+                <div class="rep-top">
+                  <div class="avatar">{{ c.nombres[0] }}{{ c.apellidos[0] }}</div>
+                  <div class="rep-info">
+                    <p class="rep-nombre">{{ c.nombres }} {{ c.apellidos }}</p>
+                    <p class="rep-sub">{{ c.totalAsignados }} asignados</p>
+                  </div>
+                  <div class="rep-metricas">
+                    <div class="metrica ok">
+                      <span class="metrica-valor">{{ c.contactadosEnPeriodo }}</span>
+                      <span class="metrica-label">Contactados</span>
+                    </div>
+                    <div class="metrica" [class.alerta]="c.pendientes > 0">
+                      <span class="metrica-valor">{{ c.pendientes }}</span>
+                      <span class="metrica-label">Pendientes</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="rep-barra-bg">
+                  <div class="rep-barra-fill"
+                    [style.width.%]="100 - pendientesPercent(c)"
+                    [class.warn]="pendientesPercent(c) > 50">
+                  </div>
+                </div>
+                <p class="rep-barra-label">
+                  {{ 100 - pendientesPercent(c) }}% contactados en el período
+                </p>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
       }
     }
   }
