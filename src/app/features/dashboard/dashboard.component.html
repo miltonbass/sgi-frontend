@@ -1,0 +1,226 @@
+<div class="page-container">
+
+  <h2 class="page-title">Dashboard de Sede</h2>
+
+  @if (loading()) {
+    <div class="center-spinner"><mat-spinner diameter="52" /></div>
+  } @else if (dashboard(); as d) {
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <mat-card class="kpi-card">
+        <mat-card-content>
+          <mat-icon class="kpi-icon blue">people</mat-icon>
+          <div class="kpi-data">
+            <span class="kpi-valor">{{ d.kpis.totalMiembrosActivos }}</span>
+            <span class="kpi-label">Miembros activos</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card">
+        <mat-card-content>
+          <mat-icon class="kpi-icon green">person_add</mat-icon>
+          <div class="kpi-data">
+            <span class="kpi-valor">{{ d.kpis.nuevosMes }}</span>
+            <span class="kpi-label">Nuevos este mes</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card asistencia-card" style="cursor:default"
+        matTooltip="Basado en los últimos 4 cultos cerrados."
+        matTooltipPosition="below" matTooltipShowDelay="300">
+        <mat-card-content>
+          <mat-icon class="kpi-icon orange">bar_chart</mat-icon>
+          <div class="kpi-data">
+            @if (d.kpis.asistenciaPromedio !== null) {
+              <span class="kpi-valor">{{ (d.kpis.asistenciaPromedio / 10) | number:'1.0-0' }}</span>
+              <span class="kpi-label">de cada 10 miembros asisten al culto</span>
+            } @else {
+              <span class="kpi-valor">—</span>
+              <span class="kpi-label">Sin cultos registrados aún</span>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card">
+        <mat-card-content>
+          <mat-icon class="kpi-icon purple">handshake</mat-icon>
+          <div class="kpi-data">
+            <span class="kpi-valor">{{ d.kpis.miembrosEnConsolidacion }}</span>
+            <span class="kpi-label">En consolidación</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Fila inferior -->
+    <div class="bottom-grid">
+
+      <!-- Gráfico de crecimiento -->
+      <mat-card class="chart-card">
+        <mat-card-content>
+          <div class="chart-header">
+            <p class="section-title" style="margin:0">Crecimiento de miembros</p>
+            <div class="chart-filtros">
+              <mat-form-field appearance="outline" class="fecha-field">
+                <mat-label>Desde</mat-label>
+                <input matInput [matDatepicker]="pickerDesde" [formControl]="fechaDesdeCtrl" />
+                <mat-datepicker-toggle matSuffix [for]="pickerDesde" />
+                <mat-datepicker #pickerDesde />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="fecha-field">
+                <mat-label>Hasta</mat-label>
+                <input matInput [matDatepicker]="pickerHasta" [formControl]="fechaHastaCtrl" />
+                <mat-datepicker-toggle matSuffix [for]="pickerHasta" />
+                <mat-datepicker #pickerHasta />
+              </mat-form-field>
+              <button mat-raised-button color="primary" (click)="cargarDashboard()">
+                <mat-icon>search</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          @if (dashboard()?.granularidad) {
+            <p class="granularidad-label">
+              Granularidad: {{ dashboard()!.granularidad === 'MES' ? 'mensual' : 'diaria' }}
+            </p>
+          }
+
+          @if (chartData(); as chart) {
+            <svg [attr.viewBox]="'0 0 ' + chart.W + ' ' + chart.H"
+              class="chart-svg" aria-hidden="true">
+
+              <!-- Línea de base -->
+              <line [attr.x1]="chart.padL" [attr.y1]="chart.padT + chart.innerH"
+                [attr.x2]="chart.W - 16" [attr.y2]="chart.padT + chart.innerH"
+                stroke="#e0e0e0" stroke-width="1" />
+
+              <!-- Barras (nuevos) -->
+              @for (b of chart.bars; track b.periodo) {
+                <rect [attr.x]="b.barX" [attr.y]="b.barY"
+                  [attr.width]="b.barW" [attr.height]="b.barH"
+                  rx="3" fill="#90caf9" />
+                @if (b.nuevos > 0) {
+                  <text [attr.x]="b.cx" [attr.y]="b.barY - 4"
+                    text-anchor="middle" font-size="11" fill="#1565c0" font-weight="600">
+                    +{{ b.nuevos }}
+                  </text>
+                }
+              }
+
+              <!-- Línea de tendencia (totalMiembros) -->
+              <polyline [attr.points]="chart.linePoints"
+                fill="none" stroke="#1565c0" stroke-width="2"
+                stroke-linejoin="round" stroke-linecap="round" />
+
+              <!-- Puntos de la línea -->
+              @for (b of chart.bars; track b.periodo) {
+                <circle [attr.cx]="b.cx" [attr.cy]="b.lineY"
+                  r="4" fill="#1565c0" />
+                <text [attr.x]="b.cx" [attr.y]="b.lineY - 7"
+                  text-anchor="middle" font-size="10" fill="#1565c0">
+                  {{ b.totalMiembros }}
+                </text>
+              }
+
+              <!-- Etiquetas eje X (cada N puntos según densidad) -->
+              @for (b of chart.bars; track b.periodo) {
+                @if (b.showLabel) {
+                  <text [attr.x]="b.cx" [attr.y]="chart.padT + chart.innerH + 16"
+                    text-anchor="middle" font-size="11" fill="#757575">
+                    {{ b.label }}
+                  </text>
+                }
+              }
+            </svg>
+
+            <div class="chart-legend">
+              <span class="legend-item">
+                <span class="legend-bar"></span> Nuevos ingresos
+              </span>
+              <span class="legend-item">
+                <span class="legend-line"></span> Total acumulado
+              </span>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Columna derecha -->
+      <div class="right-col">
+
+        <!-- Próximos eventos -->
+        <mat-card class="events-card">
+          <mat-card-content>
+            <p class="section-title">Próximos eventos</p>
+            @if (d.proximosEventos.length === 0) {
+              <p class="empty-text">No hay eventos próximos.</p>
+            } @else {
+              <div class="events-list">
+                @for (e of d.proximosEventos; track e.id) {
+                  <div class="event-item">
+                    <mat-icon class="event-icon">{{ tipoEventoIcons[e.tipo] ?? 'event' }}</mat-icon>
+                    <div class="event-info">
+                      <p class="event-titulo">{{ e.titulo }}</p>
+                      <p class="event-meta">
+                        {{ e.fechaInicio | date:'EEE d MMM · HH:mm':'':'es' }}
+                        @if (e.lugar) { · {{ e.lugar }} }
+                      </p>
+                    </div>
+                    <span class="tipo-chip">{{ tipoEventoLabels[e.tipo] ?? e.tipo }}</span>
+                  </div>
+                  <mat-divider />
+                }
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Alertas sin contacto -->
+        <mat-card class="alerts-card">
+          <mat-card-content>
+            <p class="section-title">
+              <mat-icon class="title-icon alerta">notifications_active</mat-icon>
+              Alertas sin contacto
+            </p>
+            @if (d.alertasSinContacto.length === 0) {
+              <p class="empty-text">No hay alertas activas.</p>
+            } @else {
+              <div class="alerts-list">
+                @for (a of d.alertasSinContacto; track a.miembroId) {
+                  <div class="alert-item" (click)="irAMiembro(a.miembroId)"
+                    matTooltip="Ver perfil">
+                    <div class="alert-info">
+                      <p class="alert-nombre">{{ a.nombres }} {{ a.apellidos }}</p>
+                      @if (a.telefono) {
+                        <p class="alert-tel"><mat-icon>phone</mat-icon> {{ a.telefono }}</p>
+                      }
+                    </div>
+                    <span class="dias-chip dias-{{ diasColor(a.diasSinContacto) }}">
+                      @if (a.diasSinContacto === null) {
+                        Sin contacto
+                      } @else {
+                        {{ a.diasSinContacto }}d
+                      }
+                    </span>
+                  </div>
+                }
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+
+      </div>
+    </div>
+
+  } @else {
+    <div class="empty-state">
+      <mat-icon>dashboard</mat-icon>
+      <p>No se pudo cargar el dashboard.</p>
+    </div>
+  }
+
+</div>

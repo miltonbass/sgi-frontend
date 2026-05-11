@@ -32,6 +32,7 @@ const ROUTE_TITLES: { pattern: RegExp; title: string }[] = [
   { pattern: /\/eventos/,              title: 'Eventos' },
   { pattern: /\/alertas/,             title: 'Alertas de Ausencia' },
   { pattern: /\/consolidacion/,       title: 'Consolidación' },
+  { pattern: /\/dashboard/,          title: 'Dashboard' },
 ];
 
 @Component({
@@ -56,6 +57,7 @@ export class LayoutComponent {
   readonly pageTitle     = signal('Miembros');
 
   private readonly navItems: NavItem[] = [
+    { path: '/dashboard', label: 'Dashboard', icon: 'dashboard',       roles: ['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_SEDE'] },
     { path: '/miembros', label: 'Miembros',  icon: 'people',          roles: [] },
     { path: '/grupos',   label: 'Grupos',    icon: 'groups',          roles: ['ADMIN_GLOBAL','SUPER_ADMIN','ADMIN_SEDE','PASTOR_SEDE','LIDER_GRUPO','SECRETARIO_SEDE','REGISTRO_SEDE'] },
     { path: '/eventos',  label: 'Eventos',   icon: 'event',           roles: ['ADMIN_GLOBAL','ADMIN_SEDE','PASTOR_SEDE','LIDER_GRUPO','SECRETARIO_SEDE'] },

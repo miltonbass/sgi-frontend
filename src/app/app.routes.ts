@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
+import { inject } from '@angular/core';
 import { authGuard, roleGuard } from './core/guards/auth.guard';
+import { AuthService } from './core/services/auth.service';
 
 export const routes: Routes = [
   {
@@ -11,7 +13,21 @@ export const routes: Routes = [
     loadComponent: () => import('./shared/layout/layout.component').then(m => m.LayoutComponent),
     canActivate: [authGuard],
     children: [
-      { path: '', redirectTo: 'miembros', pathMatch: 'full' },
+      {
+        path: '', pathMatch: 'full',
+        redirectTo: () => {
+          const auth = inject(AuthService);
+          return auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_SEDE'])
+            ? '/dashboard'
+            : '/miembros';
+        },
+      },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent),
+        canActivate: [roleGuard(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_SEDE'])],
+      },
       {
         path: 'grupos',
         loadComponent: () => import('./features/grupos/grupos.component').then(m => m.GruposComponent),
