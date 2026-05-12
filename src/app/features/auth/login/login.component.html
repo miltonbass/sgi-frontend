@@ -61,7 +61,7 @@
         <!-- ── PASO 2: Sede + Contraseña ──────────────────── -->
         @if (step() === 'login') {
           <div class="login-heading">
-            <h2>Selecciona tu sede</h2>
+            <h2>{{ sedes().length > 1 ? 'Selecciona tu sede' : 'Ingresa tu contraseña' }}</h2>
             <div class="email-badge">
               <mat-icon class="email-badge-icon">account_circle</mat-icon>
               <span>{{ email }}</span>
@@ -73,18 +73,20 @@
 
           <form [formGroup]="loginForm" (ngSubmit)="submit()" novalidate>
 
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Sede</mat-label>
-              <mat-select formControlName="tenantId">
-                @for (sede of sedes(); track sede.id) {
-                  <mat-option [value]="sede.codigo">{{ sedeLabel(sede) }}</mat-option>
+            @if (sedes().length > 1) {
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Sede</mat-label>
+                <mat-select formControlName="sedeId">
+                  @for (sede of sedes(); track sede.id) {
+                    <mat-option [value]="sede.id">{{ sedeLabel(sede) }}</mat-option>
+                  }
+                </mat-select>
+                <mat-icon matSuffix>business</mat-icon>
+                @if (loginForm.get('sedeId')?.touched && loginForm.get('sedeId')?.hasError('required')) {
+                  <mat-error>Selecciona una sede</mat-error>
                 }
-              </mat-select>
-              <mat-icon matSuffix>business</mat-icon>
-              @if (loginForm.get('tenantId')?.touched && loginForm.get('tenantId')?.hasError('required')) {
-                <mat-error>Selecciona una sede</mat-error>
-              }
-            </mat-form-field>
+              </mat-form-field>
+            }
 
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Contraseña</mat-label>

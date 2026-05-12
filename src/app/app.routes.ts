@@ -17,9 +17,9 @@ export const routes: Routes = [
         path: '', pathMatch: 'full',
         redirectTo: () => {
           const auth = inject(AuthService);
-          return auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_SEDE'])
-            ? '/dashboard'
-            : '/miembros';
+          if (auth.hasAnyRole(['ADMIN_GLOBAL', 'PASTOR_PRINCIPAL'])) return '/dashboard-global';
+          if (auth.hasAnyRole(['ADMIN_SEDE', 'PASTOR_SEDE'])) return '/dashboard';
+          return '/miembros';
         },
       },
       {
@@ -27,6 +27,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent),
         canActivate: [roleGuard(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_SEDE'])],
+      },
+      {
+        path: 'dashboard-global',
+        loadComponent: () =>
+          import('./features/dashboard-global/dashboard-global.component').then(m => m.DashboardGlobalComponent),
+        canActivate: [roleGuard(['ADMIN_GLOBAL', 'PASTOR_PRINCIPAL'])],
       },
       {
         path: 'grupos',

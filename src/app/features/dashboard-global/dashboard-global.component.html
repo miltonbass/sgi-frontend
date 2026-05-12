@@ -1,0 +1,163 @@
+<div class="page-container">
+
+  <h2 class="page-title">Dashboard Global</h2>
+
+  @if (loading()) {
+    <div class="center-spinner"><mat-spinner diameter="52" /></div>
+  } @else if (dashboard(); as d) {
+
+    <!-- Selector de fechas -->
+    <div class="filtros-row">
+      <mat-form-field appearance="outline" class="fecha-field">
+        <mat-label>Desde</mat-label>
+        <input matInput [matDatepicker]="pickerDesde" [formControl]="fechaDesdeCtrl" />
+        <mat-datepicker-toggle matSuffix [for]="pickerDesde" />
+        <mat-datepicker #pickerDesde />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="fecha-field">
+        <mat-label>Hasta</mat-label>
+        <input matInput [matDatepicker]="pickerHasta" [formControl]="fechaHastaCtrl" />
+        <mat-datepicker-toggle matSuffix [for]="pickerHasta" />
+        <mat-datepicker #pickerHasta />
+      </mat-form-field>
+      <button mat-raised-button color="primary" (click)="cargarDashboard()">
+        <mat-icon>search</mat-icon> Consultar
+      </button>
+      <span class="granularidad-label">
+        Granularidad: {{ d.granularidad === 'MES' ? 'mensual' : 'diaria' }}
+      </span>
+    </div>
+
+    <!-- Total general -->
+    @if (totales(); as t) {
+      <div class="total-card">
+        <p class="total-titulo">
+          <mat-icon>public</mat-icon> Total red — {{ d.sedes.length }} sedes
+        </p>
+        <div class="total-kpis">
+          <div class="total-kpi">
+            <span class="total-valor">{{ t.totalMiembrosActivos }}</span>
+            <span class="total-label">Miembros activos</span>
+          </div>
+          <div class="total-kpi">
+            <span class="total-valor">{{ t.nuevosMes }}</span>
+            <span class="total-label">Nuevos este mes</span>
+          </div>
+          <div class="total-kpi"
+            matTooltip="Promedio de las sedes con cultos registrados"
+            matTooltipShowDelay="300" style="cursor:default">
+            @if (t.asistenciaPromedio !== null) {
+              <span class="total-valor">{{ asistenciaDeCada10(t.asistenciaPromedio) }}</span>
+              <span class="total-label">de cada 10 asisten</span>
+            } @else {
+              <span class="total-valor" style="color:rgba(255,255,255,0.5)">—</span>
+              <span class="total-label">Sin cultos</span>
+            }
+          </div>
+          <div class="total-kpi">
+            <span class="total-valor">{{ t.miembrosEnConsolidacion }}</span>
+            <span class="total-label">En consolidación</span>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- KPIs por sede -->
+    <div class="sedes-grid">
+      @for (sede of d.sedes; track sede.sedeId; let i = $index) {
+        <mat-card class="sede-card" [style.border-left-color]="colors[i % colors.length]">
+          <mat-card-content>
+            <p class="sede-nombre">{{ sede.sedeNombre }}</p>
+            <span class="sede-codigo">{{ sede.sedeCodigo }}</span>
+
+            <div class="kpi-row">
+              <div class="kpi-mini">
+                <span class="kpi-valor-sm">{{ sede.kpis.totalMiembrosActivos }}</span>
+                <span class="kpi-label-sm">Activos</span>
+              </div>
+              <div class="kpi-mini">
+                <span class="kpi-valor-sm">{{ sede.kpis.nuevosMes }}</span>
+                <span class="kpi-label-sm">Nuevos mes</span>
+              </div>
+              <div class="kpi-mini"
+                matTooltip="De cada 10 miembros, cuántos asisten al culto (promedio últimos 4 cultos)"
+                matTooltipShowDelay="300">
+                @if (sede.kpis.asistenciaPromedio !== null) {
+                  <span class="kpi-valor-sm">{{ asistenciaDeCada10(sede.kpis.asistenciaPromedio) }}</span>
+                  <span class="kpi-label-sm">de cada 10 asisten</span>
+                } @else {
+                  <span class="kpi-valor-sm" style="color:#9e9e9e">—</span>
+                  <span class="kpi-label-sm">Sin cultos</span>
+                }
+              </div>
+              <div class="kpi-mini">
+                <span class="kpi-valor-sm">{{ sede.kpis.miembrosEnConsolidacion }}</span>
+                <span class="kpi-label-sm">En consolidación</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+
+    <!-- Gráfico comparativo -->
+    <mat-card class="chart-card">
+      <mat-card-content>
+        <p class="section-title">Crecimiento comparativo de sedes — total acumulado</p>
+
+        @if (chart(); as c) {
+          <svg [attr.viewBox]="'0 0 ' + c.W + ' ' + c.H" class="chart-svg" aria-hidden="true">
+
+            <!-- Línea de base -->
+            <line [attr.x1]="c.padL" [attr.y1]="c.baseY"
+              [attr.x2]="c.W - 16" [attr.y2]="c.baseY"
+              stroke="#e0e0e0" stroke-width="1" />
+
+            <!-- Líneas por sede -->
+            @for (line of c.lines; track line.sedeCodigo) {
+              <polyline [attr.points]="line.points" fill="none"
+                [attr.stroke]="line.color" stroke-width="2.5"
+                stroke-linejoin="round" stroke-linecap="round" />
+              @for (dot of line.dots; track dot.cx) {
+                <circle [attr.cx]="dot.cx" [attr.cy]="dot.cy" r="4"
+                  [attr.fill]="line.color" />
+                <text [attr.x]="dot.cx" [attr.y]="dot.cy - 7"
+                  text-anchor="middle" font-size="10" [attr.fill]="line.color">
+                  {{ dot.value }}
+                </text>
+              }
+            }
+
+            <!-- Etiquetas eje X -->
+            @for (lbl of c.labels; track lbl.x) {
+              @if (lbl.show) {
+                <text [attr.x]="lbl.x" [attr.y]="c.baseY + 12"
+                  text-anchor="end" font-size="9" fill="#757575"
+                  [attr.transform]="'rotate(-45 ' + lbl.x + ' ' + (c.baseY + 12) + ')'">
+                  {{ lbl.label }}
+                </text>
+              }
+            }
+          </svg>
+
+          <!-- Leyenda -->
+          <div class="legend">
+            @for (line of c.lines; track line.sedeCodigo; let i = $index) {
+              <span class="legend-item">
+                <span class="legend-dot" [style.background]="line.color"></span>
+                {{ line.sedeNombre }}
+              </span>
+            }
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+  } @else {
+    <div class="empty-state">
+      <mat-icon>public</mat-icon>
+      <p>No se pudo cargar el dashboard global.</p>
+    </div>
+  }
+
+</div>

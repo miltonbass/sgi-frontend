@@ -162,7 +162,7 @@
               <div class="events-list">
                 @for (e of d.proximosEventos; track e.id) {
                   <div class="event-item">
-                    <mat-icon class="event-icon">{{ tipoEventoIcons[e.tipo] ?? 'event' }}</mat-icon>
+                    <mat-icon class="event-icon">{{ tipoEventoIcons[e.tipo] || 'event' }}</mat-icon>
                     <div class="event-info">
                       <p class="event-titulo">{{ e.titulo }}</p>
                       <p class="event-meta">
@@ -170,7 +170,7 @@
                         @if (e.lugar) { · {{ e.lugar }} }
                       </p>
                     </div>
-                    <span class="tipo-chip">{{ tipoEventoLabels[e.tipo] ?? e.tipo }}</span>
+                    <span class="tipo-chip">{{ tipoEventoLabels[e.tipo] || e.tipo }}</span>
                   </div>
                   <mat-divider />
                 }

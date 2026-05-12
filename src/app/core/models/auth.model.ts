@@ -1,7 +1,7 @@
 export interface LoginRequest {
   email: string;
   password: string;
-  tenantId: string;
+  sedeId: string;
 }
 
 export interface SedeInfo {

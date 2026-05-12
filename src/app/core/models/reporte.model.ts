@@ -29,6 +29,21 @@ export interface AlertaSinContacto {
   ultimoContacto: string | null;
 }
 
+export interface DashboardGlobalSede {
+  sedeId: string;
+  sedeCodigo: string;
+  sedeNombre: string;
+  kpis: DashboardKpis;
+  crecimiento: CrecimientoPeriodo[];
+}
+
+export interface DashboardGlobalResponse {
+  sedes: DashboardGlobalSede[];
+  granularidad: 'MES' | 'DIA';
+  fechaDesde: string;
+  fechaHasta: string;
+}
+
 export interface DashboardSedeResponse {
   kpis: DashboardKpis;
   crecimiento: CrecimientoPeriodo[];

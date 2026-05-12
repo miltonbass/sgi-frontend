@@ -39,7 +39,7 @@ export class LoginComponent {
 
   readonly loginForm = this.fb.group({
     password: ['', Validators.required],
-    tenantId: ['', Validators.required],
+    sedeId: ['', Validators.required],
   });
 
   get email() { return this.emailForm.value.email ?? ''; }
@@ -58,7 +58,7 @@ export class LoginComponent {
         }
         this.sedes.set(sedes);
         if (sedes.length === 1) {
-          this.loginForm.patchValue({ tenantId: sedes[0].codigo });
+          this.loginForm.patchValue({ sedeId: sedes[0].id });
         }
         this.step.set('login');
         this.loading.set(false);
@@ -75,8 +75,8 @@ export class LoginComponent {
     this.loading.set(true);
     this.error.set('');
 
-    const { password, tenantId } = this.loginForm.getRawValue();
-    this.auth.login({ email: this.email, password: password!, tenantId: tenantId! }).subscribe({
+    const { password, sedeId } = this.loginForm.getRawValue();
+    this.auth.login({ email: this.email, password: password!, sedeId: sedeId! }).subscribe({
       next: () => { this.loading.set(false); this.router.navigate(['/']); },
       error: err => {
         this.loading.set(false);
