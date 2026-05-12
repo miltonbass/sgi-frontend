@@ -70,7 +70,9 @@ export class AuthService {
   }
 
   hasRole(role: string): boolean {
-    return this.currentUser()?.roles?.includes(role) ?? false;
+    if (this.currentUser()?.roles?.includes(role)) return true;
+    const claims = this.decodeToken(this.getToken() ?? '');
+    return claims?.roles?.includes(role) ?? false;
   }
 
   hasAnyRole(roles: string[]): boolean {

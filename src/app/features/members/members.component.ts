@@ -14,11 +14,14 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MemberService } from '../../core/services/member.service';
+import { GrupoService } from '../../core/services/grupo.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Miembro, EstadoMiembro, ESTADO_LABELS, ESTADO_COLORS, TRANSICIONES_ESTADO } from '../../core/models/member.model';
+import { Grupo } from '../../core/models/grupo.model';
 import { MemberFormComponent } from './member-form/member-form.component';
 import { MemberStatusDialogComponent } from './member-status-dialog/member-status-dialog.component';
 import { MemberImportDialogComponent } from './member-import-dialog/member-import-dialog.component';
@@ -32,12 +35,14 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
     MatTableModule, MatPaginatorModule, MatButtonModule,
     MatIconModule, MatFormFieldModule, MatInputModule,
     MatSelectModule, MatProgressSpinnerModule, MatTooltipModule, MatMenuModule,
+    MatDatepickerModule,
   ],
   templateUrl: './members.component.html',
   styleUrl: './members.component.scss',
 })
 export class MembersComponent implements OnInit, OnDestroy {
   private readonly memberService = inject(MemberService);
+  private readonly grupoService = inject(GrupoService);
   readonly auth = inject(AuthService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
@@ -48,9 +53,14 @@ export class MembersComponent implements OnInit, OnDestroy {
   readonly total = signal(0);
   readonly pageIndex = signal(0);
   readonly pageSize = signal(20);
+  readonly grupos = signal<Grupo[]>([]);
+  readonly exportandoFormato = signal<'EXCEL' | 'PDF' | null>(null);
 
   readonly searchCtrl = new FormControl('');
   readonly estadoCtrl = new FormControl<EstadoMiembro | ''>('');
+  readonly grupoCtrl = new FormControl<string>('');
+  readonly fechaDesdeCtrl = new FormControl<Date | null>(null);
+  readonly fechaHastaCtrl = new FormControl<Date | null>(null);
 
   readonly estadoLabels = ESTADO_LABELS;
   readonly estadoColors = ESTADO_COLORS;
@@ -62,8 +72,13 @@ export class MembersComponent implements OnInit, OnDestroy {
   canChangeStatus = this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_PRINCIPAL', 'PASTOR_SEDE']);
   canDelete = this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_PRINCIPAL', 'PASTOR_SEDE']);
 
+  get puedeExportar(): boolean {
+    return this.auth.hasAnyRole(['ADMIN_SEDE', 'ADMIN_GLOBAL', 'PASTOR_SEDE']);
+  }
+
   ngOnInit() {
     this.load();
+    this.loadGrupos();
 
     this.searchCtrl.valueChanges.pipe(
       debounceTime(400),
@@ -101,10 +116,51 @@ export class MembersComponent implements OnInit, OnDestroy {
     });
   }
 
+  private loadGrupos() {
+    this.grupoService.getAll({ page: 0, size: 200 }).subscribe({
+      next: res => this.grupos.set(res.content),
+    });
+  }
+
   onPage(e: PageEvent) {
     this.pageIndex.set(e.pageIndex);
     this.pageSize.set(e.pageSize);
     this.load();
+  }
+
+  exportar(formato: 'EXCEL' | 'PDF') {
+    if (this.exportandoFormato()) return;
+    this.exportandoFormato.set(formato);
+
+    this.memberService.exportarMiembros({
+      formato,
+      estado: (this.estadoCtrl.value as string) || undefined,
+      grupoId: this.grupoCtrl.value || undefined,
+      fechaDesde: this.formatDate(this.fechaDesdeCtrl.value),
+      fechaHasta: this.formatDate(this.fechaHastaCtrl.value),
+    }).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = formato === 'PDF' ? 'directorio-miembros.pdf' : 'directorio-miembros.xlsx';
+        a.click();
+        URL.revokeObjectURL(url);
+        this.exportandoFormato.set(null);
+      },
+      error: () => {
+        this.exportandoFormato.set(null);
+        this.snackBar.open('Error al generar el reporte, intente de nuevo', 'Cerrar', { duration: 4000 });
+      },
+    });
+  }
+
+  private formatDate(d: Date | null): string | undefined {
+    if (!d) return undefined;
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
   }
 
   openImport() {

@@ -35,3 +35,40 @@
 
   &:hover { text-decoration: underline; }
 }
+
+.export-section {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.export-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  flex: 1;
+
+  .grupo-field { min-width: 200px; flex: 1; }
+  .date-field  { width: 170px; }
+}
+
+.export-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding-top: 4px;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    mat-spinner { margin-right: 4px; }
+  }
+}

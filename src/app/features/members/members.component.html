@@ -15,7 +15,7 @@
     </div>
   </div>
 
-  <!-- Filtros -->
+  <!-- Filtros de lista -->
   <div class="filters-row">
     <mat-form-field appearance="outline" class="search-field">
       <mat-label>Buscar por nombre, cédula o email</mat-label>
@@ -34,6 +34,67 @@
       </mat-select>
     </mat-form-field>
   </div>
+
+  <!-- Filtros de exportación -->
+  @if (puedeExportar) {
+    <div class="export-section">
+      <div class="export-filters">
+        <mat-form-field appearance="outline" class="grupo-field">
+          <mat-label>Grupo</mat-label>
+          <mat-select [formControl]="grupoCtrl">
+            <mat-option value="">Todos los grupos</mat-option>
+            @for (g of grupos(); track g.id) {
+              <mat-option [value]="g.id">{{ g.nombre }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="date-field">
+          <mat-label>Ingreso desde</mat-label>
+          <input matInput [matDatepicker]="pickerDesde" [formControl]="fechaDesdeCtrl" />
+          <mat-datepicker-toggle matIconSuffix [for]="pickerDesde" />
+          <mat-datepicker #pickerDesde />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="date-field">
+          <mat-label>Ingreso hasta</mat-label>
+          <input matInput [matDatepicker]="pickerHasta" [formControl]="fechaHastaCtrl" />
+          <mat-datepicker-toggle matIconSuffix [for]="pickerHasta" />
+          <mat-datepicker #pickerHasta />
+        </mat-form-field>
+      </div>
+
+      <div class="export-buttons">
+        <button
+          mat-stroked-button
+          [disabled]="exportandoFormato() !== null"
+          (click)="exportar('EXCEL')"
+          matTooltip="Exportar listado a Excel con los filtros activos"
+        >
+          @if (exportandoFormato() === 'EXCEL') {
+            <mat-spinner diameter="16" />
+          } @else {
+            <mat-icon>table_view</mat-icon>
+          }
+          Exportar Excel
+        </button>
+
+        <button
+          mat-stroked-button
+          [disabled]="exportandoFormato() !== null"
+          (click)="exportar('PDF')"
+          matTooltip="Exportar directorio de miembros a PDF"
+        >
+          @if (exportandoFormato() === 'PDF') {
+            <mat-spinner diameter="16" />
+          } @else {
+            <mat-icon>picture_as_pdf</mat-icon>
+          }
+          Exportar PDF
+        </button>
+      </div>
+    </div>
+  }
 
   @if (loading()) {
     <div class="loading-center"><mat-spinner /></div>

@@ -71,4 +71,20 @@ export class MemberService {
     formData.append('estadoDefault', estadoDefault);
     return this.http.post<ImportResult>(`${this.baseUrl}/import`, formData);
   }
+
+  exportarMiembros(params: {
+    formato?: 'EXCEL' | 'PDF';
+    estado?: string;
+    grupoId?: string;
+    fechaDesde?: string;
+    fechaHasta?: string;
+  }) {
+    let p = new HttpParams();
+    if (params.formato)    p = p.set('formato',    params.formato);
+    if (params.estado)     p = p.set('estado',     params.estado);
+    if (params.grupoId)    p = p.set('grupoId',    params.grupoId);
+    if (params.fechaDesde) p = p.set('fechaDesde', params.fechaDesde);
+    if (params.fechaHasta) p = p.set('fechaHasta', params.fechaHasta);
+    return this.http.get(`${this.baseUrl}/exportar`, { params: p, responseType: 'blob' });
+  }
 }

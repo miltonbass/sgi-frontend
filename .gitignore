@@ -42,5 +42,4 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
-docs/h4.1-consolidacion-tecnico.md
-docs/h4.1-consolidacion-usuario.md
+docs/
