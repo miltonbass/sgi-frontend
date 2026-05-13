@@ -48,7 +48,7 @@ export class MemberDetailComponent implements OnInit {
   canVerAsistencia    = this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_SEDE']);
   canChangeStatus   = this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_PRINCIPAL', 'PASTOR_SEDE']);
   canAsignarConsolidador = this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'CONSOLIDACION_SEDE']);
-  esPastorPrincipal = this.auth.hasRole('PASTOR_PRINCIPAL');
+  esPastorPrincipal = this.auth.hasRole('PASTOR_PRINCIPAL') && !this.auth.hasRole('PASTOR_SEDE');
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!;
