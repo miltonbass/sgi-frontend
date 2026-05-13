@@ -68,7 +68,7 @@ export interface HistorialEstado {
   estadoNuevo: EstadoMiembro;
   motivo: string;
   cambiadoPor: string;
-  creadoEn: string;
+  cambiadoEn: string;
 }
 
 export interface GrupoMiembro {

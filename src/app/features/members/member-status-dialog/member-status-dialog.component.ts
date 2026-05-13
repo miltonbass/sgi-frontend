@@ -76,7 +76,7 @@ export class MemberStatusDialogComponent {
 
   form = this.fb.group({
     estado: [this.transiciones[0] ?? null, Validators.required],
-    motivo: ['', Validators.required],
+    motivo: ['', [Validators.required, Validators.minLength(1)]],
   });
 
   submit() {

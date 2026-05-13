@@ -141,7 +141,7 @@ export class MemberConsolidadorDialogComponent implements OnInit {
   private guardar(consolidadorId: string | null) {
     this.loading.set(true);
     this.error.set('');
-    this.memberService.update(this.data.miembroId, { consolidadorId }).subscribe({
+    this.memberService.asignarConsolidador(this.data.miembroId, consolidadorId).subscribe({
       next: () => { this.loading.set(false); this.dialogRef.close(true); },
       error: err => {
         this.loading.set(false);
