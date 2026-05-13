@@ -94,6 +94,30 @@ export interface PerfilMiembro {
   nivelAcceso: 'COMPLETO' | 'BASICO';
 }
 
+export interface AsistenciaResumen {
+  total: number;
+  presentes: number;
+  ausentes: number;
+  porcentaje: number | null;
+  rachaActual: number;
+  rachaLabel: string;
+}
+
+export interface AsistenciaHistorialItem {
+  eventoId: string;
+  titulo: string;
+  tipo: string;
+  fecha: string;
+  presente: boolean;
+  observacion: string | null;
+}
+
+export interface AsistenciaMiembroResponse {
+  miembro: { id: string; nombres: string; apellidos: string };
+  resumen: AsistenciaResumen;
+  historial: AsistenciaHistorialItem[];
+}
+
 export interface ImportError {
   linea: number;
   mensaje: string;

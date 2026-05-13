@@ -9,6 +9,7 @@ import {
   HistorialEstado,
   EstadoMiembro,
   ImportResult,
+  AsistenciaMiembroResponse,
 } from '../models/member.model';
 import { environment } from '../../../environments/environment';
 
@@ -39,6 +40,11 @@ export class MemberService {
 
   getPerfil(id: string) {
     return this.http.get<PerfilMiembro>(`${this.baseUrl}/${id}/perfil`);
+  }
+
+  getAsistencia(id: string, limite = 20) {
+    const params = new HttpParams().set('limite', limite.toString());
+    return this.http.get<AsistenciaMiembroResponse>(`${this.baseUrl}/${id}/asistencia`, { params });
   }
 
   create(data: CreateMiembroRequest) {

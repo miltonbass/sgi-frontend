@@ -21,6 +21,7 @@ interface NavItem {
 }
 
 const ROUTE_TITLES: { pattern: RegExp; title: string }[] = [
+  { pattern: /\/miembros\/.+\/asistencia/, title: 'Historial de Asistencia' },
   { pattern: /\/miembros\/.+/, title: 'Perfil de Miembro' },
   { pattern: /\/miembros/,     title: 'Miembros' },
   { pattern: /\/usuarios/,     title: 'Usuarios' },

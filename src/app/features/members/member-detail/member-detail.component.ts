@@ -1,5 +1,5 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Location, DatePipe, NgClass } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -21,7 +21,7 @@ import { MemberConsolidadorDialogComponent } from '../member-consolidador-dialog
   selector: 'app-member-detail',
   standalone: true,
   imports: [
-    DatePipe, NgClass,
+    DatePipe, NgClass, RouterLink,
     MatCardModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatDividerModule, MatTableModule, MatTooltipModule,
   ],
@@ -44,7 +44,8 @@ export class MemberDetailComponent implements OnInit {
 
   readonly historialColumns = ['fecha', 'anterior', 'nuevo', 'motivo'];
 
-  canEdit           = this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'SECRETARIA', 'REGISTRO_SEDE']);
+  canEdit             = this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'SECRETARIA', 'REGISTRO_SEDE']);
+  canVerAsistencia    = this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_SEDE']);
   canChangeStatus   = this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_PRINCIPAL', 'PASTOR_SEDE']);
   canAsignarConsolidador = this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'CONSOLIDACION_SEDE']);
   esPastorPrincipal = this.auth.hasRole('PASTOR_PRINCIPAL');

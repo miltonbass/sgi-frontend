@@ -1,0 +1,126 @@
+<div class="page-container">
+
+  @if (loading()) {
+    <div class="center-spinner"><mat-spinner diameter="52" /></div>
+
+  } @else if (data(); as d) {
+
+    <!-- Encabezado -->
+    <div class="detail-header">
+      <button mat-icon-button (click)="location.back()" matTooltip="Volver al perfil">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h2 class="page-title">Historial de asistencia</h2>
+        <p class="member-subtitle">{{ d.miembro.nombres }} {{ d.miembro.apellidos }}</p>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-resumen">
+      <mat-card class="kpi-card">
+        <mat-card-content>
+          <mat-icon class="kpi-icon">event</mat-icon>
+          <div class="kpi-data">
+            <span class="kpi-valor">{{ d.resumen.total }}</span>
+            <span class="kpi-label">Eventos registrados</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card">
+        <mat-card-content>
+          <mat-icon class="kpi-icon presente-icon">check_circle</mat-icon>
+          <div class="kpi-data">
+            <span class="kpi-valor">{{ d.resumen.presentes }}</span>
+            <span class="kpi-label">Presentes</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card">
+        <mat-card-content>
+          <mat-icon class="kpi-icon ausente-icon">cancel</mat-icon>
+          <div class="kpi-data">
+            <span class="kpi-valor">{{ d.resumen.ausentes }}</span>
+            <span class="kpi-label">Ausentes</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      @if (d.resumen.porcentaje !== null) {
+        <mat-card class="kpi-card kpi-pct-{{ porcentajeColor(d.resumen.porcentaje) }}"
+          matTooltip="Porcentaje de asistencia sobre el total de eventos registrados"
+          matTooltipShowDelay="300" style="cursor:default">
+          <mat-card-content>
+            <mat-icon class="kpi-icon">percent</mat-icon>
+            <div class="kpi-data">
+              <span class="kpi-valor">{{ d.resumen.porcentaje | number:'1.0-1' }}%</span>
+              <span class="kpi-label">Asistencia</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+
+    <!-- Racha + filtro -->
+    <div class="racha-filtro-row">
+      <span class="racha-chip racha-{{ rachaColor(d.resumen.rachaActual) }}">
+        <mat-icon>{{ rachaIcon(d.resumen.rachaActual) }}</mat-icon>
+        {{ d.resumen.rachaLabel }}
+      </span>
+      <span style="flex:1"></span>
+      <mat-form-field appearance="outline" class="limite-field">
+        <mat-label>Mostrar</mat-label>
+        <mat-select [formControl]="limiteCtrl">
+          @for (l of opcLimite; track l) {
+            <mat-option [value]="l">Últimos {{ l }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <button mat-raised-button color="primary" (click)="cargar()">
+        <mat-icon>search</mat-icon>
+      </button>
+    </div>
+
+    <!-- Lista -->
+    @if (d.historial.length === 0) {
+      <div class="empty-hist">
+        <mat-icon>event_busy</mat-icon>
+        <p>No hay registros de asistencia para este miembro.</p>
+      </div>
+    } @else {
+      <mat-card class="hist-card">
+        <mat-card-content>
+          @for (item of d.historial; track item.eventoId; let last = $last) {
+            <div class="hist-item">
+              <mat-icon class="tipo-icon">{{ tipoEventoIcons[item.tipo] || 'event' }}</mat-icon>
+              <div class="hist-info">
+                <p class="hist-titulo">{{ item.titulo }}</p>
+                <p class="hist-meta">
+                  {{ item.fecha | date:'dd MMM yyyy':'':'es' }}
+                  · {{ tipoEventoLabels[item.tipo] || item.tipo }}
+                </p>
+                @if (item.observacion) {
+                  <p class="hist-obs">{{ item.observacion }}</p>
+                }
+              </div>
+              <span class="asist-chip" [class.presente]="item.presente" [class.ausente]="!item.presente">
+                <mat-icon>{{ item.presente ? 'check' : 'close' }}</mat-icon>
+                {{ item.presente ? 'Presente' : 'Ausente' }}
+              </span>
+            </div>
+            @if (!last) { <mat-divider /> }
+          }
+        </mat-card-content>
+      </mat-card>
+    }
+
+  } @else {
+    <div class="empty-hist">
+      <mat-icon>event_busy</mat-icon>
+      <p>No se pudo cargar el historial.</p>
+    </div>
+  }
+
+</div>

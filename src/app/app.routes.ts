@@ -64,6 +64,14 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'miembros/:id/asistencia',
+        loadComponent: () =>
+          import('./features/members/member-asistencia/member-asistencia.component').then(
+            m => m.MemberAsistenciaComponent,
+          ),
+        canActivate: [roleGuard(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_SEDE'])],
+      },
+      {
         path: 'eventos',
         loadComponent: () =>
           import('./features/eventos/eventos.component').then(m => m.EventosComponent),
