@@ -8,16 +8,20 @@
     <div class="form-row">
       <mat-form-field appearance="outline">
         <mat-label>Nombres *</mat-label>
-        <input matInput formControlName="nombres" />
-        @if (form.get('nombres')?.invalid && form.get('nombres')?.touched) {
-          <mat-error>Requerido</mat-error>
+        <input matInput formControlName="nombres" maxlength="100" />
+        @if (form.get('nombres')?.touched) {
+          @if (form.get('nombres')?.hasError('required')) { <mat-error>Requerido</mat-error> }
+          @else if (form.get('nombres')?.hasError('minlength')) { <mat-error>Mínimo 2 caracteres</mat-error> }
+          @else if (form.get('nombres')?.hasError('maxlength')) { <mat-error>Máximo 100 caracteres</mat-error> }
         }
       </mat-form-field>
       <mat-form-field appearance="outline">
         <mat-label>Apellidos *</mat-label>
-        <input matInput formControlName="apellidos" />
-        @if (form.get('apellidos')?.invalid && form.get('apellidos')?.touched) {
-          <mat-error>Requerido</mat-error>
+        <input matInput formControlName="apellidos" maxlength="100" />
+        @if (form.get('apellidos')?.touched) {
+          @if (form.get('apellidos')?.hasError('required')) { <mat-error>Requerido</mat-error> }
+          @else if (form.get('apellidos')?.hasError('minlength')) { <mat-error>Mínimo 2 caracteres</mat-error> }
+          @else if (form.get('apellidos')?.hasError('maxlength')) { <mat-error>Máximo 100 caracteres</mat-error> }
         }
       </mat-form-field>
     </div>
@@ -59,7 +63,10 @@
     <div class="form-row">
       <mat-form-field appearance="outline">
         <mat-label>Teléfono</mat-label>
-        <input matInput formControlName="telefono" />
+        <input matInput formControlName="telefono" maxlength="20" />
+        @if (form.get('telefono')?.hasError('maxlength')) {
+          <mat-error>Máximo 20 caracteres</mat-error>
+        }
       </mat-form-field>
       <mat-form-field appearance="outline">
         <mat-label>Correo electrónico</mat-label>

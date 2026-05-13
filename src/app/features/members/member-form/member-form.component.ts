@@ -35,13 +35,13 @@ export class MemberFormComponent implements OnInit {
   readonly consolidadores = signal<ConsolidadorResponse[]>([]);
 
   form = this.fb.group({
-    nombres:         [this.data?.nombres         ?? '', Validators.required],
-    apellidos:       [this.data?.apellidos       ?? '', Validators.required],
+    nombres:         [this.data?.nombres         ?? '', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
+    apellidos:       [this.data?.apellidos       ?? '', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
     cedula:          [this.data?.cedula          ?? ''],
     genero:          [this.data?.genero          ?? ''],
     fechaNacimiento: [this.data?.fechaNacimiento ?? ''],
     estadoCivil:     [this.data?.estadoCivil     ?? ''],
-    telefono:        [this.data?.telefono        ?? ''],
+    telefono:        [this.data?.telefono        ?? '', Validators.maxLength(20)],
     email:           [this.data?.email           ?? '', Validators.email],
     ciudad:          [this.data?.ciudad          ?? ''],
     direccion:       [this.data?.direccion       ?? ''],
