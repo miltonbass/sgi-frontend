@@ -10,6 +10,7 @@ export interface Grupo {
   activo: boolean;
   totalMiembros: number;
   creadoEn: string;
+  actualizadoEn: string;
 }
 
 export interface GruposResponse {
@@ -55,4 +56,4 @@ export const TIPO_GRUPO_LABELS: Record<TipoGrupo, string> = {
   CLASE:      'Clase',
 };
 
-export const ROLES_GRUPO = ['LIDER', 'LIDER_AUXILIAR', 'MIEMBRO', 'VISITANTE'] as const;
+export const ROLES_GRUPO = ['LIDER', 'ASISTENTE', 'PARTICIPANTE'] as const;

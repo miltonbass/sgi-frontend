@@ -53,7 +53,7 @@ export class GrupoFormComponent implements OnInit {
       debounceTime(300),
       distinctUntilChanged(),
       switchMap(q => q && q.length >= 2
-        ? this.memberService.buscar({ q, size: 10 })
+        ? this.memberService.buscar({ q, size: 10, estado: 'MIEMBRO' })
         : of({ content: [] } as any)
       ),
     ).subscribe(res => this.liderOpciones.set(res.content ?? []));

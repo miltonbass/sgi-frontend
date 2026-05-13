@@ -11,9 +11,10 @@ export class GrupoService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/v1/grupos`;
 
-  getAll(params?: { tipo?: string; page?: number; size?: number }) {
+  getAll(params?: { tipo?: string; activo?: boolean; page?: number; size?: number }) {
     let p = new HttpParams();
     if (params?.tipo)  p = p.set('tipo', params.tipo);
+    if (params?.activo !== undefined) p = p.set('activo', params.activo);
     if (params?.page !== undefined) p = p.set('page', params.page);
     if (params?.size !== undefined) p = p.set('size', params.size);
     return this.http.get<GruposResponse>(this.baseUrl, { params: p });

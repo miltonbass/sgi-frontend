@@ -95,7 +95,7 @@ export class GrupoMiembroDialogComponent implements OnInit {
   form = this.fb.group({
     busqueda:    [''],
     miembroId:   ['', Validators.required],
-    rol:         ['MIEMBRO', Validators.required],
+    rol:         ['PARTICIPANTE', Validators.required],
     fechaIngreso: [new Date().toISOString().split('T')[0]],
   });
 
