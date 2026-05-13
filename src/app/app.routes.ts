@@ -75,7 +75,7 @@ export const routes: Routes = [
         path: 'eventos',
         loadComponent: () =>
           import('./features/eventos/eventos.component').then(m => m.EventosComponent),
-        canActivate: [roleGuard(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_SEDE', 'LIDER_GRUPO', 'SECRETARIO_SEDE', 'REGISTRO_SEDE'])],
+        canActivate: [roleGuard(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_SEDE', 'LIDER_GRUPO', 'SECRETARIO_SEDE'])],
       },
       {
         path: 'eventos/:id/checkin',
