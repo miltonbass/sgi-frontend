@@ -101,10 +101,27 @@
   gap: 6px;
 }
 
+.omitidos-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 80px;
+  overflow-y: auto;
+}
+
+.omitido-chip {
+  font-size: 12px;
+  padding: 2px 10px;
+  background: #fffaf0;
+  color: #c05621;
+  border-radius: 12px;
+  border: 1px solid #fbd38d;
+}
+
 .error-row {
   display: flex;
   gap: 10px;
-  align-items: baseline;
+  align-items: flex-start;
   padding: 6px 10px;
   background: #fff5f5;
   border-radius: 6px;
@@ -116,6 +133,18 @@
   color: #c53030;
   white-space: nowrap;
   min-width: 60px;
+}
+
+.error-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.error-preview {
+  font-size: 12px;
+  color: #718096;
+  font-style: italic;
 }
 
 .error-msg { color: #4a5568; }

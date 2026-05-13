@@ -119,14 +119,18 @@ export interface AsistenciaMiembroResponse {
 }
 
 export interface ImportError {
-  linea: number;
-  mensaje: string;
+  fila: number;
+  preview: string;
+  motivo: string;
 }
 
 export interface ImportResult {
+  totalProcesados: number;
   importados: number;
   omitidos: number;
+  conError: number;
   errores: ImportError[];
+  emailsOmitidos: string[];
 }
 
 export const TRANSICIONES_ESTADO: Record<EstadoMiembro, EstadoMiembro[]> = {

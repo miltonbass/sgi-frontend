@@ -53,19 +53,34 @@
       </div>
       <div class="result-card result-err">
         <mat-icon>error</mat-icon>
-        <span class="result-number">{{ r.errores.length }}</span>
+        <span class="result-number">{{ r.conError }}</span>
         <span class="result-label">Con error</span>
       </div>
     </div>
+
+    @if (r.emailsOmitidos.length) {
+      <mat-divider style="margin: 16px 0" />
+      <p class="section-label">Emails duplicados omitidos</p>
+      <div class="omitidos-list">
+        @for (email of r.emailsOmitidos; track email) {
+          <span class="omitido-chip">{{ email }}</span>
+        }
+      </div>
+    }
 
     @if (r.errores.length) {
       <mat-divider style="margin: 16px 0" />
       <p class="section-label">Detalle de errores</p>
       <div class="error-list">
-        @for (e of r.errores; track e.linea) {
+        @for (e of r.errores; track e.fila) {
           <div class="error-row">
-            <span class="error-linea">Línea {{ e.linea }}</span>
-            <span class="error-msg">{{ e.mensaje }}</span>
+            <span class="error-linea">Fila {{ e.fila }}</span>
+            <div class="error-detail">
+              @if (e.preview) {
+                <span class="error-preview">{{ e.preview }}</span>
+              }
+              <span class="error-msg">{{ e.motivo }}</span>
+            </div>
           </div>
         }
       </div>

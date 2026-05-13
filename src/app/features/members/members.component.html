@@ -2,11 +2,13 @@
   <div class="page-header">
     <h1 class="page-title">Miembros</h1>
     <div class="header-actions">
-      @if (canCreate) {
+      @if (canImport) {
         <button mat-stroked-button (click)="openImport()">
           <mat-icon>upload</mat-icon>
           Importar CSV
         </button>
+      }
+      @if (canCreate) {
         <button mat-raised-button color="primary" (click)="openCreate()">
           <mat-icon>person_add</mat-icon>
           Nuevo Miembro

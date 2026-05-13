@@ -69,6 +69,7 @@ export class MembersComponent implements OnInit, OnDestroy {
   readonly displayedColumns = ['numeroMiembro', 'nombre', 'cedula', 'telefono', 'estado', 'acciones'];
 
   canCreate = this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'SECRETARIA', 'REGISTRO_SEDE']);
+  canImport = this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE']);
   canChangeStatus = this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_PRINCIPAL', 'PASTOR_SEDE']);
   canDelete = this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_PRINCIPAL', 'PASTOR_SEDE']);
 
