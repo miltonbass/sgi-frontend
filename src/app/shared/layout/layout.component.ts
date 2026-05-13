@@ -31,6 +31,7 @@ const ROUTE_TITLES: { pattern: RegExp; title: string }[] = [
   { pattern: /\/eventos\/.+\/resumen/, title: 'Resumen de Asistencia' },
   { pattern: /\/eventos/,              title: 'Eventos' },
   { pattern: /\/alertas/,             title: 'Alertas de Ausencia' },
+  { pattern: /\/reporte-crecimiento/, title: 'Crecimiento y Retención' },
   { pattern: /\/consolidacion/,       title: 'Consolidación' },
   { pattern: /\/dashboard-global/,   title: 'Dashboard Global' },
   { pattern: /\/dashboard/,          title: 'Dashboard' },
@@ -64,7 +65,8 @@ export class LayoutComponent {
     { path: '/grupos',   label: 'Grupos',    icon: 'groups',          roles: ['ADMIN_GLOBAL','SUPER_ADMIN','ADMIN_SEDE','PASTOR_SEDE','LIDER_GRUPO','SECRETARIO_SEDE','REGISTRO_SEDE'] },
     { path: '/eventos',  label: 'Eventos',   icon: 'event',           roles: ['ADMIN_GLOBAL','ADMIN_SEDE','PASTOR_SEDE','LIDER_GRUPO','SECRETARIO_SEDE'] },
     { path: '/alertas',        label: 'Alertas',        icon: 'notifications_active', roles: ['ADMIN_GLOBAL','ADMIN_SEDE','PASTOR_SEDE'] },
-    { path: '/consolidacion',  label: 'Consolidación',  icon: 'handshake',            roles: ['ADMIN_GLOBAL','ADMIN_SEDE','PASTOR_SEDE','CONSOLIDACION_SEDE'] },
+    { path: '/reporte-crecimiento', label: 'Crecimiento',   icon: 'trending_up',          roles: ['ADMIN_GLOBAL','ADMIN_SEDE','PASTOR_SEDE'] },
+    { path: '/consolidacion',       label: 'Consolidación', icon: 'handshake',            roles: ['ADMIN_GLOBAL','ADMIN_SEDE','PASTOR_SEDE','CONSOLIDACION_SEDE'] },
     { path: '/usuarios',       label: 'Usuarios',       icon: 'manage_accounts',      roles: ['ADMIN_GLOBAL','SUPER_ADMIN','ADMIN_SEDE'] },
     { path: '/sedes',    label: 'Sedes',     icon: 'location_city',   roles: ['ADMIN_GLOBAL'] },
   ];

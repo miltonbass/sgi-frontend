@@ -44,6 +44,30 @@ export interface DashboardGlobalResponse {
   fechaHasta: string;
 }
 
+export interface DesgloseBajas {
+  inactividad: number;
+  traslado: number;
+  sinContacto: number;
+}
+
+export interface CrecimientoRetencionPeriodo {
+  periodo: string;
+  label: string;
+  miembrosInicio: number;
+  miembrosFin: number;
+  altas: number;
+  bajas: number;
+  tasaRetencion: number;
+  desgloseBajas: DesgloseBajas;
+}
+
+export interface CrecimientoRetencionResponse {
+  periodos: CrecimientoRetencionPeriodo[];
+  meses: number;
+  sedeId?: string;
+  sedeNombre?: string;
+}
+
 export interface DashboardSedeResponse {
   kpis: DashboardKpis;
   crecimiento: CrecimientoPeriodo[];

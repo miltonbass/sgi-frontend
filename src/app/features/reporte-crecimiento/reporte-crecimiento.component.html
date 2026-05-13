@@ -1,0 +1,171 @@
+<div class="page-container">
+
+  <h2 class="page-title">Crecimiento y Retención</h2>
+
+  <!-- Filtros -->
+  <div class="filtros-row">
+    <mat-form-field appearance="outline" class="meses-field">
+      <mat-label>Período</mat-label>
+      <mat-select [formControl]="mesesCtrl">
+        @for (m of opcMeses; track m) {
+          <mat-option [value]="m">{{ m }} meses</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (isAdminGlobal) {
+      <mat-form-field appearance="outline" class="sede-field">
+        <mat-label>Sede</mat-label>
+        <mat-select [formControl]="sedeIdCtrl">
+          <mat-option value="">Todas las sedes</mat-option>
+          @for (s of sedes; track s.id) {
+            <mat-option [value]="s.id">{{ sedeLabel(s) }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+
+    <button mat-raised-button color="primary" (click)="cargar()">
+      <mat-icon>search</mat-icon> Consultar
+    </button>
+
+    @if (reporte()?.sedeNombre) {
+      <span class="sede-badge">
+        <mat-icon>location_city</mat-icon> {{ reporte()!.sedeNombre }}
+      </span>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="center-spinner"><mat-spinner diameter="52" /></div>
+
+  } @else if (resumen(); as r) {
+
+    <!-- KPIs -->
+    <div class="kpi-resumen">
+      <mat-card class="kpi-card">
+        <mat-card-content>
+          <mat-icon class="kpi-icon altas-icon">person_add</mat-icon>
+          <div class="kpi-data">
+            <span class="kpi-valor">{{ r.totalAltas }}</span>
+            <span class="kpi-label">Altas en el período</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card">
+        <mat-card-content>
+          <mat-icon class="kpi-icon bajas-icon">person_remove</mat-icon>
+          <div class="kpi-data">
+            <span class="kpi-valor">{{ r.totalBajas }}</span>
+            <span class="kpi-label">Bajas en el período</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card kpi-retencion-{{ retencionColor(r.tasaPromedio) }}"
+        matTooltip="Promedio de retención mensual en el período seleccionado"
+        matTooltipShowDelay="300" style="cursor:default">
+        <mat-card-content>
+          <mat-icon class="kpi-icon retencion-icon">trending_up</mat-icon>
+          <div class="kpi-data">
+            <span class="kpi-texto-retencion">{{ retencionTexto(r.tasaPromedio) }}</span>
+            <span class="kpi-label">Retención promedio · {{ r.tasaPromedio | number:'1.0-1' }}%</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Desglose de bajas -->
+    <mat-card class="desglose-card">
+      <mat-card-content>
+        <p class="section-title">Desglose de bajas</p>
+        <div class="desglose-row">
+          <div class="desglose-item">
+            <mat-icon class="di inactividad">block</mat-icon>
+            <span class="dv">{{ r.desglose.inactividad }}</span>
+            <span class="dl">Inactividad</span>
+          </div>
+          <div class="desglose-sep"></div>
+          <div class="desglose-item">
+            <mat-icon class="di traslado">exit_to_app</mat-icon>
+            <span class="dv">{{ r.desglose.traslado }}</span>
+            <span class="dl">Traslado</span>
+          </div>
+          <div class="desglose-sep"></div>
+          <div class="desglose-item">
+            <mat-icon class="di sin-contacto">phone_missed</mat-icon>
+            <span class="dv">{{ r.desglose.sinContacto }}</span>
+            <span class="dl">Sin contacto</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Gráfico -->
+    @if (chart(); as c) {
+      <mat-card class="chart-card">
+        <mat-card-content>
+          <p class="section-title">Altas y bajas por período</p>
+
+          <svg [attr.viewBox]="'0 0 ' + c.W + ' ' + c.H" class="chart-svg" aria-hidden="true">
+
+            <!-- Línea de base -->
+            <line [attr.x1]="c.padL" [attr.y1]="c.baseY"
+              [attr.x2]="c.W - 16" [attr.y2]="c.baseY"
+              stroke="#e0e0e0" stroke-width="1" />
+
+            <!-- Barras por período -->
+            @for (b of c.bars; track b.periodo) {
+              @if (b.altaH > 0) {
+                <rect [attr.x]="b.altaX" [attr.y]="b.altaY"
+                  [attr.width]="b.bw" [attr.height]="b.altaH"
+                  rx="2" fill="#43a047" />
+                <text [attr.x]="b.altaX + b.bw / 2" [attr.y]="b.altaY - 3"
+                  text-anchor="middle" font-size="9" fill="#2e7d32" font-weight="600">
+                  {{ b.altas }}
+                </text>
+              }
+              @if (b.bajaH > 0) {
+                <rect [attr.x]="b.bajaX" [attr.y]="b.bajaY"
+                  [attr.width]="b.bw" [attr.height]="b.bajaH"
+                  rx="2" fill="#e53935" />
+                <text [attr.x]="b.bajaX + b.bw / 2" [attr.y]="b.bajaY - 3"
+                  text-anchor="middle" font-size="9" fill="#c62828" font-weight="600">
+                  {{ b.bajas }}
+                </text>
+              }
+            }
+
+            <!-- Etiquetas eje X -->
+            @for (b of c.bars; track b.periodo) {
+              @if (b.showLabel) {
+                <text [attr.x]="b.cx" [attr.y]="c.baseY + 12"
+                  text-anchor="end" font-size="9" fill="#757575"
+                  [attr.transform]="'rotate(-45 ' + b.cx + ' ' + (c.baseY + 12) + ')'">
+                  {{ b.label }}
+                </text>
+              }
+            }
+          </svg>
+
+          <div class="legend">
+            <span class="legend-item">
+              <span class="legend-bar alta"></span> Altas
+            </span>
+            <span class="legend-item">
+              <span class="legend-bar baja"></span> Bajas
+            </span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
+  } @else {
+    <div class="empty-state">
+      <mat-icon>bar_chart</mat-icon>
+      <p>No hay datos para el período seleccionado.</p>
+    </div>
+  }
+
+</div>

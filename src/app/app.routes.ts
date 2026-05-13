@@ -88,6 +88,12 @@ export const routes: Routes = [
         canActivate: [roleGuard(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_SEDE'])],
       },
       {
+        path: 'reporte-crecimiento',
+        loadComponent: () =>
+          import('./features/reporte-crecimiento/reporte-crecimiento.component').then(m => m.ReporteCrecimientoComponent),
+        canActivate: [roleGuard(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_SEDE'])],
+      },
+      {
         path: 'consolidacion',
         loadComponent: () =>
           import('./features/consolidacion/consolidacion.component').then(m => m.ConsolidacionComponent),

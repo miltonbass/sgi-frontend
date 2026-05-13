@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { DashboardSedeResponse, DashboardGlobalResponse } from '../models/reporte.model';
+import { DashboardSedeResponse, DashboardGlobalResponse, CrecimientoRetencionResponse } from '../models/reporte.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -13,6 +13,12 @@ export class ReporteService {
     if (fechaDesde) params = params.set('fechaDesde', fechaDesde);
     if (fechaHasta) params = params.set('fechaHasta', fechaHasta);
     return this.http.get<DashboardSedeResponse>(`${this.base}/dashboard-sede`, { params });
+  }
+
+  getCrecimientoRetencion(meses = 12, sedeId?: string) {
+    let params = new HttpParams().set('meses', meses.toString());
+    if (sedeId) params = params.set('sedeId', sedeId);
+    return this.http.get<CrecimientoRetencionResponse>(`${this.base}/crecimiento-retencion`, { params });
   }
 
   getDashboardGlobal(fechaDesde?: string, fechaHasta?: string) {
