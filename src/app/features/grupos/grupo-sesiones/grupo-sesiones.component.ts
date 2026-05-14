@@ -30,10 +30,10 @@ export class GrupoSesionesComponent implements OnInit {
   private readonly snackBar     = inject(MatSnackBar);
   readonly location             = inject(Location);
 
-  readonly grupoId  = this.route.snapshot.paramMap.get('grupoId')!;
-  readonly loading  = signal(true);
-  readonly sesiones = signal<SesionGrupo[]>([]);
-  readonly grupoNombre = signal('');
+  readonly grupoId     = this.route.snapshot.paramMap.get('grupoId')!;
+  readonly loading     = signal(true);
+  readonly sesiones    = signal<SesionGrupo[]>([]);
+  readonly grupoNombre = signal(this.route.snapshot.queryParamMap.get('nombre') ?? '');
 
   readonly columns = ['fecha', 'lugar', 'tema', 'asistencia', 'acciones'];
 
@@ -41,7 +41,7 @@ export class GrupoSesionesComponent implements OnInit {
     this.grupoService.getSesiones(this.grupoId).subscribe({
       next: list => {
         this.sesiones.set(list);
-        if (list.length > 0) this.grupoNombre.set(list[0].grupoNombre);
+        if (!this.grupoNombre() && list.length > 0) this.grupoNombre.set(list[0].grupoNombre);
         this.loading.set(false);
       },
       error: () => {

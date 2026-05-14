@@ -5,26 +5,46 @@
     <button mat-icon-button (click)="location.back()" matTooltip="Volver">
       <mat-icon>arrow_back</mat-icon>
     </button>
-    <div>
-      <h1 class="arbol-titulo">Mi Árbol de Células</h1>
-      @if (arbol(); as a) {
-        <span class="arbol-raiz">Raíz: {{ a.grupoRaizNombre }}</span>
-      }
-    </div>
-    <span style="flex:1"></span>
-    @if (arbol(); as a) {
-      <button mat-raised-button color="primary"
-        (click)="nuevaSubCelula(a.grupoRaizId)"
-        matTooltip="Crear una nueva célula hija de {{ a.grupoRaizNombre }}">
-        <mat-icon>add</mat-icon> Nueva sub-célula
-      </button>
-    }
+    <h1 class="arbol-titulo">Mi Célula</h1>
   </div>
 
   @if (loading()) {
     <div style="padding:80px;text-align:center"><mat-spinner diameter="40" /></div>
+  } @else if (sinGrupo()) {
+    <mat-card style="margin-top:24px;text-align:center;padding:32px">
+      <mat-icon style="font-size:48px;color:#a0aec0;height:48px;width:48px">account_tree</mat-icon>
+      <p style="font-size:16px;margin:16px 0 8px"><strong>Sin grupo asignado</strong></p>
+      <p style="color:#718096;margin:0">
+        No tienes ninguna célula asignada como líder.<br>
+        Pide al administrador que te asigne como líder en el grupo correspondiente.
+      </p>
+    </mat-card>
   } @else if (arbol(); as a) {
 
+    <!-- Tarjeta de la célula raíz -->
+    <mat-card class="raiz-card">
+      <mat-card-content>
+        <div class="raiz-info">
+          <mat-icon class="raiz-icon">groups</mat-icon>
+          <div class="raiz-texto">
+            <span class="raiz-nombre">{{ a.grupoRaizNombre }}</span>
+            <span class="raiz-label">Tu célula</span>
+          </div>
+          <span style="flex:1"></span>
+          <button mat-raised-button color="primary"
+            [routerLink]="['/grupos', a.grupoRaizId]">
+            <mat-icon>people</mat-icon> Ver miembros y sesiones
+          </button>
+          <button mat-stroked-button color="primary"
+            (click)="nuevaSubCelula(a.grupoRaizId)"
+            matTooltip="Crear una nueva célula hija">
+            <mat-icon>add</mat-icon> Nueva sub-célula
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Sub-células -->
     @if (a.subArbol.length === 0) {
       <mat-card class="sin-hijos">
         <mat-card-content>
@@ -40,7 +60,6 @@
         </mat-card-header>
         <mat-card-content>
 
-          <!-- Columnas encabezado -->
           <div class="arbol-cols-header">
             <span class="col-nombre">Grupo</span>
             <span class="col-lider">Líder</span>
@@ -53,7 +72,6 @@
           @for (item of a.subArbol; track item.id) {
             <div class="arbol-fila" [style.paddingLeft.px]="indentPx(item.nivel)">
 
-              <!-- Conector visual -->
               <span class="conector nivel-{{ item.nivel }}">
                 <mat-icon class="conector-icon">subdirectory_arrow_right</mat-icon>
               </span>
@@ -85,7 +103,7 @@
               </span>
 
               <span class="col-accion">
-                <button mat-stroked-button (click)="verSesiones(item)" matTooltip="Ver sesiones de esta célula">
+                <button mat-stroked-button (click)="verSesiones(item)" matTooltip="Ver sesiones">
                   <mat-icon>event_note</mat-icon> Ver sesiones
                 </button>
                 <button mat-icon-button color="primary"

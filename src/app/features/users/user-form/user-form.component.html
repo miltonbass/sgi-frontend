@@ -109,27 +109,41 @@
     <!-- ── Sedes (solo creación) ───────────────────────────── -->
     @if (!isEdit) {
       <mat-divider style="margin: 16px 0" />
-      <p class="section-label">Sede y roles (opcional)</p>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Sede inicial</mat-label>
-        <mat-select formControlName="sedeId">
-          <mat-option value="">Sin sede</mat-option>
-          @for (s of sedes(); track s.id) {
-            <mat-option [value]="s.id">{{ sedeLabel(s) }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-
-      @if (form.get('sedeId')?.value) {
+      @if (prefill?.sedeId) {
+        <!-- Sede pre-asignada desde el perfil del miembro -->
+        <p class="section-label">Roles</p>
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Roles en esta sede</mat-label>
+          <mat-label>Roles en la sede</mat-label>
           <mat-select formControlName="sedesRoles" multiple>
             @for (rol of roles; track rol) {
               <mat-option [value]="rol">{{ rol }}</mat-option>
             }
           </mat-select>
         </mat-form-field>
+      } @else {
+        <p class="section-label">Sede y roles (opcional)</p>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Sede inicial</mat-label>
+          <mat-select formControlName="sedeId">
+            <mat-option value="">Sin sede</mat-option>
+            @for (s of sedes(); track s.id) {
+              <mat-option [value]="s.id">{{ sedeLabel(s) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        @if (form.get('sedeId')?.value) {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Roles en esta sede</mat-label>
+            <mat-select formControlName="sedesRoles" multiple>
+              @for (rol of roles; track rol) {
+                <mat-option [value]="rol">{{ rol }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        }
       }
     }
 

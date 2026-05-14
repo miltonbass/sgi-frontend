@@ -16,6 +16,7 @@ import { PerfilMiembro, ESTADO_LABELS, ESTADO_COLORS } from '../../../core/model
 import { MemberFormComponent } from '../member-form/member-form.component';
 import { MemberStatusDialogComponent } from '../member-status-dialog/member-status-dialog.component';
 import { MemberConsolidadorDialogComponent } from '../member-consolidador-dialog/member-consolidador-dialog.component';
+import { UserFormComponent } from '../../users/user-form/user-form.component';
 
 @Component({
   selector: 'app-member-detail',
@@ -44,11 +45,12 @@ export class MemberDetailComponent implements OnInit {
 
   readonly historialColumns = ['fecha', 'anterior', 'nuevo', 'motivo'];
 
-  canEdit             = this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'SECRETARIA', 'REGISTRO_SEDE']);
-  canVerAsistencia    = this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_SEDE']);
-  canChangeStatus   = this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_PRINCIPAL', 'PASTOR_SEDE']);
+  canEdit                = this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'SECRETARIA', 'REGISTRO_SEDE']);
+  canVerAsistencia       = this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_SEDE']);
+  canChangeStatus        = this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_PRINCIPAL', 'PASTOR_SEDE']);
   canAsignarConsolidador = this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'CONSOLIDACION_SEDE']);
-  esPastorPrincipal = this.auth.hasRole('PASTOR_PRINCIPAL') && !this.auth.hasRole('PASTOR_SEDE');
+  canCrearAcceso         = this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE']);
+  esPastorPrincipal      = this.auth.hasRole('PASTOR_PRINCIPAL') && !this.auth.hasRole('PASTOR_SEDE');
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!;
@@ -94,6 +96,26 @@ export class MemberDetailComponent implements OnInit {
         consolidadorActual: miembro.consolidadorNombre ?? null,
       },
     }).afterClosed().subscribe(ok => ok && this.load(miembro.id));
+  }
+
+  openCrearAcceso() {
+    const m = this.perfil()?.datos;
+    if (!m) return;
+    this.dialog.open(UserFormComponent, {
+      width: '640px', disableClose: true,
+      data: {
+        _prefill: {
+          nombre:   m.nombres,
+          apellido: m.apellidos,
+          email:    m.email,
+          telefono: m.telefono ?? '',
+          roles:    ['LIDER_CELULA'],
+          sedeId:   m.sedeId,
+        },
+      },
+    }).afterClosed().subscribe(ok => {
+      if (ok) this.snackBar.open('Acceso creado correctamente', '', { duration: 3000 });
+    });
   }
 
   estadoLabel(e: string) { return ESTADO_LABELS[e as keyof typeof ESTADO_LABELS] ?? e; }

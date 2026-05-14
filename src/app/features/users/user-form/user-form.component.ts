@@ -38,11 +38,13 @@ export class UserFormComponent implements OnInit {
   private readonly auth        = inject(AuthService);
   private readonly dialog      = inject(MatDialog);
   private readonly dialogRef   = inject(MatDialogRef<UserFormComponent>);
-  readonly data: Usuario | null = inject(MAT_DIALOG_DATA);
+  readonly data: (Usuario & { _prefill?: { nombre: string; apellido: string; email: string; telefono: string; roles: string[] } }) | null = inject(MAT_DIALOG_DATA);
 
-  readonly loading       = signal(false);
-  readonly error         = signal('');
-  readonly isEdit        = !!this.data;
+  readonly prefill    = (this.data as any)?._prefill as { nombre: string; apellido: string; email: string; telefono: string; roles: string[]; sedeId?: string } | null ?? null;
+
+  readonly loading    = signal(false);
+  readonly error      = signal('');
+  readonly isEdit     = !!this.data && !(this.data as any)?._prefill;
   readonly roles         = ROLES_DISPONIBLES;
   readonly sedes         = signal<SedeInfo[]>([]);
   readonly sedesUsuario  = signal<SedeUsuario[]>(this.data?.sedes ?? []);
@@ -52,16 +54,16 @@ export class UserFormComponent implements OnInit {
   readonly copiado       = signal(false);
 
   form = this.fb.group({
-    email:    [{ value: this.data?.email ?? '', disabled: this.isEdit }, [Validators.required, Validators.email]],
-    nombre:   [this.data?.nombre   ?? '', Validators.required],
-    apellido: [this.data?.apellido ?? '', Validators.required],
+    email:    [{ value: this.prefill?.email    ?? this.data?.email    ?? '', disabled: this.isEdit }, [Validators.required, Validators.email]],
+    nombre:   [this.prefill?.nombre   ?? this.data?.nombre   ?? '', Validators.required],
+    apellido: [this.prefill?.apellido ?? this.data?.apellido ?? '', Validators.required],
     username: [{ value: this.data?.username ?? '', disabled: this.isEdit }, Validators.required],
-    telefono: [this.data?.telefono ?? ''],
-    activo:   [this.data?.activo   ?? true],
+    telefono: [this.prefill?.telefono ?? this.data?.telefono ?? ''],
+    activo:   [this.data?.activo ?? true],
     // solo creación
     password:   [this.generarPassword(), [Validators.required, Validators.minLength(8)]],
-    sedeId:     [''],
-    sedesRoles: [[] as string[]],
+    sedeId:     [this.prefill?.sedeId ?? ''],
+    sedesRoles: [this.prefill?.roles ?? [] as string[]],
   });
 
   get title() { return this.isEdit ? 'Editar Usuario' : 'Nuevo Usuario'; }

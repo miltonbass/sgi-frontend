@@ -15,9 +15,43 @@
   line-height: 1.2;
 }
 
-.arbol-raiz {
-  font-size: 13px;
+.raiz-card {
+  margin-bottom: 20px;
+  border-left: 4px solid #3f51b5;
+}
+
+.raiz-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.raiz-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: #3f51b5;
+  flex-shrink: 0;
+}
+
+.raiz-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.raiz-nombre {
+  font-size: 20px;
+  font-weight: 700;
+  color: #2d3748;
+}
+
+.raiz-label {
+  font-size: 12px;
   color: #718096;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 mat-card-title {

@@ -12,7 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { GrupoService } from '../../../core/services/grupo.service';
 import { MemberService } from '../../../core/services/member.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { Grupo, TipoGrupo, TIPO_GRUPO_LABELS } from '../../../core/models/grupo.model';
+import { Grupo, TipoGrupo, TIPO_GRUPO_LABELS, MiembroGrupo } from '../../../core/models/grupo.model';
 import { Miembro } from '../../../core/models/member.model';
 
 @Component({
@@ -33,13 +33,14 @@ export class GrupoFormComponent implements OnInit {
   private readonly dialogRef    = inject(MatDialogRef<GrupoFormComponent>);
   readonly data: Grupo | null   = inject(MAT_DIALOG_DATA);
 
-  readonly loading        = signal(false);
-  readonly error          = signal('');
-  readonly isEdit         = !!(this.data as Grupo)?.id;
-  readonly grupoPadreId   = (this.data as any)?.grupoPadreId as string | undefined;
-  readonly liderOpciones  = signal<Miembro[]>([]);
-  readonly tipos          = Object.keys(TIPO_GRUPO_LABELS) as TipoGrupo[];
-  readonly tipoLabels     = TIPO_GRUPO_LABELS;
+  readonly loading          = signal(false);
+  readonly error            = signal('');
+  readonly isEdit           = !!(this.data as Grupo)?.id;
+  readonly grupoPadreId     = (this.data as any)?.grupoPadreId as string | undefined;
+  readonly liderOpciones    = signal<Miembro[]>([]);
+  readonly miembrosGrupo    = signal<MiembroGrupo[]>([]);
+  readonly tipos            = Object.keys(TIPO_GRUPO_LABELS) as TipoGrupo[];
+  readonly tipoLabels       = TIPO_GRUPO_LABELS;
 
   get isLiderCelula() {
     return this.auth.hasRole('LIDER_CELULA') && !this.auth.hasAnyRole(['ADMIN_SEDE', 'PASTOR_SEDE']);
@@ -57,14 +58,20 @@ export class GrupoFormComponent implements OnInit {
   get title() { return this.isEdit ? 'Editar Grupo' : 'Nuevo Grupo'; }
 
   ngOnInit() {
-    this.form.get('liderSearch')!.valueChanges.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-      switchMap(q => q && q.length >= 2
-        ? this.memberService.buscar({ q, size: 10, estado: 'MIEMBRO' })
-        : of({ content: [] } as any)
-      ),
-    ).subscribe(res => this.liderOpciones.set(res.content ?? []));
+    if (this.isLiderCelula && this.grupoPadreId) {
+      this.grupoService.getMiembros(this.grupoPadreId).subscribe({
+        next: miembros => this.miembrosGrupo.set(miembros),
+      });
+    } else {
+      this.form.get('liderSearch')!.valueChanges.pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap(q => q && q.length >= 2
+          ? this.memberService.buscar({ q, size: 10, estado: 'MIEMBRO' })
+          : of({ content: [] } as any)
+        ),
+      ).subscribe(res => this.liderOpciones.set(res.content ?? []));
+    }
   }
 
   seleccionarLider(miembro: Miembro) {
@@ -90,6 +97,7 @@ export class GrupoFormComponent implements OnInit {
           nombre:       raw.nombre!,
           descripcion:  raw.descripcion  || undefined,
           lugar:        raw.lugar        || undefined,
+          liderId:      raw.liderId      || undefined,
           grupoPadreId: this.grupoPadreId || undefined,
         }
       : {

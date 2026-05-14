@@ -1,5 +1,5 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Location, DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,7 +16,7 @@ import { GrupoFormComponent } from '../grupo-form/grupo-form.component';
   selector: 'app-mi-arbol',
   standalone: true,
   imports: [
-    DatePipe,
+    DatePipe, RouterLink,
     MatButtonModule, MatIconModule, MatCardModule,
     MatProgressSpinnerModule, MatTooltipModule,
   ],
@@ -30,8 +30,9 @@ export class MiArbolComponent implements OnInit {
   private readonly dialog       = inject(MatDialog);
   readonly location             = inject(Location);
 
-  readonly loading = signal(true);
-  readonly arbol   = signal<MiArbolResponse | null>(null);
+  readonly loading     = signal(true);
+  readonly arbol       = signal<MiArbolResponse | null>(null);
+  readonly sinGrupo    = signal(false);
 
   ngOnInit() { this.cargar(); }
 
@@ -39,9 +40,13 @@ export class MiArbolComponent implements OnInit {
     this.loading.set(true);
     this.grupoService.getMiArbol().subscribe({
       next: data => { this.arbol.set(data); this.loading.set(false); },
-      error: () => {
+      error: (err) => {
         this.loading.set(false);
-        this.snackBar.open('Error al cargar el árbol de células', 'Cerrar', { duration: 3000 });
+        if (err.status === 400 || err.status === 404) {
+          this.sinGrupo.set(true);
+        } else {
+          this.snackBar.open('Error al cargar el árbol de células', 'Cerrar', { duration: 3000 });
+        }
       },
     });
   }
@@ -54,7 +59,9 @@ export class MiArbolComponent implements OnInit {
   }
 
   verSesiones(item: GrupoArbolItem) {
-    this.router.navigate(['/grupos', item.id, 'sesiones']);
+    this.router.navigate(['/grupos', item.id, 'sesiones'], {
+      queryParams: { nombre: item.nombre },
+    });
   }
 
   indentPx(nivel: number): number {

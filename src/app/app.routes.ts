@@ -19,7 +19,7 @@ export const routes: Routes = [
           const auth = inject(AuthService);
           if (auth.hasAnyRole(['ADMIN_GLOBAL', 'PASTOR_PRINCIPAL'])) return '/dashboard-global';
           if (auth.hasAnyRole(['ADMIN_SEDE', 'PASTOR_SEDE'])) return '/dashboard';
-          if (auth.hasRole('LIDER_CELULA')) return '/grupos';
+          if (auth.hasRole('LIDER_CELULA')) return '/grupos/mi-arbol';
           return '/miembros';
         },
       },

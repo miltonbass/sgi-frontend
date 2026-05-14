@@ -23,6 +23,8 @@ const ALL_TABS: { tipo: TipoGrupo; label: string; icon: string }[] = [
   { tipo: 'CLASE',      label: 'Clases',        icon: 'school'      },
 ];
 
+const PENDIENTES_TAB_INDEX = -1;
+
 @Component({
   selector: 'app-grupos',
   standalone: true,
@@ -42,12 +44,13 @@ export class GruposComponent implements OnInit, OnDestroy {
   private readonly snackBar     = inject(MatSnackBar);
   private readonly destroy$     = new Subject<void>();
 
-  readonly loading      = signal(false);
-  readonly grupos       = signal<Grupo[]>([]);
-  readonly total        = signal(0);
-  readonly pageIndex    = signal(0);
-  readonly pageSize     = signal(20);
-  readonly selectedTab  = signal(0);
+  readonly loading        = signal(false);
+  readonly grupos         = signal<Grupo[]>([]);
+  readonly total          = signal(0);
+  readonly pageIndex      = signal(0);
+  readonly pageSize       = signal(20);
+  readonly selectedTab    = signal(0);
+  readonly totalPendientes = signal(0);
 
   readonly displayedColumns = ['nombre', 'lider', 'miembros', 'activo', 'acciones'];
 
@@ -60,19 +63,42 @@ export class GruposComponent implements OnInit, OnDestroy {
   }
 
   get activeTipo(): TipoGrupo {
-    return this.tabs[this.selectedTab()].tipo;
+    return this.activeTipoTab;
   }
 
   get canCreate() {
     return this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_SEDE']);
   }
 
-  ngOnInit() { this.load(); }
+  get canAprobar() {
+    return this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE']);
+  }
+
+  get esPendientesTab() {
+    return this.canAprobar && this.selectedTab() === 0;
+  }
+
+  get tabOffset() {
+    return this.canAprobar ? 1 : 0;
+  }
+
+  get activeTipoTab(): TipoGrupo {
+    const idx = this.selectedTab() - this.tabOffset;
+    return this.tabs[idx]?.tipo ?? 'CELULA';
+  }
+
+  ngOnInit() {
+    this.load();
+    if (this.canAprobar) this.cargarPendientes();
+  }
   ngOnDestroy() { this.destroy$.next(); this.destroy$.complete(); }
 
   load() {
     this.loading.set(true);
-    this.grupoService.getAll({ tipo: this.activeTipo, page: this.pageIndex(), size: this.pageSize() }).subscribe({
+    const params = this.esPendientesTab
+      ? { activo: false, page: this.pageIndex(), size: this.pageSize() }
+      : { tipo: this.activeTipo, page: this.pageIndex(), size: this.pageSize() };
+    this.grupoService.getAll(params).subscribe({
       next: res => {
         this.grupos.set(res.content);
         this.total.set(res.totalElements);
@@ -85,11 +111,28 @@ export class GruposComponent implements OnInit, OnDestroy {
     });
   }
 
+  cargarPendientes() {
+    this.grupoService.getAll({ activo: false, size: 1 }).subscribe({
+      next: res => this.totalPendientes.set(res.totalElements),
+    });
+  }
+
   onTabChange(index: number) {
     if (this.selectedTab() === index) return;
     this.selectedTab.set(index);
     this.pageIndex.set(0);
     this.load();
+  }
+
+  aprobar(grupo: Grupo) {
+    this.grupoService.activar(grupo.id).subscribe({
+      next: () => {
+        this.snackBar.open(`"${grupo.nombre}" aprobado`, '', { duration: 2500 });
+        this.totalPendientes.update(n => Math.max(0, n - 1));
+        this.load();
+      },
+      error: err => this.snackBar.open(err.error?.mensaje ?? 'Error', 'Cerrar', { duration: 3000 }),
+    });
   }
 
   onPage(e: PageEvent) {

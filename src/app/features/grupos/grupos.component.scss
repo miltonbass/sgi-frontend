@@ -1,3 +1,18 @@
+.badge-pendientes {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #c05621;
+  color: #fff;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  margin-left: 6px;
+}
+
 .tipo-tabs {
   margin-bottom: 20px;
 

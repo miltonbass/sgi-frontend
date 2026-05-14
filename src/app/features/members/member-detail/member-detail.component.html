@@ -34,6 +34,12 @@
           <mat-icon>person_pin</mat-icon> Consolidador
         </button>
       }
+      @if (canCrearAcceso) {
+        <button mat-stroked-button color="accent" (click)="openCrearAcceso()"
+          matTooltip="Crear cuenta de acceso para este miembro">
+          <mat-icon>manage_accounts</mat-icon> Crear acceso
+        </button>
+      }
     </div>
 
     <div class="detail-grid">

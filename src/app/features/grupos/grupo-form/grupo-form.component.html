@@ -37,8 +37,21 @@
       <input matInput formControlName="lugar" placeholder="Ej: Casa de Juan, Calle 50 # 20-10" />
     </mat-form-field>
 
-    @if (!isLiderCelula) {
-      <!-- Búsqueda de líder con autocomplete -->
+    <!-- Líder: select de miembros del grupo para LIDER_CELULA, autocomplete para admins -->
+    @if (isLiderCelula && miembrosGrupo().length > 0) {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Líder de la sub-célula</mat-label>
+        <mat-select formControlName="liderId">
+          <mat-option value="">Sin líder asignado</mat-option>
+          @for (m of miembrosGrupo(); track m.miembroId) {
+            <mat-option [value]="m.miembroId">
+              {{ m.nombres }} {{ m.apellidos }}
+              <small style="color:#a0aec0"> — {{ m.rol }}</small>
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    } @else if (!isLiderCelula) {
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Líder del grupo</mat-label>
         <input matInput formControlName="liderSearch"

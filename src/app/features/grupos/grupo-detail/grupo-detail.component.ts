@@ -43,10 +43,11 @@ export class GrupoDetailComponent implements OnInit {
   private readonly snackBar     = inject(MatSnackBar);
   readonly location             = inject(Location);
 
-  readonly loading  = signal(true);
-  readonly grupo    = signal<Grupo | null>(null);
-  readonly miembros = signal<MiembroGrupo[]>([]);
-  readonly sesiones = signal<SesionGrupo[]>([]);
+  readonly loading       = signal(true);
+  readonly grupo         = signal<Grupo | null>(null);
+  readonly miembros      = signal<MiembroGrupo[]>([]);
+  readonly sesiones      = signal<SesionGrupo[]>([]);
+  readonly miembrosError = signal(false);
 
   readonly tipoLabels    = TIPO_GRUPO_LABELS;
   readonly columns       = ['nombre', 'email', 'rol', 'fechaIngreso', 'acciones'];
@@ -78,7 +79,9 @@ export class GrupoDetailComponent implements OnInit {
     this.grupoService.getById(id).subscribe({
       next: g => {
         this.grupo.set(g);
-        const miembros$ = this.grupoService.getMiembros(id).pipe(catchError(() => of([])));
+        const miembros$ = this.grupoService.getMiembros(id).pipe(
+          catchError(() => { this.miembrosError.set(true); return of([]); }),
+        );
         const sesiones$ = this.canManageSesiones
           ? this.grupoService.getSesiones(id).pipe(catchError(() => of([])))
           : of([]);

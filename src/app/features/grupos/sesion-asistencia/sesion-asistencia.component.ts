@@ -78,13 +78,17 @@ export class SesionAsistenciaComponent implements OnInit {
     this.grupoService.getSesion(this.grupoId, this.sesionId).subscribe({
       next: s => {
         this.sesion.set(s);
-        Promise.all([
-          new Promise<void>(res => {
-            this.grupoService.getMiembros(this.grupoId).subscribe({
-              next: miembros => { this._rawMiembros = miembros; res(); },
-              error: () => res(),
+        const miembros$ = this.soloLectura
+          ? Promise.resolve()
+          : new Promise<void>(res => {
+              this.grupoService.getMiembros(this.grupoId).subscribe({
+                next: miembros => { this._rawMiembros = miembros; res(); },
+                error: () => res(),
+              });
             });
-          }),
+
+        Promise.all([
+          miembros$,
           new Promise<void>(res => {
             this.grupoService.getSesionAsistencias(this.grupoId, this.sesionId).subscribe({
               next: r => { this.resumen.set(r); res(); },

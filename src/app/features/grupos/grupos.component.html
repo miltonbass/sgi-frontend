@@ -1,9 +1,9 @@
 <div class="page-container">
   <div class="page-header">
     <h1 class="page-title">Grupos</h1>
-    @if (canCreate) {
+    @if (canCreate && !esPendientesTab) {
       <button mat-raised-button color="primary" (click)="openCreate()">
-        <mat-icon>add</mat-icon> Nuevo {{ tabs[selectedTab()].label.slice(0, -1) }}
+        <mat-icon>add</mat-icon> Nuevo {{ tabs[selectedTab() - tabOffset]?.label?.slice(0, -1) }}
       </button>
     }
   </div>
@@ -12,6 +12,18 @@
     animationDuration="150ms"
     (selectedIndexChange)="onTabChange($event)"
     class="tipo-tabs">
+
+    @if (canAprobar) {
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon" style="color:#c05621">pending_actions</mat-icon>
+          Pendientes
+          @if (totalPendientes() > 0) {
+            <span class="badge-pendientes">{{ totalPendientes() }}</span>
+          }
+        </ng-template>
+      </mat-tab>
+    }
 
     @for (tab of tabs; track tab.tipo) {
       <mat-tab>
@@ -66,7 +78,11 @@
             <button mat-icon-button matTooltip="Ver detalle" [routerLink]="['/grupos', g.id]">
               <mat-icon>chevron_right</mat-icon>
             </button>
-            @if (canCreate) {
+            @if (esPendientesTab && canAprobar) {
+              <button mat-flat-button color="primary" matTooltip="Aprobar grupo" (click)="aprobar(g)">
+                <mat-icon>check_circle</mat-icon> Aprobar
+              </button>
+            } @else if (canCreate) {
               <button mat-icon-button matTooltip="Editar" (click)="openEdit(g)">
                 <mat-icon>edit</mat-icon>
               </button>
@@ -87,7 +103,7 @@
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         <tr class="mat-row" *matNoDataRow>
           <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
-            No hay {{ tabs[selectedTab()].label.toLowerCase() }} registradas
+            {{ esPendientesTab ? 'No hay grupos pendientes de aprobación' : 'No hay ' + tabs[selectedTab() - tabOffset]?.label?.toLowerCase() + ' registradas' }}
           </td>
         </tr>
       </table>

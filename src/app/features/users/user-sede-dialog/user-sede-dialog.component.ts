@@ -7,7 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UserService } from '../../../core/services/user.service';
 import { SedeService } from '../../../core/services/sede.service';
-import { Sede } from '../../../core/models/sede.model';
+import { AuthService } from '../../../core/services/auth.service';
 import { Usuario, ROLES_DISPONIBLES } from '../../../core/models/user.model';
 
 @Component({
@@ -68,10 +68,11 @@ export class UserSedeDialogComponent implements OnInit {
   readonly usuario: Usuario     = inject(MAT_DIALOG_DATA);
   private readonly userService  = inject(UserService);
   private readonly sedeService  = inject(SedeService);
+  private readonly auth         = inject(AuthService);
   private readonly dialogRef    = inject(MatDialogRef<UserSedeDialogComponent>);
   private readonly fb           = inject(FormBuilder);
 
-  readonly sedes   = signal<Sede[]>([]);
+  readonly sedes   = signal<Array<{ id: string; nombreCorto: string; codigo: string }>>([]);
   readonly loading = signal(false);
   readonly error   = signal('');
   readonly roles   = ROLES_DISPONIBLES;
@@ -83,7 +84,20 @@ export class UserSedeDialogComponent implements OnInit {
 
   ngOnInit() {
     this.sedeService.getAll({ size: 100 }).subscribe({
-      next: res => this.sedes.set(res.content),
+      next: res => this.sedes.set(res.content.map(s => ({ id: s.id, nombreCorto: s.nombreCorto, codigo: s.codigo }))),
+      error: () => this.cargarSedesDeAuth(),
+    });
+  }
+
+  private cargarSedesDeAuth() {
+    const email = this.auth.currentUser()?.email;
+    if (!email) return;
+    this.auth.getSedes(email).subscribe({
+      next: sedes => this.sedes.set(sedes.map(s => ({
+        id: s.id,
+        nombreCorto: s.nombreCorto ?? s.nombre ?? s.codigo,
+        codigo: s.codigo,
+      }))),
     });
   }
 

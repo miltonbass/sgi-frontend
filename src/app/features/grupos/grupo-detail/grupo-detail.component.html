@@ -73,7 +73,12 @@
           }
         </mat-card-header>
         <mat-card-content>
-          @if (miembros().length === 0) {
+          @if (miembrosError()) {
+            <p class="no-data" style="color:#c53030">
+              Sin permisos para ver los miembros de este grupo.
+              Contacta al administrador de sede.
+            </p>
+          } @else if (miembros().length === 0) {
             <p class="no-data">No hay miembros asignados a este grupo</p>
           } @else {
             <table mat-table [dataSource]="miembros()" class="full-width">

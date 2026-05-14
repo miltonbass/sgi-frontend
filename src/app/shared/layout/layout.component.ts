@@ -66,7 +66,7 @@ export class LayoutComponent {
     { path: '/dashboard-global', label: 'Dashboard Global', icon: 'public',    roles: ['ADMIN_GLOBAL', 'PASTOR_PRINCIPAL'] },
     { path: '/dashboard',        label: 'Dashboard',        icon: 'dashboard', roles: ['ADMIN_SEDE', 'PASTOR_SEDE'] },
     { path: '/miembros', label: 'Miembros',  icon: 'people',          roles: ['ADMIN_GLOBAL','SUPER_ADMIN','ADMIN_SEDE','PASTOR_SEDE','PASTOR_PRINCIPAL','LIDER_GRUPO','SECRETARIO_SEDE','REGISTRO_SEDE','CONSOLIDACION_SEDE'] },
-    { path: '/grupos',      label: 'Grupos',      icon: 'groups',        roles: ['ADMIN_GLOBAL','SUPER_ADMIN','ADMIN_SEDE','PASTOR_SEDE','LIDER_GRUPO','SECRETARIO_SEDE','REGISTRO_SEDE','LIDER_CELULA'] },
+    { path: '/grupos',      label: 'Grupos',      icon: 'groups',        roles: ['ADMIN_GLOBAL','SUPER_ADMIN','ADMIN_SEDE','PASTOR_SEDE','LIDER_GRUPO','SECRETARIO_SEDE','REGISTRO_SEDE'] },
     { path: '/grupos/mi-arbol', label: 'Mi Árbol',  icon: 'account_tree',  roles: ['LIDER_CELULA'] },
     { path: '/eventos',  label: 'Eventos',   icon: 'event',           roles: ['ADMIN_GLOBAL','ADMIN_SEDE','PASTOR_SEDE','LIDER_GRUPO','SECRETARIO_SEDE','REGISTRO_SEDE','LIDER_CELULA'] },
     { path: '/alertas',        label: 'Alertas',        icon: 'notifications_active', roles: ['ADMIN_GLOBAL','ADMIN_SEDE','PASTOR_SEDE'] },
