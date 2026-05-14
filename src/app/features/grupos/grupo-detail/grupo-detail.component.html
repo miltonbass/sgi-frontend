@@ -40,13 +40,17 @@
               <span class="info-label">Total miembros</span>
               <span class="info-value">{{ g.totalMiembros }}</span>
             </div>
-            <div class="info-item full-col">
-              <span class="info-label">Descripción</span>
-              <span class="info-value">{{ g.descripcion || '—' }}</span>
+            <div class="info-item">
+              <span class="info-label">Lugar</span>
+              <span class="info-value">{{ g.lugar || '—' }}</span>
             </div>
             <div class="info-item">
               <span class="info-label">Creado</span>
               <span class="info-value">{{ g.creadoEn | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="info-item full-col">
+              <span class="info-label">Descripción</span>
+              <span class="info-value">{{ g.descripcion || '—' }}</span>
             </div>
           </div>
         </mat-card-content>
@@ -57,9 +61,11 @@
         <mat-card-header>
           <mat-card-title>Miembros del grupo</mat-card-title>
           <span style="flex:1"></span>
-          <button mat-raised-button color="primary" (click)="openAgregarMiembro()">
-            <mat-icon>person_add</mat-icon> Agregar Miembro
-          </button>
+          @if (canAgregarMiembro) {
+            <button mat-raised-button color="primary" (click)="openAgregarMiembro()">
+              <mat-icon>person_add</mat-icon> Agregar Miembro
+            </button>
+          }
         </mat-card-header>
         <mat-card-content>
           @if (miembros().length === 0) {
@@ -92,10 +98,12 @@
               <ng-container matColumnDef="acciones">
                 <th mat-header-cell *matHeaderCellDef></th>
                 <td mat-cell *matCellDef="let m">
-                  <button mat-icon-button matTooltip="Quitar del grupo"
-                    (click)="quitarMiembro(m)" class="btn-danger">
-                    <mat-icon>person_remove</mat-icon>
-                  </button>
+                  @if (canAgregarMiembro) {
+                    <button mat-icon-button matTooltip="Quitar del grupo"
+                      (click)="quitarMiembro(m)" class="btn-danger">
+                      <mat-icon>person_remove</mat-icon>
+                    </button>
+                  }
                 </td>
               </ng-container>
 
@@ -105,6 +113,79 @@
           }
         </mat-card-content>
       </mat-card>
+
+      <!-- Sesiones del grupo -->
+      @if (canManageSesiones) {
+        <mat-card class="full-span">
+          <mat-card-header>
+            <mat-card-title>Sesiones</mat-card-title>
+            <span style="flex:1"></span>
+            <button mat-raised-button color="accent" (click)="openNuevaSesion()">
+              <mat-icon>add</mat-icon> Nueva Sesión
+            </button>
+          </mat-card-header>
+          <mat-card-content>
+            @if (sesiones().length === 0) {
+              <p class="no-data">No hay sesiones registradas para este grupo</p>
+            } @else {
+              <table mat-table [dataSource]="sesiones()" class="full-width">
+
+                <ng-container matColumnDef="fecha">
+                  <th mat-header-cell *matHeaderCellDef>Fecha</th>
+                  <td mat-cell *matCellDef="let s">{{ s.fecha | date:'dd/MM/yyyy' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="lugar">
+                  <th mat-header-cell *matHeaderCellDef>Lugar</th>
+                  <td mat-cell *matCellDef="let s">{{ s.lugar || '—' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="tema">
+                  <th mat-header-cell *matHeaderCellDef>Tema</th>
+                  <td mat-cell *matCellDef="let s">{{ s.tema || '—' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="totalPresentes">
+                  <th mat-header-cell *matHeaderCellDef>Asistentes</th>
+                  <td mat-cell *matCellDef="let s">
+                    <span class="asist-badge">{{ s.totalPresentes }} / {{ s.totalMiembros }}</span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="ofrenda">
+                  <th mat-header-cell *matHeaderCellDef>Ofrenda</th>
+                  <td mat-cell *matCellDef="let s">
+                    {{ s.ofrendaMonto != null ? ('$' + s.ofrendaMonto) : '—' }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="acciones">
+                  <th mat-header-cell *matHeaderCellDef></th>
+                  <td mat-cell *matCellDef="let s">
+                    <button mat-icon-button matTooltip="Registrar asistencia"
+                      (click)="goToAsistencia(s)">
+                      <mat-icon>how_to_reg</mat-icon>
+                    </button>
+                    <button mat-icon-button matTooltip="Editar sesión"
+                      (click)="openEditSesion(s)">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    @if (canDeleteSesion) {
+                      <button mat-icon-button matTooltip="Eliminar sesión"
+                        (click)="deleteSesion(s)" class="btn-danger">
+                        <mat-icon>delete_outline</mat-icon>
+                      </button>
+                    }
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="sesionColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: sesionColumns;"></tr>
+              </table>
+            }
+          </mat-card-content>
+        </mat-card>
+      }
 
     </div>
   </div>

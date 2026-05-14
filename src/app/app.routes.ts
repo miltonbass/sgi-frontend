@@ -19,6 +19,7 @@ export const routes: Routes = [
           const auth = inject(AuthService);
           if (auth.hasAnyRole(['ADMIN_GLOBAL', 'PASTOR_PRINCIPAL'])) return '/dashboard-global';
           if (auth.hasAnyRole(['ADMIN_SEDE', 'PASTOR_SEDE'])) return '/dashboard';
+          if (auth.hasRole('LIDER_CELULA')) return '/grupos';
           return '/miembros';
         },
       },
@@ -41,6 +42,10 @@ export const routes: Routes = [
       {
         path: 'grupos/:id',
         loadComponent: () => import('./features/grupos/grupo-detail/grupo-detail.component').then(m => m.GrupoDetailComponent),
+      },
+      {
+        path: 'grupos/:grupoId/sesiones/:sesionId/asistencia',
+        loadComponent: () => import('./features/grupos/sesion-asistencia/sesion-asistencia.component').then(m => m.SesionAsistenciaComponent),
       },
       {
         path: 'sedes',
@@ -75,13 +80,13 @@ export const routes: Routes = [
         path: 'eventos',
         loadComponent: () =>
           import('./features/eventos/eventos.component').then(m => m.EventosComponent),
-        canActivate: [roleGuard(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_SEDE', 'LIDER_GRUPO', 'SECRETARIO_SEDE', 'REGISTRO_SEDE'])],
+        canActivate: [roleGuard(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_SEDE', 'LIDER_GRUPO', 'SECRETARIO_SEDE', 'REGISTRO_SEDE', 'LIDER_CELULA'])],
       },
       {
         path: 'eventos/:id/checkin',
         loadComponent: () =>
           import('./features/eventos/evento-checkin/evento-checkin.component').then(m => m.EventoCheckinComponent),
-        canActivate: [roleGuard(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_SEDE', 'SECRETARIO_SEDE', 'REGISTRO_SEDE'])],
+        canActivate: [roleGuard(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_SEDE', 'SECRETARIO_SEDE', 'REGISTRO_SEDE', 'LIDER_CELULA'])],
       },
       {
         path: 'eventos/:id/resumen',

@@ -1,6 +1,21 @@
-.filters-row {
+.tipo-tabs {
   margin-bottom: 20px;
-  .tipo-field { width: 240px; }
+
+  ::ng-deep .mat-mdc-tab-header {
+    border-bottom: 2px solid #e2e8f0;
+  }
+}
+
+.tab-icon {
+  margin-right: 6px;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+
+  &.tab-icon-celula     { color: #2b6cb0; }
+  &.tab-icon-ministerio { color: #6b46c1; }
+  &.tab-icon-clase      { color: #c05621; }
 }
 
 .grupo-link {
@@ -8,19 +23,6 @@
   text-decoration: none;
   font-weight: 600;
   &:hover { text-decoration: underline; }
-}
-
-.chip-tipo {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-
-  &.chip-tipo-celula     { background: #ebf8ff; color: #2b6cb0; }
-  &.chip-tipo-ministerio { background: #faf5ff; color: #6b46c1; }
-  &.chip-tipo-clase      { background: #fffaf0; color: #c05621; }
 }
 
 .badge-count {

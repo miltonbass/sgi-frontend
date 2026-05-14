@@ -1,66 +1,78 @@
 import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { AuthService } from '../../core/services/auth.service';
 import { GrupoService } from '../../core/services/grupo.service';
 import { Grupo, TipoGrupo, TIPO_GRUPO_LABELS } from '../../core/models/grupo.model';
 import { GrupoFormComponent } from './grupo-form/grupo-form.component';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 
+const ALL_TABS: { tipo: TipoGrupo; label: string; icon: string }[] = [
+  { tipo: 'CELULA',     label: 'Células',      icon: 'groups'      },
+  { tipo: 'MINISTERIO', label: 'Ministerios',   icon: 'music_note'  },
+  { tipo: 'CLASE',      label: 'Clases',        icon: 'school'      },
+];
+
 @Component({
   selector: 'app-grupos',
   standalone: true,
   imports: [
-    RouterLink, ReactiveFormsModule,
+    RouterLink,
     MatTableModule, MatPaginatorModule, MatButtonModule,
-    MatIconModule, MatFormFieldModule, MatSelectModule,
-    MatProgressSpinnerModule, MatTooltipModule,
+    MatIconModule, MatProgressSpinnerModule, MatTooltipModule,
+    MatTabsModule,
   ],
   templateUrl: './grupos.component.html',
   styleUrl: './grupos.component.scss',
 })
 export class GruposComponent implements OnInit, OnDestroy {
   private readonly grupoService = inject(GrupoService);
+  private readonly auth         = inject(AuthService);
   private readonly dialog       = inject(MatDialog);
   private readonly snackBar     = inject(MatSnackBar);
   private readonly destroy$     = new Subject<void>();
 
-  readonly loading   = signal(false);
-  readonly grupos    = signal<Grupo[]>([]);
-  readonly total     = signal(0);
-  readonly pageIndex = signal(0);
-  readonly pageSize  = signal(20);
+  readonly loading      = signal(false);
+  readonly grupos       = signal<Grupo[]>([]);
+  readonly total        = signal(0);
+  readonly pageIndex    = signal(0);
+  readonly pageSize     = signal(20);
+  readonly selectedTab  = signal(0);
 
-  readonly tipoCtrl  = new FormControl<TipoGrupo | ''>('');
-  readonly tipoLabels = TIPO_GRUPO_LABELS;
-  readonly tipos: (TipoGrupo | '')[] = ['', 'CELULA', 'MINISTERIO', 'CLASE'];
+  readonly displayedColumns = ['nombre', 'lider', 'miembros', 'activo', 'acciones'];
 
-  readonly displayedColumns = ['nombre', 'tipo', 'lider', 'miembros', 'activo', 'acciones'];
-
-  ngOnInit() {
-    this.load();
-    this.tipoCtrl.valueChanges.pipe(
-      debounceTime(200), distinctUntilChanged(), takeUntil(this.destroy$),
-    ).subscribe(() => { this.pageIndex.set(0); this.load(); });
+  get isLiderCelula() {
+    return this.auth.hasRole('LIDER_CELULA') && !this.auth.hasAnyRole(['ADMIN_SEDE', 'PASTOR_SEDE', 'ADMIN_GLOBAL']);
   }
 
+  get tabs() {
+    return this.isLiderCelula ? [ALL_TABS[0]] : ALL_TABS;
+  }
+
+  get activeTipo(): TipoGrupo {
+    return this.tabs[this.selectedTab()].tipo;
+  }
+
+  get canCreate() {
+    return this.auth.hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_SEDE']);
+  }
+
+  ngOnInit() { this.load(); }
   ngOnDestroy() { this.destroy$.next(); this.destroy$.complete(); }
 
   load() {
     this.loading.set(true);
-    const tipo = this.tipoCtrl.value || undefined;
-    this.grupoService.getAll({ tipo, page: this.pageIndex(), size: this.pageSize() }).subscribe({
+    this.grupoService.getAll({ tipo: this.activeTipo, page: this.pageIndex(), size: this.pageSize() }).subscribe({
       next: res => {
         this.grupos.set(res.content);
         this.total.set(res.totalElements);
@@ -73,6 +85,13 @@ export class GruposComponent implements OnInit, OnDestroy {
     });
   }
 
+  onTabChange(index: number) {
+    if (this.selectedTab() === index) return;
+    this.selectedTab.set(index);
+    this.pageIndex.set(0);
+    this.load();
+  }
+
   onPage(e: PageEvent) {
     this.pageIndex.set(e.pageIndex);
     this.pageSize.set(e.pageSize);
@@ -80,8 +99,10 @@ export class GruposComponent implements OnInit, OnDestroy {
   }
 
   openCreate() {
-    this.dialog.open(GrupoFormComponent, { width: '560px', disableClose: true })
-      .afterClosed().subscribe(ok => ok && this.load());
+    this.dialog.open(GrupoFormComponent, {
+      width: '560px', disableClose: true,
+      data: { tipo: this.activeTipo },
+    }).afterClosed().subscribe(ok => ok && this.load());
   }
 
   openEdit(grupo: Grupo) {

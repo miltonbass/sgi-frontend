@@ -1,0 +1,123 @@
+<div class="asist-container">
+
+  <!-- Header -->
+  <div class="asist-header">
+    <button mat-icon-button (click)="location.back()" matTooltip="Volver">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="header-info">
+      <h2 class="header-titulo">{{ sesion()?.grupoNombre ?? 'Cargando...' }}</h2>
+      @if (sesion(); as s) {
+        <span class="header-meta">
+          {{ s.fecha | date:'dd/MM/yyyy' }}
+          @if (s.lugar) { · {{ s.lugar }} }
+          @if (s.tema)  { · {{ s.tema }} }
+        </span>
+      }
+    </div>
+    <span style="flex:1"></span>
+    @if (!loading()) {
+      <div class="contador-badge">
+        <mat-icon>people</mat-icon>
+        <span>{{ contadorTexto }}</span>
+      </div>
+    }
+  </div>
+
+  <mat-divider />
+
+  @if (loading()) {
+    <div style="padding:60px;text-align:center"><mat-spinner diameter="40" /></div>
+  } @else {
+
+    <div class="asist-grid">
+
+      <!-- Lista de miembros del grupo -->
+      <mat-card>
+        <mat-card-header><mat-card-title>Miembros del grupo</mat-card-title></mat-card-header>
+        <mat-card-content>
+          @if (miembros().length === 0) {
+            <p class="sin-datos">No hay miembros en este grupo.</p>
+          }
+          @for (m of miembros(); track m.miembroId) {
+            <div class="miembro-row" [class.ya-presente]="m.yaRegistrado">
+              <div class="miembro-info">
+                <mat-icon class="miembro-icon" [class.icon-presente]="m.yaRegistrado">
+                  {{ m.yaRegistrado ? 'check_circle' : 'radio_button_unchecked' }}
+                </mat-icon>
+                <div>
+                  <span class="miembro-nombre">{{ m.nombres }} {{ m.apellidos }}</span>
+                  <span class="miembro-rol">{{ m.rol }}</span>
+                </div>
+              </div>
+              @if (m.yaRegistrado) {
+                <span class="badge-presente">Presente</span>
+              } @else {
+                <button mat-flat-button color="primary" class="btn-registrar"
+                  [disabled]="m.registrando"
+                  (click)="registrarMiembro(m)">
+                  @if (m.registrando) { <mat-spinner diameter="16" /> } @else { Registrar }
+                </button>
+              }
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Visitantes -->
+      <mat-card>
+        <mat-card-header><mat-card-title>Registrar visitante</mat-card-title></mat-card-header>
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Nombre completo *</mat-label>
+            <input matInput [formControl]="visitanteNombreCtrl" />
+            @if (visitanteNombreCtrl.touched && visitanteNombreCtrl.hasError('required')) {
+              <mat-error>El nombre es obligatorio</mat-error>
+            }
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Teléfono (opcional)</mat-label>
+            <input matInput [formControl]="visitanteTelefonoCtrl" type="tel" />
+          </mat-form-field>
+          <button mat-raised-button color="accent" class="full-width"
+            [disabled]="registrandoVisitante()"
+            (click)="registrarVisitante()">
+            <mat-icon>person_add</mat-icon>
+            @if (registrandoVisitante()) { Registrando... }
+            @else { Registrar visitante }
+          </button>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Lista completa de asistencias registradas -->
+      @if ((resumen()?.asistencias?.length ?? 0) > 0) {
+        <mat-card class="full-span">
+          <mat-card-header><mat-card-title>Asistencias registradas</mat-card-title></mat-card-header>
+          <mat-card-content>
+            <div class="asistencia-list">
+              @for (a of resumen()!.asistencias; track a.id) {
+                <div class="asistencia-row">
+                  <mat-icon class="tipo-icon" [class.icon-miembro]="a.miembroId">
+                    {{ a.miembroId ? 'badge' : 'person_outline' }}
+                  </mat-icon>
+                  <div class="asistencia-info">
+                    <span class="asistencia-nombre">{{ getNombre(a) }}</span>
+                    <span class="asistencia-tipo">{{ a.miembroId ? 'Miembro' : 'Visitante' }}</span>
+                  </div>
+                  @if (canDelete) {
+                    <button mat-icon-button color="warn" matTooltip="Eliminar"
+                      (click)="eliminarAsistencia(a)">
+                      <mat-icon>delete_outline</mat-icon>
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+
+    </div>
+  }
+
+</div>

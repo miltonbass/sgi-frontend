@@ -89,3 +89,15 @@ mat-card-header {
 }
 
 .btn-danger { color: #e53e3e !important; }
+
+.asist-badge {
+  display: inline-flex;
+  background: #ebf8ff;
+  color: #2b6cb0;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.no-data { color: #a0aec0; font-size: 14px; margin: 12px 0; }

@@ -4,6 +4,10 @@ import {
   Grupo, GruposResponse, CreateGrupoRequest, UpdateGrupoRequest,
   MiembroGrupo, AsignarMiembroRequest,
 } from '../models/grupo.model';
+import {
+  SesionGrupo, CreateSesionRequest, UpdateSesionRequest,
+  SesionAsistenciaResumen, AsistenciaSesion, RegistrarAsistenciaSesionRequest,
+} from '../models/sesion.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -50,5 +54,45 @@ export class GrupoService {
 
   quitarMiembro(grupoId: string, miembroId: string) {
     return this.http.delete(`${this.baseUrl}/${grupoId}/miembros/${miembroId}`);
+  }
+
+  // ── Sesiones ────────────────────────────────────────────────
+  getSesiones(grupoId: string) {
+    return this.http.get<SesionGrupo[]>(`${this.baseUrl}/${grupoId}/sesiones`);
+  }
+
+  getSesion(grupoId: string, sesionId: string) {
+    return this.http.get<SesionGrupo>(`${this.baseUrl}/${grupoId}/sesiones/${sesionId}`);
+  }
+
+  createSesion(grupoId: string, data: CreateSesionRequest) {
+    return this.http.post<SesionGrupo>(`${this.baseUrl}/${grupoId}/sesiones`, data);
+  }
+
+  updateSesion(grupoId: string, sesionId: string, data: UpdateSesionRequest) {
+    return this.http.put<SesionGrupo>(`${this.baseUrl}/${grupoId}/sesiones/${sesionId}`, data);
+  }
+
+  deleteSesion(grupoId: string, sesionId: string) {
+    return this.http.delete(`${this.baseUrl}/${grupoId}/sesiones/${sesionId}`);
+  }
+
+  // ── Asistencia de sesión ─────────────────────────────────────
+  getSesionAsistencias(grupoId: string, sesionId: string) {
+    return this.http.get<SesionAsistenciaResumen>(
+      `${this.baseUrl}/${grupoId}/sesiones/${sesionId}/asistencias`,
+    );
+  }
+
+  registrarAsistenciaSesion(grupoId: string, sesionId: string, data: RegistrarAsistenciaSesionRequest) {
+    return this.http.post<AsistenciaSesion>(
+      `${this.baseUrl}/${grupoId}/sesiones/${sesionId}/asistencias`, data,
+    );
+  }
+
+  eliminarAsistenciaSesion(grupoId: string, sesionId: string, asistenciaId: string) {
+    return this.http.delete(
+      `${this.baseUrl}/${grupoId}/sesiones/${sesionId}/asistencias/${asistenciaId}`,
+    );
   }
 }

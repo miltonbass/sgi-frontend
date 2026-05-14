@@ -7,6 +7,8 @@ export interface Grupo {
   descripcion: string;
   liderId: string | null;
   liderNombre: string | null;
+  grupoPadreId: string | null;
+  lugar: string | null;
   activo: boolean;
   totalMiembros: number;
   creadoEn: string;
@@ -23,8 +25,9 @@ export interface GruposResponse {
 
 export interface CreateGrupoRequest {
   nombre: string;
-  tipo: TipoGrupo;
+  tipo?: TipoGrupo;
   descripcion?: string;
+  lugar?: string;
   liderId?: string;
 }
 
@@ -32,6 +35,7 @@ export interface UpdateGrupoRequest {
   nombre?: string;
   tipo?: TipoGrupo;
   descripcion?: string;
+  lugar?: string;
   liderId?: string | null;
 }
 

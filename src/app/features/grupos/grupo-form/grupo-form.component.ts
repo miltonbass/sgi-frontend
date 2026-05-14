@@ -11,6 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { GrupoService } from '../../../core/services/grupo.service';
 import { MemberService } from '../../../core/services/member.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Grupo, TipoGrupo, TIPO_GRUPO_LABELS } from '../../../core/models/grupo.model';
 import { Miembro } from '../../../core/models/member.model';
 
@@ -28,20 +29,26 @@ export class GrupoFormComponent implements OnInit {
   private readonly fb           = inject(FormBuilder);
   private readonly grupoService = inject(GrupoService);
   private readonly memberService = inject(MemberService);
+  private readonly auth         = inject(AuthService);
   private readonly dialogRef    = inject(MatDialogRef<GrupoFormComponent>);
   readonly data: Grupo | null   = inject(MAT_DIALOG_DATA);
 
   readonly loading        = signal(false);
   readonly error          = signal('');
-  readonly isEdit         = !!this.data;
+  readonly isEdit         = !!(this.data as Grupo)?.id;
   readonly liderOpciones  = signal<Miembro[]>([]);
   readonly tipos          = Object.keys(TIPO_GRUPO_LABELS) as TipoGrupo[];
   readonly tipoLabels     = TIPO_GRUPO_LABELS;
 
+  get isLiderCelula() {
+    return this.auth.hasRole('LIDER_CELULA') && !this.auth.hasAnyRole(['ADMIN_SEDE', 'PASTOR_SEDE']);
+  }
+
   form = this.fb.group({
     nombre:      [this.data?.nombre      ?? '', Validators.required],
-    tipo:        [this.data?.tipo        ?? '' as TipoGrupo, Validators.required],
+    tipo:        [this.data?.tipo        ?? '' as TipoGrupo, this.isLiderCelula ? [] : Validators.required],
     descripcion: [this.data?.descripcion ?? ''],
+    lugar:       [this.data?.lugar       ?? ''],
     liderSearch: [this.data?.liderNombre ?? ''],
     liderId:     [this.data?.liderId     ?? ''],
   });
@@ -77,12 +84,19 @@ export class GrupoFormComponent implements OnInit {
     this.error.set('');
 
     const raw = this.form.getRawValue();
-    const payload = {
-      nombre:      raw.nombre!,
-      tipo:        raw.tipo!,
-      descripcion: raw.descripcion || undefined,
-      liderId:     raw.liderId     || undefined,
-    };
+    const payload = this.isLiderCelula
+      ? {
+          nombre:      raw.nombre!,
+          descripcion: raw.descripcion || undefined,
+          lugar:       raw.lugar       || undefined,
+        }
+      : {
+          nombre:      raw.nombre!,
+          tipo:        raw.tipo!,
+          descripcion: raw.descripcion || undefined,
+          lugar:       raw.lugar       || undefined,
+          liderId:     raw.liderId     || undefined,
+        };
 
     const op$ = this.isEdit
       ? this.grupoService.update(this.data!.id, payload)
