@@ -90,6 +90,13 @@ mat-card-header {
 
 .btn-danger { color: #e53e3e !important; }
 
+.miembro-link {
+  color: #3f51b5;
+  text-decoration: none;
+  font-weight: 500;
+  &:hover { text-decoration: underline; }
+}
+
 .asist-badge {
   display: inline-flex;
   background: #ebf8ff;

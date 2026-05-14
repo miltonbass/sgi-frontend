@@ -1,6 +1,9 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location, DatePipe } from '@angular/common';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,6 +19,7 @@ import { Grupo, MiembroGrupo, TIPO_GRUPO_LABELS } from '../../../core/models/gru
 import { SesionGrupo } from '../../../core/models/sesion.model';
 import { GrupoFormComponent } from '../grupo-form/grupo-form.component';
 import { GrupoMiembroDialogComponent } from '../grupo-miembro-dialog/grupo-miembro-dialog.component';
+import { GrupoTrasladoDialogComponent } from '../grupo-traslado-dialog/grupo-traslado-dialog.component';
 import { SesionFormComponent } from '../sesion-form/sesion-form.component';
 import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
 
@@ -23,7 +27,7 @@ import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-d
   selector: 'app-grupo-detail',
   standalone: true,
   imports: [
-    DatePipe,
+    DatePipe, RouterLink,
     MatCardModule, MatButtonModule, MatIconModule, MatTableModule,
     MatProgressSpinnerModule, MatTooltipModule, MatDividerModule,
   ],
@@ -52,6 +56,10 @@ export class GrupoDetailComponent implements OnInit {
     return this.auth.hasAnyRole(['ADMIN_SEDE', 'PASTOR_SEDE', 'ADMIN_GLOBAL']);
   }
 
+  get canTrasladar() {
+    return this.auth.hasAnyRole(['ADMIN_SEDE', 'PASTOR_SEDE', 'ADMIN_GLOBAL']);
+  }
+
   get canDeleteSesion() {
     return this.auth.hasAnyRole(['ADMIN_SEDE', 'PASTOR_SEDE', 'ADMIN_GLOBAL']);
   }
@@ -70,16 +78,18 @@ export class GrupoDetailComponent implements OnInit {
     this.grupoService.getById(id).subscribe({
       next: g => {
         this.grupo.set(g);
-        this.grupoService.getMiembros(id).subscribe({
-          next: m => { this.miembros.set(m); this.loading.set(false); },
+        const miembros$ = this.grupoService.getMiembros(id).pipe(catchError(() => of([])));
+        const sesiones$ = this.canManageSesiones
+          ? this.grupoService.getSesiones(id).pipe(catchError(() => of([])))
+          : of([]);
+        forkJoin([miembros$, sesiones$]).subscribe({
+          next: ([m, s]) => {
+            this.miembros.set((m as MiembroGrupo[]) ?? []);
+            this.sesiones.set((s as SesionGrupo[]) ?? []);
+            this.loading.set(false);
+          },
           error: () => this.loading.set(false),
         });
-        if (this.canManageSesiones) {
-          this.grupoService.getSesiones(id).subscribe({
-            next: s => this.sesiones.set(s),
-            error: () => {},
-          });
-        }
       },
       error: () => {
         this.loading.set(false);
@@ -159,6 +169,24 @@ export class GrupoDetailComponent implements OnInit {
 
   goToAsistencia(sesion: SesionGrupo) {
     this.router.navigate(['/grupos', this.grupo()!.id, 'sesiones', sesion.id, 'asistencia']);
+  }
+
+  openTrasladar() {
+    const g = this.grupo();
+    if (!g) return;
+    this.dialog.open(GrupoTrasladoDialogComponent, {
+      width: '480px',
+      data: {
+        grupoId:           g.id,
+        grupoNombre:       g.nombre,
+        padreActualNombre: g.grupoPadreId ? (g as any).grupoPadreNombre ?? null : null,
+      },
+    }).afterClosed().subscribe(ok => {
+      if (ok) {
+        this.snackBar.open('Grupo trasladado', '', { duration: 2500 });
+        this.load(g.id);
+      }
+    });
   }
 
   tipoLabel(tipo: string) { return this.tipoLabels[tipo as keyof typeof this.tipoLabels] ?? tipo; }

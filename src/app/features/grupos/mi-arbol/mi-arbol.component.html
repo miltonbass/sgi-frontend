@@ -1,0 +1,106 @@
+<div class="arbol-container">
+
+  <!-- Header -->
+  <div class="arbol-header">
+    <button mat-icon-button (click)="location.back()" matTooltip="Volver">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h1 class="arbol-titulo">Mi Árbol de Células</h1>
+      @if (arbol(); as a) {
+        <span class="arbol-raiz">Raíz: {{ a.grupoRaizNombre }}</span>
+      }
+    </div>
+    <span style="flex:1"></span>
+    @if (arbol(); as a) {
+      <button mat-raised-button color="primary"
+        (click)="nuevaSubCelula(a.grupoRaizId)"
+        matTooltip="Crear una nueva célula hija de {{ a.grupoRaizNombre }}">
+        <mat-icon>add</mat-icon> Nueva sub-célula
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <div style="padding:80px;text-align:center"><mat-spinner diameter="40" /></div>
+  } @else if (arbol(); as a) {
+
+    @if (a.subArbol.length === 0) {
+      <mat-card class="sin-hijos">
+        <mat-card-content>
+          <mat-icon class="sin-hijos-icon">account_tree</mat-icon>
+          <p>Tu célula aún no tiene células hijas.</p>
+          <p class="hint">Usa el botón "Nueva sub-célula" para registrar una célula que salió de la tuya.</p>
+        </mat-card-content>
+      </mat-card>
+    } @else {
+      <mat-card class="arbol-card">
+        <mat-card-header>
+          <mat-card-title>Células descendientes ({{ a.subArbol.length }})</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+
+          <!-- Columnas encabezado -->
+          <div class="arbol-cols-header">
+            <span class="col-nombre">Grupo</span>
+            <span class="col-lider">Líder</span>
+            <span class="col-miembros">Miembros</span>
+            <span class="col-sesion">Última sesión</span>
+            <span class="col-prom">Prom. 30d</span>
+            <span class="col-accion"></span>
+          </div>
+
+          @for (item of a.subArbol; track item.id) {
+            <div class="arbol-fila" [style.paddingLeft.px]="indentPx(item.nivel)">
+
+              <!-- Conector visual -->
+              <span class="conector nivel-{{ item.nivel }}">
+                <mat-icon class="conector-icon">subdirectory_arrow_right</mat-icon>
+              </span>
+
+              <span class="col-nombre">
+                <span class="grupo-nombre">{{ item.nombre }}</span>
+              </span>
+
+              <span class="col-lider">{{ item.liderNombre ?? '—' }}</span>
+
+              <span class="col-miembros">
+                <span class="badge-miembros">{{ item.totalMiembros }}</span>
+              </span>
+
+              <span class="col-sesion">
+                @if (item.ultimaSesionFecha) {
+                  {{ item.ultimaSesionFecha | date:'dd/MM/yyyy' }}
+                } @else {
+                  <span class="sin-sesiones">Sin sesiones</span>
+                }
+              </span>
+
+              <span class="col-prom">
+                @if (item.promedioAsistencia30d != null) {
+                  <span class="badge-prom">{{ formatPromedio(item.promedioAsistencia30d) }}</span>
+                } @else {
+                  <span class="sin-sesiones">—</span>
+                }
+              </span>
+
+              <span class="col-accion">
+                <button mat-stroked-button (click)="verSesiones(item)" matTooltip="Ver sesiones de esta célula">
+                  <mat-icon>event_note</mat-icon> Ver sesiones
+                </button>
+                <button mat-icon-button color="primary"
+                  (click)="nuevaSubCelula(item.id)"
+                  matTooltip="Nueva sub-célula de {{ item.nombre }}">
+                  <mat-icon>add_circle_outline</mat-icon>
+                </button>
+              </span>
+
+            </div>
+          }
+
+        </mat-card-content>
+      </mat-card>
+    }
+
+  }
+</div>

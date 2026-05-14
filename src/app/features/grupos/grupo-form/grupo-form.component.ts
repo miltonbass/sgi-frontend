@@ -36,6 +36,7 @@ export class GrupoFormComponent implements OnInit {
   readonly loading        = signal(false);
   readonly error          = signal('');
   readonly isEdit         = !!(this.data as Grupo)?.id;
+  readonly grupoPadreId   = (this.data as any)?.grupoPadreId as string | undefined;
   readonly liderOpciones  = signal<Miembro[]>([]);
   readonly tipos          = Object.keys(TIPO_GRUPO_LABELS) as TipoGrupo[];
   readonly tipoLabels     = TIPO_GRUPO_LABELS;
@@ -86,16 +87,18 @@ export class GrupoFormComponent implements OnInit {
     const raw = this.form.getRawValue();
     const payload = this.isLiderCelula
       ? {
-          nombre:      raw.nombre!,
-          descripcion: raw.descripcion || undefined,
-          lugar:       raw.lugar       || undefined,
+          nombre:       raw.nombre!,
+          descripcion:  raw.descripcion  || undefined,
+          lugar:        raw.lugar        || undefined,
+          grupoPadreId: this.grupoPadreId || undefined,
         }
       : {
-          nombre:      raw.nombre!,
-          tipo:        raw.tipo!,
-          descripcion: raw.descripcion || undefined,
-          lugar:       raw.lugar       || undefined,
-          liderId:     raw.liderId     || undefined,
+          nombre:       raw.nombre!,
+          tipo:         raw.tipo!,
+          descripcion:  raw.descripcion  || undefined,
+          lugar:        raw.lugar        || undefined,
+          liderId:      raw.liderId      || undefined,
+          grupoPadreId: this.grupoPadreId || undefined,
         };
 
     const op$ = this.isEdit

@@ -40,8 +40,18 @@ export const routes: Routes = [
         loadComponent: () => import('./features/grupos/grupos.component').then(m => m.GruposComponent),
       },
       {
+        path: 'grupos/mi-arbol',
+        loadComponent: () => import('./features/grupos/mi-arbol/mi-arbol.component').then(m => m.MiArbolComponent),
+        canActivate: [roleGuard(['LIDER_CELULA'])],
+      },
+      {
         path: 'grupos/:id',
         loadComponent: () => import('./features/grupos/grupo-detail/grupo-detail.component').then(m => m.GrupoDetailComponent),
+      },
+      {
+        path: 'grupos/:grupoId/sesiones',
+        loadComponent: () => import('./features/grupos/grupo-sesiones/grupo-sesiones.component').then(m => m.GrupoSesionesComponent),
+        canActivate: [roleGuard(['LIDER_CELULA'])],
       },
       {
         path: 'grupos/:grupoId/sesiones/:sesionId/asistencia',
@@ -60,6 +70,7 @@ export const routes: Routes = [
       {
         path: 'miembros',
         loadComponent: () => import('./features/members/members.component').then(m => m.MembersComponent),
+        canActivate: [roleGuard(['ADMIN_GLOBAL','SUPER_ADMIN','ADMIN_SEDE','PASTOR_SEDE','PASTOR_PRINCIPAL','LIDER_GRUPO','SECRETARIO_SEDE','REGISTRO_SEDE','CONSOLIDACION_SEDE'])],
       },
       {
         path: 'miembros/:id',
@@ -67,6 +78,7 @@ export const routes: Routes = [
           import('./features/members/member-detail/member-detail.component').then(
             m => m.MemberDetailComponent,
           ),
+        canActivate: [roleGuard(['ADMIN_GLOBAL','SUPER_ADMIN','ADMIN_SEDE','PASTOR_SEDE','PASTOR_PRINCIPAL','LIDER_GRUPO','SECRETARIO_SEDE','REGISTRO_SEDE','CONSOLIDACION_SEDE','LIDER_CELULA'])],
       },
       {
         path: 'miembros/:id/asistencia',

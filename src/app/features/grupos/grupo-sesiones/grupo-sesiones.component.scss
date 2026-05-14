@@ -1,0 +1,53 @@
+.sesiones-container { padding: 24px; max-width: 860px; }
+
+.sesiones-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.sesiones-titulo {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #2d3748;
+  line-height: 1.2;
+}
+
+.sesiones-sub { font-size: 12px; color: #a0aec0; }
+
+.readonly-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #fffbeb;
+  color: #b7791f;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+}
+
+.asist-badge {
+  display: inline-flex;
+  background: #ebf8ff;
+  color: #2b6cb0;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sin-sesiones {
+  text-align: center;
+  padding: 40px 0;
+  color: #a0aec0;
+
+  mat-icon { font-size: 40px; width: 40px; height: 40px; display: block; margin: 0 auto 12px; }
+  p { margin: 0; font-size: 14px; }
+}
+
+.full-width { width: 100%; }

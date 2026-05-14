@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { map } from 'rxjs/operators';
 import {
   Grupo, GruposResponse, CreateGrupoRequest, UpdateGrupoRequest,
-  MiembroGrupo, AsignarMiembroRequest,
+  MiembroGrupo, GrupoMiembrosResponse, AsignarMiembroRequest, MiArbolResponse,
 } from '../models/grupo.model';
 import {
   SesionGrupo, CreateSesionRequest, UpdateSesionRequest,
@@ -28,6 +29,10 @@ export class GrupoService {
     return this.http.get<Grupo>(`${this.baseUrl}/${id}`);
   }
 
+  getMiArbol() {
+    return this.http.get<MiArbolResponse>(`${this.baseUrl}/mi-arbol`);
+  }
+
   create(data: CreateGrupoRequest) {
     return this.http.post<Grupo>(this.baseUrl, data);
   }
@@ -45,7 +50,9 @@ export class GrupoService {
   }
 
   getMiembros(id: string) {
-    return this.http.get<MiembroGrupo[]>(`${this.baseUrl}/${id}/miembros`);
+    return this.http.get<GrupoMiembrosResponse>(`${this.baseUrl}/${id}/miembros`).pipe(
+      map(res => res.miembros ?? []),
+    );
   }
 
   asignarMiembro(id: string, data: AsignarMiembroRequest) {

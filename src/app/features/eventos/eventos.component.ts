@@ -67,7 +67,7 @@ export class EventosComponent implements OnInit {
   }
 
   get canCheckinRole() {
-    return this.auth.hasAnyRole(['ADMIN_SEDE', 'PASTOR_SEDE', 'SECRETARIO_SEDE', 'REGISTRO_SEDE']);
+    return this.auth.hasAnyRole(['ADMIN_SEDE', 'PASTOR_SEDE', 'SECRETARIO_SEDE', 'REGISTRO_SEDE', 'LIDER_CELULA']);
   }
 
   ngOnInit() {

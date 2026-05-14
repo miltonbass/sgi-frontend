@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Location, DatePipe } from '@angular/common';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -26,7 +26,7 @@ interface MiembroConEstado extends MiembroGrupo {
   selector: 'app-sesion-asistencia',
   standalone: true,
   imports: [
-    DatePipe, ReactiveFormsModule,
+    DatePipe, ReactiveFormsModule, RouterLink,
     MatCardModule, MatButtonModule, MatIconModule,
     MatFormFieldModule, MatInputModule, MatProgressSpinnerModule,
     MatTooltipModule, MatDividerModule,
@@ -41,8 +41,9 @@ export class SesionAsistenciaComponent implements OnInit {
   private readonly snackBar     = inject(MatSnackBar);
   readonly location             = inject(Location);
 
-  readonly grupoId  = this.route.snapshot.paramMap.get('grupoId')!;
-  readonly sesionId = this.route.snapshot.paramMap.get('sesionId')!;
+  readonly grupoId    = this.route.snapshot.paramMap.get('grupoId')!;
+  readonly sesionId   = this.route.snapshot.paramMap.get('sesionId')!;
+  readonly soloLectura = this.route.snapshot.queryParamMap.get('soloLectura') === '1';
 
   readonly loading      = signal(true);
   readonly sesion       = signal<SesionGrupo | null>(null);
@@ -54,7 +55,12 @@ export class SesionAsistenciaComponent implements OnInit {
   readonly registrandoVisitante  = signal(false);
 
   get canDelete() {
+    if (this.soloLectura) return false;
     return this.auth.hasAnyRole(['ADMIN_SEDE', 'PASTOR_SEDE', 'LIDER_CELULA']);
+  }
+
+  get canWrite() {
+    return !this.soloLectura;
   }
 
   get contadorTexto() {

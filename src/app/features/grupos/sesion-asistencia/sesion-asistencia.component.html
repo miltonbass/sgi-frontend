@@ -52,12 +52,14 @@
               </div>
               @if (m.yaRegistrado) {
                 <span class="badge-presente">Presente</span>
-              } @else {
+              } @else if (canWrite) {
                 <button mat-flat-button color="primary" class="btn-registrar"
                   [disabled]="m.registrando"
                   (click)="registrarMiembro(m)">
                   @if (m.registrando) { <mat-spinner diameter="16" /> } @else { Registrar }
                 </button>
+              } @else {
+                <span class="badge-ausente">Ausente</span>
               }
             </div>
           }
@@ -65,29 +67,31 @@
       </mat-card>
 
       <!-- Visitantes -->
-      <mat-card>
-        <mat-card-header><mat-card-title>Registrar visitante</mat-card-title></mat-card-header>
-        <mat-card-content>
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Nombre completo *</mat-label>
-            <input matInput [formControl]="visitanteNombreCtrl" />
-            @if (visitanteNombreCtrl.touched && visitanteNombreCtrl.hasError('required')) {
-              <mat-error>El nombre es obligatorio</mat-error>
-            }
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Teléfono (opcional)</mat-label>
-            <input matInput [formControl]="visitanteTelefonoCtrl" type="tel" />
-          </mat-form-field>
-          <button mat-raised-button color="accent" class="full-width"
-            [disabled]="registrandoVisitante()"
-            (click)="registrarVisitante()">
-            <mat-icon>person_add</mat-icon>
-            @if (registrandoVisitante()) { Registrando... }
-            @else { Registrar visitante }
-          </button>
-        </mat-card-content>
-      </mat-card>
+      @if (canWrite) {
+        <mat-card>
+          <mat-card-header><mat-card-title>Registrar visitante</mat-card-title></mat-card-header>
+          <mat-card-content>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Nombre completo *</mat-label>
+              <input matInput [formControl]="visitanteNombreCtrl" />
+              @if (visitanteNombreCtrl.touched && visitanteNombreCtrl.hasError('required')) {
+                <mat-error>El nombre es obligatorio</mat-error>
+              }
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Teléfono (opcional)</mat-label>
+              <input matInput [formControl]="visitanteTelefonoCtrl" type="tel" />
+            </mat-form-field>
+            <button mat-raised-button color="accent" class="full-width"
+              [disabled]="registrandoVisitante()"
+              (click)="registrarVisitante()">
+              <mat-icon>person_add</mat-icon>
+              @if (registrandoVisitante()) { Registrando... }
+              @else { Registrar visitante }
+            </button>
+          </mat-card-content>
+        </mat-card>
+      }
 
       <!-- Lista completa de asistencias registradas -->
       @if ((resumen()?.asistencias?.length ?? 0) > 0) {
@@ -101,7 +105,12 @@
                     {{ a.miembroId ? 'badge' : 'person_outline' }}
                   </mat-icon>
                   <div class="asistencia-info">
-                    <span class="asistencia-nombre">{{ getNombre(a) }}</span>
+                    @if (a.miembroId) {
+                      <a class="asistencia-nombre asistencia-link"
+                        [routerLink]="['/miembros', a.miembroId]">{{ getNombre(a) }}</a>
+                    } @else {
+                      <span class="asistencia-nombre">{{ getNombre(a) }}</span>
+                    }
                     <span class="asistencia-tipo">{{ a.miembroId ? 'Miembro' : 'Visitante' }}</span>
                   </div>
                   @if (canDelete) {
