@@ -1,0 +1,281 @@
+<div class="rc-container">
+
+  <!-- Encabezado y filtros -->
+  <div class="rc-header">
+    <h1 class="rc-title">Reporte de Células</h1>
+  </div>
+
+  <mat-card class="filtros-card">
+    <mat-card-content>
+      <div class="filtros-row">
+
+        <mat-form-field appearance="outline" class="filtro-fecha">
+          <mat-label>Desde</mat-label>
+          <input matInput [matDatepicker]="dpDesde" [formControl]="fechaDesdeCtrl" />
+          <mat-datepicker-toggle matIconSuffix [for]="dpDesde" />
+          <mat-datepicker #dpDesde />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filtro-fecha">
+          <mat-label>Hasta</mat-label>
+          <input matInput [matDatepicker]="dpHasta" [formControl]="fechaHastaCtrl" />
+          <mat-datepicker-toggle matIconSuffix [for]="dpHasta" />
+          <mat-datepicker #dpHasta />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filtro-nivel">
+          <mat-label>Nivel</mat-label>
+          <mat-select [formControl]="nivelCtrl">
+            <mat-option value="">Todos</mat-option>
+            <mat-option [value]="0">Raíz (nivel 0)</mat-option>
+            <mat-option [value]="1">Hijas (nivel 1)</mat-option>
+            <mat-option [value]="2">Nietas (nivel 2)</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-slide-toggle [formControl]="soloActivasCtrl" color="primary" class="filtro-toggle">
+          Solo activas
+        </mat-slide-toggle>
+
+        <button mat-raised-button color="primary" (click)="buscar()" [disabled]="loading()">
+          <mat-icon>search</mat-icon> Buscar
+        </button>
+
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- KPIs resumen -->
+  @if (reporte(); as r) {
+    <div class="kpis-row">
+      <mat-card class="kpi-card">
+        <mat-card-content>
+          <span class="kpi-valor">{{ r.totalCelulas }}</span>
+          <span class="kpi-label">Células</span>
+        </mat-card-content>
+      </mat-card>
+      <mat-card class="kpi-card">
+        <mat-card-content>
+          <span class="kpi-valor">{{ r.totalMiembros }}</span>
+          <span class="kpi-label">Miembros</span>
+        </mat-card-content>
+      </mat-card>
+      <mat-card class="kpi-card">
+        <mat-card-content>
+          <span class="kpi-valor">{{ fmtNum(r.promedioAsistenciaGeneral) }}</span>
+          <span class="kpi-label">Prom. asistencia</span>
+        </mat-card-content>
+      </mat-card>
+      <mat-card class="kpi-card">
+        <mat-card-content>
+          <span class="kpi-valor">{{ fmtOfrenda(r.totalOfrenda) }}</span>
+          <span class="kpi-label">Ofrenda total</span>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  }
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="loading-center"><mat-spinner /></div>
+  }
+
+  <!-- Vista árbol (listado) -->
+  @else if (!seleccionada() && reporte(); as r) {
+    <mat-card class="tabla-card">
+      <mat-card-content>
+
+        @if (r.celulas.length === 0) {
+          <p class="no-data">No hay células para los filtros seleccionados</p>
+        } @else {
+
+          <div class="tree-header">
+            <span class="col-nom">Célula</span>
+            <span class="col-lider">Líder</span>
+            <span class="col-num">Miembros</span>
+            <span class="col-num">Sesiones</span>
+            <span class="col-num">Prom. asist.</span>
+            <span class="col-num">Visitantes</span>
+            <span class="col-ofrenda">Ofrenda</span>
+            <span class="col-accion"></span>
+          </div>
+
+          @for (c of r.celulas; track c.id) {
+            <div class="tree-fila"
+              [class.fila-inactiva]="!c.activo"
+              [class.fila-seleccionada]="seleccionada()?.id === c.id"
+              [style.paddingLeft.px]="indentPx(c.nivel)">
+
+              <span class="col-nom">
+                @if (c.nivel > 0) {
+                  <mat-icon class="conector-icon">subdirectory_arrow_right</mat-icon>
+                }
+                <span class="celula-nombre">{{ c.nombre }}</span>
+                @if (!c.activo) {
+                  <span class="chip-inactiva">Inactiva</span>
+                }
+              </span>
+              <span class="col-lider">{{ c.liderNombre ?? '—' }}</span>
+              <span class="col-num"><span class="badge-n">{{ c.totalMiembros }}</span></span>
+              <span class="col-num">{{ c.totalSesiones }}</span>
+              <span class="col-num">{{ fmtNum(c.promedioAsistencia) }}</span>
+              <span class="col-num">{{ c.totalVisitantes }}</span>
+              <span class="col-ofrenda">{{ fmtOfrenda(c.totalOfrenda) }}</span>
+              <span class="col-accion">
+                <button mat-icon-button matTooltip="Ver detalle" (click)="seleccionar(c)">
+                  <mat-icon>chevron_right</mat-icon>
+                </button>
+              </span>
+
+            </div>
+          }
+        }
+
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Vista detalle -->
+  @else if (seleccionada(); as cel) {
+
+    <div class="detalle-header">
+      <button mat-icon-button (click)="volverListado()" matTooltip="Volver al listado">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h2 class="detalle-titulo">{{ cel.nombre }}</h2>
+        <span class="detalle-sub">Líder: {{ cel.liderNombre ?? '—' }} · {{ cel.totalMiembros }} miembros</span>
+      </div>
+    </div>
+
+    @if (loadingDetalle()) {
+      <div class="loading-center"><mat-spinner diameter="36" /></div>
+    } @else if (errorDetalle()) {
+      <p class="no-data" style="color:#c53030">{{ errorDetalle() }}</p>
+    } @else if (detalle(); as d) {
+
+      <!-- KPIs del detalle -->
+      <div class="kpis-row">
+        <mat-card class="kpi-card">
+          <mat-card-content>
+            <span class="kpi-valor">{{ d.sesiones.length }}</span>
+            <span class="kpi-label">Sesiones</span>
+          </mat-card-content>
+        </mat-card>
+        <mat-card class="kpi-card">
+          <mat-card-content>
+            <span class="kpi-valor">{{ fmtNum(d.promedioAsistencia) }}</span>
+            <span class="kpi-label">Prom. asistencia</span>
+          </mat-card-content>
+        </mat-card>
+        <mat-card class="kpi-card">
+          <mat-card-content>
+            <span class="kpi-valor">{{ d.totalVisitantes }}</span>
+            <span class="kpi-label">Visitantes</span>
+          </mat-card-content>
+        </mat-card>
+        <mat-card class="kpi-card">
+          <mat-card-content>
+            <span class="kpi-valor">{{ fmtOfrenda(d.totalOfrenda) }}</span>
+            <span class="kpi-label">Ofrenda</span>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Sesiones -->
+      <mat-card class="tabla-card">
+        <mat-card-header>
+          <mat-card-title>Sesiones en el período</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if (d.sesiones.length === 0) {
+            <p class="no-data">Sin sesiones en el período seleccionado</p>
+          } @else {
+            <table mat-table [dataSource]="d.sesiones" class="full-width">
+
+              <ng-container matColumnDef="fecha">
+                <th mat-header-cell *matHeaderCellDef>Fecha</th>
+                <td mat-cell *matCellDef="let s">{{ s.fecha | date:'dd/MM/yyyy' }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="tema">
+                <th mat-header-cell *matHeaderCellDef>Tema</th>
+                <td mat-cell *matCellDef="let s">{{ s.tema || '—' }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="presentes">
+                <th mat-header-cell *matHeaderCellDef>Presentes</th>
+                <td mat-cell *matCellDef="let s">
+                  <span class="badge-n">{{ s.totalPresentes }}</span>
+                  <span class="de-total"> / {{ d.totalMiembros }}</span>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="visitantes">
+                <th mat-header-cell *matHeaderCellDef>Visitantes</th>
+                <td mat-cell *matCellDef="let s">{{ s.totalVisitantes }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="ofrenda">
+                <th mat-header-cell *matHeaderCellDef>Ofrenda</th>
+                <td mat-cell *matCellDef="let s">{{ fmtOfrenda(s.ofrendaMonto) }}</td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="sesionCols"></tr>
+              <tr mat-row *matRowDef="let row; columns: sesionCols;"></tr>
+            </table>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Miembros con asistencia -->
+      <mat-card class="tabla-card">
+        <mat-card-header>
+          <mat-card-title>Asistencia por miembro</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if (d.miembros.length === 0) {
+            <p class="no-data">Sin miembros registrados</p>
+          } @else {
+            <table mat-table [dataSource]="d.miembros" class="full-width">
+
+              <ng-container matColumnDef="nombre">
+                <th mat-header-cell *matHeaderCellDef>Miembro</th>
+                <td mat-cell *matCellDef="let m">{{ m.nombres }} {{ m.apellidos }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="asistidas">
+                <th mat-header-cell *matHeaderCellDef>Sesiones asistidas</th>
+                <td mat-cell *matCellDef="let m">
+                  {{ m.sesionesAsistidas }} / {{ m.totalSesiones }}
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="pct">
+                <th mat-header-cell *matHeaderCellDef>% Asistencia</th>
+                <td mat-cell *matCellDef="let m">
+                  <div class="pct-row">
+                    <div class="pct-bar-bg">
+                      <div class="pct-bar-fill"
+                        [style.width.%]="m.porcentajeAsistencia"
+                        [class.pct-alta]="m.porcentajeAsistencia >= 75"
+                        [class.pct-media]="m.porcentajeAsistencia >= 40 && m.porcentajeAsistencia < 75"
+                        [class.pct-baja]="m.porcentajeAsistencia < 40">
+                      </div>
+                    </div>
+                    <span class="pct-label">{{ m.porcentajeAsistencia | number:'1.0-0' }}%</span>
+                  </div>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="miembroCols"></tr>
+              <tr mat-row *matRowDef="let row; columns: miembroCols;"></tr>
+            </table>
+          }
+        </mat-card-content>
+      </mat-card>
+
+    }
+  }
+
+</div>

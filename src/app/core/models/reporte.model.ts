@@ -68,6 +68,64 @@ export interface CrecimientoRetencionResponse {
   sedeNombre?: string;
 }
 
+export interface ReporteCelulaItem {
+  id: string;
+  nombre: string;
+  liderNombre: string | null;
+  grupoPadreId: string | null;
+  nivel: number;
+  activo: boolean;
+  totalMiembros: number;
+  totalSesiones: number;
+  promedioAsistencia: number | null;
+  totalVisitantes: number;
+  totalOfrenda: number;
+}
+
+export interface ReporteCelulasResponse {
+  celulas: ReporteCelulaItem[];
+  fechaDesde: string;
+  fechaHasta: string;
+  totalCelulas: number;
+  totalMiembros: number;
+  totalOfrenda: number;
+  promedioAsistenciaGeneral: number | null;
+}
+
+export interface ReporteCelulaDetalleSesion {
+  id: string;
+  fecha: string;
+  tema: string | null;
+  lugar: string | null;
+  totalPresentes: number;
+  totalVisitantes: number;
+  ofrendaMonto: number | null;
+}
+
+export interface ReporteCelulaDetalleMiembro {
+  id: string;
+  nombres: string;
+  apellidos: string;
+  sesionesAsistidas: number;
+  totalSesiones: number;
+  porcentajeAsistencia: number;
+}
+
+export interface ReporteCelulaDetalleResponse {
+  id: string;
+  nombre: string;
+  liderNombre: string | null;
+  nivel: number;
+  totalMiembros: number;
+  fechaDesde: string;
+  fechaHasta: string;
+  totalOfrenda: number;
+  totalVisitantes: number;
+  promedioAsistencia: number | null;
+  sesiones: ReporteCelulaDetalleSesion[];
+  miembros: ReporteCelulaDetalleMiembro[];
+}
+
 export interface DashboardSedeResponse {
   kpis: DashboardKpis;
   crecimiento: CrecimientoPeriodo[];

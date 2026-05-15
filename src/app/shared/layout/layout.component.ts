@@ -70,6 +70,7 @@ export class LayoutComponent {
     { path: '/grupos/mi-arbol', label: 'Mi Árbol',  icon: 'account_tree',  roles: ['LIDER_CELULA'] },
     { path: '/eventos',  label: 'Eventos',   icon: 'event',           roles: ['ADMIN_GLOBAL','ADMIN_SEDE','PASTOR_SEDE','LIDER_GRUPO','SECRETARIO_SEDE','REGISTRO_SEDE','LIDER_CELULA'] },
     { path: '/alertas',        label: 'Alertas',        icon: 'notifications_active', roles: ['ADMIN_GLOBAL','ADMIN_SEDE','PASTOR_SEDE'] },
+    { path: '/reporte-celulas',      label: 'Rep. Células',  icon: 'account_tree',         roles: ['ADMIN_GLOBAL','ADMIN_SEDE','PASTOR_SEDE','PASTOR_PRINCIPAL'] },
     { path: '/reporte-crecimiento', label: 'Crecimiento',   icon: 'trending_up',          roles: ['ADMIN_GLOBAL','ADMIN_SEDE','PASTOR_SEDE'] },
     { path: '/consolidacion',       label: 'Consolidación', icon: 'handshake',            roles: ['ADMIN_GLOBAL','ADMIN_SEDE','PASTOR_SEDE','CONSOLIDACION_SEDE'] },
     { path: '/usuarios',       label: 'Usuarios',       icon: 'manage_accounts',      roles: ['ADMIN_GLOBAL','SUPER_ADMIN','ADMIN_SEDE'] },
