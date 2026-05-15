@@ -34,6 +34,7 @@ export interface CreateUsuarioRequest {
   username: string;
   telefono?: string;
   password?: string;
+  activo?: boolean;
   sedeId?: string;
   roles?: string[];
 }

@@ -1,5 +1,5 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { Location, DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,7 +16,7 @@ import { GrupoFormComponent } from '../grupo-form/grupo-form.component';
   selector: 'app-mi-arbol',
   standalone: true,
   imports: [
-    DatePipe, RouterLink,
+    DatePipe,
     MatButtonModule, MatIconModule, MatCardModule,
     MatProgressSpinnerModule, MatTooltipModule,
   ],
@@ -56,6 +56,10 @@ export class MiArbolComponent implements OnInit {
       width: '560px', disableClose: true,
       data: { grupoPadreId },
     }).afterClosed().subscribe(ok => ok && this.cargar());
+  }
+
+  verMiCelula(grupoId: string) {
+    this.router.navigate(['/grupos', grupoId]);
   }
 
   verSesiones(item: GrupoArbolItem) {

@@ -89,7 +89,7 @@ export class UserFormComponent implements OnInit {
   ngOnInit() {
     if (!this.isEdit) {
       this.sedeService.getAll({ size: 100 }).subscribe({
-        next: res => this.sedes.set(res.content),
+        next: res => { this.sedes.set(res.content); this.autoSeleccionarSede(); },
         error: () => this.cargarSedesDeAuth(),
       });
     }
@@ -103,8 +103,16 @@ export class UserFormComponent implements OnInit {
     const email = this.auth.currentUser()?.email;
     if (!email) return;
     this.auth.getSedes(email).subscribe({
-      next: sedes => this.sedes.set(sedes),
+      next: sedes => { this.sedes.set(sedes); this.autoSeleccionarSede(); },
     });
+  }
+
+  private autoSeleccionarSede() {
+    if (this.prefill?.sedeId) return;
+    const lista = this.sedes();
+    if (lista.length === 1 && !this.form.get('sedeId')?.value) {
+      this.form.get('sedeId')!.setValue(lista[0].id);
+    }
   }
 
   submit() {
@@ -128,6 +136,7 @@ export class UserFormComponent implements OnInit {
           username: raw.username!,
           telefono: raw.telefono ?? undefined,
           password: raw.password ?? undefined,
+          activo:   true,
           sedeId:   raw.sedeId   || undefined,
           roles:    raw.sedesRoles?.length ? raw.sedesRoles : undefined,
         });
