@@ -1,0 +1,91 @@
+.cs-container {
+  padding: 24px;
+  max-width: 820px;
+}
+
+// ── Estado ───────────────────────────────────────────────────
+.status-row { margin-bottom: 20px; }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+
+  &.badge-ok   { background: #f0fff4; color: #276749; }
+  &.badge-warn { background: #fffbeb; color: #92400e; }
+}
+
+// ── Formulario ───────────────────────────────────────────────
+.section-card { margin-bottom: 20px; }
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 16px;
+  padding-top: 8px;
+
+  mat-form-field { width: 100%; }
+}
+
+.full-col { grid-column: 1 / -1; }
+
+// ── Toggle ───────────────────────────────────────────────────
+.toggle-activo  { margin-top: 4px; }
+.toggle-hint    { font-size: 12px; color: #718096; margin: 6px 0 0; }
+
+.divider-prueba { margin: 20px 0 16px; }
+
+// ── Prueba ───────────────────────────────────────────────────
+.prueba-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.prueba-hint { font-size: 12px; color: #a0aec0; }
+
+.test-result {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+
+  &.test-ok  { background: #f0fff4; color: #276749; }
+  &.test-err { background: #fff5f5; color: #c53030; }
+}
+
+// ── Acciones ─────────────────────────────────────────────────
+.actions-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.btn-spinner {
+  display: inline-block;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+mat-card-title {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #718096 !important;
+}
+
+.loading-center { padding: 80px; text-align: center; }

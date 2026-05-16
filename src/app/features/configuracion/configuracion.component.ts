@@ -4,6 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '../../core/services/auth.service';
 import { ConfiguracionSedeComponent } from './configuracion-sede/configuracion-sede.component';
+import { ConfiguracionSmtpComponent } from './configuracion-smtp/configuracion-smtp.component';
 
 interface CfgSection {
   id:    string;
@@ -13,8 +14,9 @@ interface CfgSection {
 }
 
 const SECTIONS: CfgSection[] = [
-  { id: 'sede',            label: 'General',        icon: 'business',       roles: ['ADMIN_GLOBAL', 'ADMIN_SEDE'] },
-  // H7.2 – H7.7 se agregarán aquí
+  { id: 'sede', label: 'General',      icon: 'business',     roles: ['ADMIN_GLOBAL', 'ADMIN_SEDE'] },
+  { id: 'smtp', label: 'SMTP / Correo', icon: 'mail_outline', roles: ['ADMIN_GLOBAL'] },
+  // H7.3 – H7.7 se agregarán aquí
 ];
 
 @Component({
@@ -23,6 +25,7 @@ const SECTIONS: CfgSection[] = [
   imports: [
     MatListModule, MatIconModule, MatDividerModule,
     ConfiguracionSedeComponent,
+    ConfiguracionSmtpComponent,
   ],
   templateUrl: './configuracion.component.html',
   styleUrl:    './configuracion.component.scss',

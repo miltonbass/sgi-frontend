@@ -36,3 +36,33 @@ export interface ActualizarConfiguracionSedeRequest {
   fechaFundacion?: string | null;
   redesSociales?:  Partial<RedesSociales> | null;
 }
+
+// ── SMTP ─────────────────────────────────────────────────────────────────────
+
+export type CifradoSmtp = 'TLS' | 'STARTTLS' | 'NONE';
+
+export interface ConfiguracionSmtpResponse {
+  host:           string | null;
+  puerto:         number | null;
+  usuario:        string | null;
+  passwordMasked: string | null;
+  cifrado:        CifradoSmtp | null;
+  remitente:      string | null;
+  activo:         boolean;
+  configurado:    boolean;
+}
+
+export interface ActualizarSmtpRequest {
+  host:      string;
+  puerto:    number;
+  usuario:   string;
+  password?: string;
+  cifrado:   CifradoSmtp;
+  remitente: string;
+  activo:    boolean;
+}
+
+export interface SmtpProbarResponse {
+  exitoso: boolean;
+  mensaje: string;
+}

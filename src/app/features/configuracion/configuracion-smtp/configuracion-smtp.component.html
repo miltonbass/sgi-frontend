@@ -1,0 +1,175 @@
+<div class="cs-container">
+
+  @if (loading()) {
+    <div class="loading-center"><mat-spinner /></div>
+  } @else {
+
+    <!-- Badge de estado -->
+    <div class="status-row">
+      @if (configurado()) {
+        <span class="badge badge-ok">
+          <mat-icon>check_circle</mat-icon> SMTP configurado
+        </span>
+      } @else {
+        <span class="badge badge-warn">
+          <mat-icon>warning</mat-icon> Sin configurar — el sistema usa el servidor por defecto
+        </span>
+      }
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="guardar()">
+
+      <!-- Servidor -->
+      <mat-card class="section-card">
+        <mat-card-header>
+          <mat-card-title>Servidor SMTP</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="form-grid">
+
+            <mat-form-field appearance="outline" class="full-col">
+              <mat-label>Host *</mat-label>
+              <input matInput formControlName="host" placeholder="smtp.gmail.com" />
+              @if (form.controls.host.hasError('required')) {
+                <mat-error>El host es obligatorio</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Puerto *</mat-label>
+              <input matInput type="number" formControlName="puerto" />
+              @if (puertoSugerido) {
+                <mat-hint>{{ puertoSugerido }}</mat-hint>
+              }
+              @if (form.controls.puerto.hasError('min') || form.controls.puerto.hasError('max')) {
+                <mat-error>Puerto inválido (1 – 65535)</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Cifrado *</mat-label>
+              <mat-select formControlName="cifrado">
+                <mat-option value="STARTTLS">STARTTLS — recomendado (Gmail, Outlook)</mat-option>
+                <mat-option value="TLS">TLS — SSL directo</mat-option>
+                <mat-option value="NONE">NONE — sin cifrado (no recomendado)</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Autenticación -->
+      <mat-card class="section-card">
+        <mat-card-header>
+          <mat-card-title>Autenticación</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="form-grid">
+
+            <mat-form-field appearance="outline">
+              <mat-label>Usuario / Email *</mat-label>
+              <input matInput formControlName="usuario" type="email"
+                placeholder="noreply@iglesiapaibog.com" />
+              @if (form.controls.usuario.hasError('required')) {
+                <mat-error>El usuario es obligatorio</mat-error>
+              }
+              @if (form.controls.usuario.hasError('email')) {
+                <mat-error>Debe ser un email válido</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Contraseña</mat-label>
+              <input matInput formControlName="password"
+                [type]="mostrarPassword() ? 'text' : 'password'"
+                [placeholder]="configurado() ? '••••••••' : 'Contraseña o app password'" />
+              <button matSuffix mat-icon-button type="button"
+                [attr.aria-label]="mostrarPassword() ? 'Ocultar' : 'Mostrar'"
+                (click)="mostrarPassword.set(!mostrarPassword())">
+                <mat-icon>{{ mostrarPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+              @if (configurado()) {
+                <mat-hint>Dejar vacío para conservar la contraseña actual</mat-hint>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-col">
+              <mat-label>Remitente (From) *</mat-label>
+              <input matInput formControlName="remitente"
+                placeholder='SGI Iglesia &lt;noreply@iglesiapaibog.com&gt;' />
+              <mat-hint>Formato: Nombre &lt;email@dominio.com&gt;</mat-hint>
+              @if (form.controls.remitente.hasError('required')) {
+                <mat-error>El remitente es obligatorio</mat-error>
+              }
+            </mat-form-field>
+
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Activación y prueba -->
+      <mat-card class="section-card">
+        <mat-card-header>
+          <mat-card-title>Activación y prueba</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+
+          <mat-slide-toggle formControlName="activo" color="primary" class="toggle-activo">
+            Habilitar este servidor SMTP para envíos reales
+          </mat-slide-toggle>
+          <p class="toggle-hint">
+            Con esta opción desactivada, la configuración se guarda pero el sistema
+            sigue usando el servidor por defecto.
+          </p>
+
+          <mat-divider class="divider-prueba" />
+
+          <div class="prueba-row">
+            <button mat-stroked-button type="button" color="primary"
+              [disabled]="!configurado() || testando()"
+              (click)="probar()"
+              matTooltip="Envía un correo de prueba al email de tu cuenta">
+              @if (testando()) {
+                <mat-spinner diameter="18" class="btn-spinner" />
+              } @else {
+                <mat-icon>send</mat-icon>
+              }
+              Enviar correo de prueba
+            </button>
+
+            @if (!configurado()) {
+              <span class="prueba-hint">Guarda la configuración antes de probar</span>
+            }
+          </div>
+
+          @if (testResult(); as r) {
+            <div class="test-result" [class.test-ok]="r.exitoso" [class.test-err]="!r.exitoso">
+              <mat-icon>{{ r.exitoso ? 'check_circle' : 'error' }}</mat-icon>
+              <span>{{ r.mensaje }}</span>
+            </div>
+          }
+
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Acciones -->
+      <div class="actions-row">
+        <button mat-button type="button" (click)="cargar()" [disabled]="saving()">
+          Descartar cambios
+        </button>
+        <button mat-raised-button color="primary" type="submit"
+          [disabled]="form.invalid || form.pristine || saving()">
+          @if (saving()) {
+            <mat-spinner diameter="18" class="btn-spinner" />
+          } @else {
+            <mat-icon>save</mat-icon>
+          }
+          Guardar configuración
+        </button>
+      </div>
+
+    </form>
+  }
+
+</div>
