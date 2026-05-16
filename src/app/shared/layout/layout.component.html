@@ -10,7 +10,11 @@
     <!-- Brand -->
     <div class="brand">
       <div class="brand-logo">
-        <mat-icon>church</mat-icon>
+        @if (brandingLogoUrl()) {
+          <img [src]="brandingLogoUrl()!" class="brand-img" alt="Logo" />
+        } @else {
+          <mat-icon>church</mat-icon>
+        }
       </div>
       <div class="brand-text">
         <span class="brand-name">SGI</span>

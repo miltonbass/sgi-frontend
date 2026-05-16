@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, DestroyRef } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -12,6 +12,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../core/services/auth.service';
+import { ConfiguracionService } from '../../core/services/configuracion.service';
 
 interface NavItem {
   path: string;
@@ -56,12 +57,17 @@ const ROUTE_TITLES: { pattern: RegExp; title: string }[] = [
 })
 export class LayoutComponent {
   readonly auth  = inject(AuthService);
-  private readonly router = inject(Router);
-  private readonly bp     = inject(BreakpointObserver);
+  private readonly router       = inject(Router);
+  private readonly bp           = inject(BreakpointObserver);
+  private readonly cfgService   = inject(ConfiguracionService);
+  private readonly destroyRef   = inject(DestroyRef);
 
-  readonly isMobile      = signal(false);
-  readonly sidenavOpened = signal(true);
-  readonly pageTitle     = signal('Miembros');
+  readonly isMobile        = signal(false);
+  readonly sidenavOpened   = signal(true);
+  readonly pageTitle       = signal('Miembros');
+  readonly brandingLogoUrl = signal<string | null>(null);
+
+  private _brandingLogoBlobUrl: string | null = null;
 
   private readonly navItems: NavItem[] = [
     { path: '/dashboard-global', label: 'Dashboard Global', icon: 'public',    roles: ['ADMIN_GLOBAL', 'PASTOR_PRINCIPAL'] },
@@ -95,6 +101,38 @@ export class LayoutComponent {
       this.isMobile.set(r.matches);
       this.sidenavOpened.set(!r.matches);
     });
+
+    this.cfgService.branding$.pipe(takeUntilDestroyed()).subscribe(cfg => {
+      if (!cfg) return;
+      if (cfg.colorPrimario) {
+        document.documentElement.style.setProperty('--sgi-primary', cfg.colorPrimario);
+      }
+      if (cfg.colorAcento) {
+        document.documentElement.style.setProperty('--sgi-accent', cfg.colorAcento);
+      }
+      if (cfg.tieneLogoPersonalizado) {
+        this.cfgService.getLogo().subscribe({
+          next: blob => {
+            if (this._brandingLogoBlobUrl) URL.revokeObjectURL(this._brandingLogoBlobUrl);
+            this._brandingLogoBlobUrl = URL.createObjectURL(blob);
+            this.brandingLogoUrl.set(this._brandingLogoBlobUrl);
+          },
+          error: () => {},
+        });
+      } else {
+        if (this._brandingLogoBlobUrl) {
+          URL.revokeObjectURL(this._brandingLogoBlobUrl);
+          this._brandingLogoBlobUrl = null;
+        }
+        this.brandingLogoUrl.set(null);
+      }
+    });
+
+    this.destroyRef.onDestroy(() => {
+      if (this._brandingLogoBlobUrl) URL.revokeObjectURL(this._brandingLogoBlobUrl);
+    });
+
+    this.cfgService.loadBranding();
   }
 
   get visibleNavItems() {

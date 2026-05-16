@@ -1,0 +1,180 @@
+<div class="cb-container">
+
+  @if (loading()) {
+    <div class="loading-center"><mat-spinner /></div>
+  } @else {
+
+    <!-- ── Logos ─────────────────────────────────────────────────── -->
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>Logos</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+
+        <div class="logos-grid">
+
+          <!-- Logo principal -->
+          <div class="logo-section">
+            <p class="logo-label">Logo principal</p>
+            <p class="logo-hint">Aparece en la barra lateral de la aplicación</p>
+            <div class="logo-preview-box">
+              @if (logoPreviewUrl()) {
+                <img [src]="logoPreviewUrl()!" class="logo-img" alt="Logo principal" />
+              } @else {
+                <div class="logo-empty">
+                  <mat-icon>add_photo_alternate</mat-icon>
+                  <span>Sin logo personalizado</span>
+                </div>
+              }
+            </div>
+            <input #fileInputLogo type="file" accept="image/png,image/svg+xml"
+              class="hidden-input" (change)="onLogoChange($event, 'principal')" />
+            <button mat-stroked-button type="button" (click)="fileInputLogo.click()">
+              <mat-icon>upload</mat-icon>
+              {{ (tieneLogoPersonalizado() || logoFile()) ? 'Cambiar logo' : 'Subir logo' }}
+            </button>
+            @if (logoFile()) {
+              <span class="file-name">{{ logoFile()!.name }}</span>
+            }
+            @if (logoError()) {
+              <p class="upload-error">{{ logoError() }}</p>
+            }
+          </div>
+
+          <!-- Logo compacto -->
+          <div class="logo-section">
+            <p class="logo-label">Logo compacto (favicon)</p>
+            <p class="logo-hint">Ícono cuadrado — aparece en pestañas del navegador</p>
+            <div class="logo-preview-box logo-preview-box--compact">
+              @if (logoCompactoPreviewUrl()) {
+                <img [src]="logoCompactoPreviewUrl()!" class="logo-img" alt="Logo compacto" />
+              } @else {
+                <div class="logo-empty">
+                  <mat-icon>add_photo_alternate</mat-icon>
+                  <span>Sin logo compacto</span>
+                </div>
+              }
+            </div>
+            <input #fileInputCompacto type="file" accept="image/png,image/svg+xml"
+              class="hidden-input" (change)="onLogoChange($event, 'compacto')" />
+            <button mat-stroked-button type="button" (click)="fileInputCompacto.click()">
+              <mat-icon>upload</mat-icon>
+              {{ (tieneLogoCompacto() || logoCompactoFile()) ? 'Cambiar logo' : 'Subir logo' }}
+            </button>
+            @if (logoCompactoFile()) {
+              <span class="file-name">{{ logoCompactoFile()!.name }}</span>
+            }
+            @if (logoCompactoError()) {
+              <p class="upload-error">{{ logoCompactoError() }}</p>
+            }
+          </div>
+
+        </div>
+
+        <p class="upload-specs">Formatos aceptados: PNG o SVG · Tamaño máximo: 2 MB</p>
+
+      </mat-card-content>
+      <mat-card-actions align="end">
+        <button mat-raised-button color="primary"
+          [disabled]="(!logoFile() && !logoCompactoFile()) || savingLogo()"
+          (click)="subirLogo()">
+          @if (savingLogo()) {
+            <mat-spinner diameter="18" class="btn-spinner" />
+          } @else {
+            <mat-icon>cloud_upload</mat-icon>
+          }
+          Guardar logos
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+    <!-- ── Colores ────────────────────────────────────────────────── -->
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>Colores</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+
+        <form [formGroup]="form">
+          <div class="colors-grid">
+
+            <!-- Color primario -->
+            <div class="color-row">
+              <span class="color-field-label">Color primario</span>
+              <div class="color-input-group">
+                <input type="color"
+                  [value]="form.controls.colorPrimario.value ?? '#1976D2'"
+                  (input)="form.controls.colorPrimario.setValue($any($event.target).value)"
+                  class="native-color-picker" />
+                <mat-form-field appearance="outline" class="hex-field">
+                  <mat-label>Hex</mat-label>
+                  <input matInput formControlName="colorPrimario" maxlength="7"
+                    placeholder="#1976D2" />
+                  @if (form.controls.colorPrimario.hasError('pattern')) {
+                    <mat-error>Formato inválido — usa #RRGGBB</mat-error>
+                  }
+                </mat-form-field>
+              </div>
+            </div>
+
+            <!-- Color de acento -->
+            <div class="color-row">
+              <span class="color-field-label">Color de acento</span>
+              <div class="color-input-group">
+                <input type="color"
+                  [value]="form.controls.colorAcento.value ?? '#FF4081'"
+                  (input)="form.controls.colorAcento.setValue($any($event.target).value)"
+                  class="native-color-picker" />
+                <mat-form-field appearance="outline" class="hex-field">
+                  <mat-label>Hex</mat-label>
+                  <input matInput formControlName="colorAcento" maxlength="7"
+                    placeholder="#FF4081" />
+                  @if (form.controls.colorAcento.hasError('pattern')) {
+                    <mat-error>Formato inválido — usa #RRGGBB</mat-error>
+                  }
+                </mat-form-field>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Vista previa -->
+          <div class="color-preview">
+            <span class="preview-label">Vista previa</span>
+            <div class="preview-pills">
+              <span class="preview-pill"
+                [style.background]="form.controls.colorPrimario.value">
+                Primario
+              </span>
+              <span class="preview-pill"
+                [style.background]="form.controls.colorAcento.value">
+                Acento
+              </span>
+            </div>
+          </div>
+
+        </form>
+
+      </mat-card-content>
+      <mat-card-actions align="end">
+        <button mat-button color="warn"
+          [disabled]="savingColors()"
+          (click)="restaurarDefaults()">
+          Restaurar por defecto
+        </button>
+        <button mat-raised-button color="primary"
+          [disabled]="form.invalid || form.pristine || savingColors()"
+          (click)="guardarColores()">
+          @if (savingColors()) {
+            <mat-spinner diameter="18" class="btn-spinner" />
+          } @else {
+            <mat-icon>palette</mat-icon>
+          }
+          Guardar colores
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+  }
+
+</div>

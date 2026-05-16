@@ -37,6 +37,34 @@ export interface ActualizarConfiguracionSedeRequest {
   redesSociales?:  Partial<RedesSociales> | null;
 }
 
+// ── Branding ─────────────────────────────────────────────────────────────────
+
+export interface BrandingResponse {
+  logoUrl:                string;
+  logoCompactoUrl:        string;
+  colorPrimario:          string | null;
+  colorAcento:            string | null;
+  tieneLogoPersonalizado: boolean;
+  tieneLogoCompacto:      boolean;
+}
+
+export interface ActualizarBrandingRequest {
+  colorPrimario?: string;
+  colorAcento?:   string;
+}
+
+export interface LogoUploadResponse {
+  logoUrl:  string;
+  mensaje:  string;
+}
+
+export interface BrandingConfig {
+  colorPrimario:          string | null;
+  colorAcento:            string | null;
+  tieneLogoPersonalizado: boolean;
+  tieneLogoCompacto:      boolean;
+}
+
 // ── SMTP ─────────────────────────────────────────────────────────────────────
 
 export type CifradoSmtp = 'TLS' | 'STARTTLS' | 'NONE';
