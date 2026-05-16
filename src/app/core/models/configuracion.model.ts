@@ -65,6 +65,22 @@ export interface BrandingConfig {
   tieneLogoCompacto:      boolean;
 }
 
+// ── Notificaciones ───────────────────────────────────────────────────────────
+
+export interface NotificacionEventoConfig {
+  activo: boolean;
+  cc:     string;
+}
+
+export interface NotificacionesResponse {
+  nuevoMiembro:      NotificacionEventoConfig;
+  cambioEstado:      NotificacionEventoConfig;
+  alertaSeguimiento: NotificacionEventoConfig;
+  nuevoUsuario:      NotificacionEventoConfig;
+}
+
+export type ActualizarNotificacionesRequest = NotificacionesResponse;
+
 // ── SMTP ─────────────────────────────────────────────────────────────────────
 
 export type CifradoSmtp = 'TLS' | 'STARTTLS' | 'NONE';

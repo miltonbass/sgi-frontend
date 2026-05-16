@@ -1,0 +1,69 @@
+<div class="cn-container">
+
+  @if (loading()) {
+    <div class="loading-center"><mat-spinner /></div>
+  } @else {
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Notificaciones por Email</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+
+        <p class="section-hint">
+          Configura qué eventos generan correos automáticos y quién recibe copias adicionales.
+        </p>
+
+        <form [formGroup]="form">
+          <div class="eventos-list">
+
+            @for (e of eventos; track e.key; let last = $last) {
+              <div [formGroupName]="e.key" class="evento-row">
+
+                <div class="evento-header">
+                  <div class="evento-info">
+                    <span class="evento-label">{{ e.label }}</span>
+                    <span class="evento-desc">{{ e.desc }}</span>
+                  </div>
+                  <mat-slide-toggle formControlName="activo" color="primary" />
+                </div>
+
+                @if (isActivo(e.key)) {
+                  <mat-form-field appearance="outline" class="cc-field">
+                    <mat-label>Copias adicionales (CC)</mat-label>
+                    <mat-icon matPrefix>alternate_email</mat-icon>
+                    <input matInput formControlName="cc"
+                      placeholder="email1@iglesia.com, email2@iglesia.com" />
+                    @if (ccError(e.key); as err) {
+                      <mat-error>Email inválido: "{{ err }}"</mat-error>
+                    }
+                    <mat-hint>Varios emails separados por coma</mat-hint>
+                  </mat-form-field>
+                }
+
+                @if (!last) { <mat-divider /> }
+
+              </div>
+            }
+
+          </div>
+        </form>
+
+      </mat-card-content>
+      <mat-card-actions align="end">
+        <button mat-raised-button color="primary"
+          [disabled]="form.pristine || saving()"
+          (click)="guardar()">
+          @if (saving()) {
+            <mat-spinner diameter="18" class="btn-spinner" />
+          } @else {
+            <mat-icon>save</mat-icon>
+          }
+          Guardar
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+  }
+
+</div>

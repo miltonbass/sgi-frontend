@@ -8,6 +8,8 @@ import {
   ActualizarBrandingRequest,
   LogoUploadResponse,
   BrandingConfig,
+  NotificacionesResponse,
+  ActualizarNotificacionesRequest,
   ConfiguracionSmtpResponse,
   ActualizarSmtpRequest,
   SmtpProbarResponse,
@@ -60,6 +62,14 @@ export class ConfiguracionService {
       }),
       error: () => {},
     });
+  }
+
+  getNotificaciones() {
+    return this.http.get<NotificacionesResponse>(`${this.base}/notificaciones`);
+  }
+
+  updateNotificaciones(data: ActualizarNotificacionesRequest) {
+    return this.http.put<NotificacionesResponse>(`${this.base}/notificaciones`, data);
   }
 
   getSmtp() {
