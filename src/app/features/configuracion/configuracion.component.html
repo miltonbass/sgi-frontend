@@ -1,0 +1,25 @@
+<div class="cfg-layout">
+
+  <nav class="cfg-sidebar">
+    <p class="cfg-sidebar-title">Configuración</p>
+    <mat-nav-list>
+      @for (s of visibleSections; track s.id) {
+        <a mat-list-item
+          [activated]="activeSection() === s.id"
+          (click)="activeSection.set(s.id)">
+          <mat-icon matListItemIcon>{{ s.icon }}</mat-icon>
+          <span matListItemTitle>{{ s.label }}</span>
+        </a>
+      }
+    </mat-nav-list>
+  </nav>
+
+  <mat-divider [vertical]="true" />
+
+  <main class="cfg-content">
+    @switch (activeSection()) {
+      @case ('sede') { <app-configuracion-sede /> }
+    }
+  </main>
+
+</div>

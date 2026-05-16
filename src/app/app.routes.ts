@@ -130,6 +130,12 @@ export const routes: Routes = [
           import('./features/consolidacion/consolidacion.component').then(m => m.ConsolidacionComponent),
         canActivate: [roleGuard(['ADMIN_GLOBAL', 'ADMIN_SEDE', 'PASTOR_SEDE', 'CONSOLIDACION_SEDE'])],
       },
+      {
+        path: 'configuracion',
+        loadComponent: () =>
+          import('./features/configuracion/configuracion.component').then(m => m.ConfiguracionComponent),
+        canActivate: [roleGuard(['ADMIN_GLOBAL', 'ADMIN_SEDE'])],
+      },
     ],
   },
   { path: '**', redirectTo: '' },

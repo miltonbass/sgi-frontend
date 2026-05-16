@@ -1,0 +1,50 @@
+.cs-container {
+  padding: 24px;
+  max-width: 820px;
+}
+
+.section-card {
+  margin-bottom: 20px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 16px;
+  padding-top: 8px;
+
+  mat-form-field { width: 100%; }
+}
+
+.full-col { grid-column: 1 / -1; }
+
+.actions-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.btn-spinner {
+  display: inline-block;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.social-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  margin-right: 4px;
+  color: #718096;
+}
+
+mat-card-title {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #718096 !important;
+}
+
+.loading-center { padding: 80px; text-align: center; }

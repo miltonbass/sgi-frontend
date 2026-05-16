@@ -1,0 +1,158 @@
+<div class="cs-container">
+
+  @if (loading()) {
+    <div class="loading-center"><mat-spinner /></div>
+  } @else {
+
+    <form [formGroup]="form" (ngSubmit)="guardar()">
+
+      <!-- Información básica -->
+      <mat-card class="section-card">
+        <mat-card-header>
+          <mat-card-title>Información básica</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="form-grid">
+
+            <mat-form-field appearance="outline" class="full-col">
+              <mat-label>Nombre de la sede *</mat-label>
+              <input matInput formControlName="nombre" />
+              @if (form.controls.nombre.hasError('required')) {
+                <mat-error>El nombre es obligatorio</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-col">
+              <mat-label>Descripción</mat-label>
+              <textarea matInput formControlName="descripcion" rows="2"></textarea>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Ciudad</mat-label>
+              <input matInput formControlName="ciudad" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Departamento / Estado</mat-label>
+              <input matInput formControlName="departamento" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>País</mat-label>
+              <input matInput formControlName="pais" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Dirección</mat-label>
+              <input matInput formControlName="direccion" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Teléfono</mat-label>
+              <input matInput formControlName="telefono" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Email de contacto</mat-label>
+              <input matInput formControlName="email" type="email" />
+              @if (form.controls.email.hasError('email')) {
+                <mat-error>Ingresa un email válido</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Sitio web</mat-label>
+              <input matInput formControlName="sitioWeb" placeholder="https://iglesiapaibog.com" />
+              @if (form.controls.sitioWeb.hasError('url')) {
+                <mat-error>URL inválida — incluye https://</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Fecha de fundación</mat-label>
+              <input matInput [matDatepicker]="dpFundacion" formControlName="fechaFundacion" />
+              <mat-datepicker-toggle matIconSuffix [for]="dpFundacion" />
+              <mat-datepicker #dpFundacion />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-col">
+              <mat-label>Zona horaria</mat-label>
+              <input matInput formControlName="zonaHoraria"
+                [matAutocomplete]="autoTz"
+                placeholder="America/Bogota" />
+              <mat-autocomplete #autoTz="matAutocomplete">
+                @for (tz of filteredTimezones(); track tz) {
+                  <mat-option [value]="tz">{{ tz }}</mat-option>
+                }
+              </mat-autocomplete>
+              @if (form.controls.zonaHoraria.hasError('timezone')) {
+                <mat-error>Zona horaria no reconocida</mat-error>
+              }
+              <mat-hint>Ej: America/Bogota, America/New_York</mat-hint>
+            </mat-form-field>
+
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Redes sociales -->
+      <mat-card class="section-card" formGroupName="redesSociales">
+        <mat-card-header>
+          <mat-card-title>Redes sociales</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="form-grid">
+
+            <mat-form-field appearance="outline">
+              <mat-label>Instagram</mat-label>
+              <mat-icon matPrefix class="social-icon">photo_camera</mat-icon>
+              <input matInput formControlName="instagram" placeholder="https://instagram.com/..." />
+              @if (form.controls.redesSociales.controls.instagram.hasError('url')) {
+                <mat-error>URL inválida — incluye https://</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Facebook</mat-label>
+              <mat-icon matPrefix class="social-icon">facebook</mat-icon>
+              <input matInput formControlName="facebook" placeholder="https://facebook.com/..." />
+              @if (form.controls.redesSociales.controls.facebook.hasError('url')) {
+                <mat-error>URL inválida — incluye https://</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-col">
+              <mat-label>YouTube</mat-label>
+              <mat-icon matPrefix class="social-icon">play_circle</mat-icon>
+              <input matInput formControlName="youtube" placeholder="https://youtube.com/..." />
+              @if (form.controls.redesSociales.controls.youtube.hasError('url')) {
+                <mat-error>URL inválida — incluye https://</mat-error>
+              }
+            </mat-form-field>
+
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Acciones -->
+      @if (canEdit) {
+        <div class="actions-row">
+          <button mat-button type="button" (click)="cargar()" [disabled]="saving()">
+            Descartar cambios
+          </button>
+          <button mat-raised-button color="primary" type="submit"
+            [disabled]="form.invalid || form.pristine || saving()">
+            @if (saving()) {
+              <mat-spinner diameter="18" class="btn-spinner" />
+            } @else {
+              <mat-icon>save</mat-icon>
+            }
+            Guardar cambios
+          </button>
+        </div>
+      }
+
+    </form>
+  }
+
+</div>
