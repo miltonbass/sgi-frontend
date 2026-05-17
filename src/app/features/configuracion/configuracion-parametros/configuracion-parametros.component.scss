@@ -1,0 +1,33 @@
+.cp-container {
+  padding: 24px;
+  max-width: 820px;
+}
+
+.section-card { margin-bottom: 20px; }
+
+mat-card-title {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #718096 !important;
+}
+
+// ── Grid de campos ────────────────────────────────────────────
+.params-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding-top: 8px;
+
+  mat-form-field { width: 100%; }
+}
+
+// ── Shared ────────────────────────────────────────────────────
+.btn-spinner {
+  display: inline-block;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.loading-center { padding: 80px; text-align: center; }

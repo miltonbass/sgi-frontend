@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
 import {
@@ -8,6 +8,9 @@ import {
   ActualizarBrandingRequest,
   LogoUploadResponse,
   BrandingConfig,
+  Moneda,
+  ParametrosResponse,
+  ActualizarParametrosRequest,
   NotificacionesResponse,
   ActualizarNotificacionesRequest,
   ConfiguracionSmtpResponse,
@@ -23,6 +26,9 @@ export class ConfiguracionService {
 
   private readonly _branding$ = new BehaviorSubject<BrandingConfig | null>(null);
   readonly branding$ = this._branding$.asObservable();
+
+  private readonly _moneda = signal<Moneda>('COP');
+  readonly moneda = this._moneda.asReadonly();
 
   getSede() {
     return this.http.get<ConfiguracionSedeResponse>(`${this.base}/sede`);
@@ -62,6 +68,26 @@ export class ConfiguracionService {
       }),
       error: () => {},
     });
+  }
+
+  getParametros() {
+    return this.http.get<ParametrosResponse>(`${this.base}/parametros`);
+  }
+
+  updateParametros(data: ActualizarParametrosRequest) {
+    return this.http.put<ParametrosResponse>(`${this.base}/parametros`, data);
+  }
+
+  loadParametros() {
+    this.getParametros().subscribe({
+      next: p => this._moneda.set(p.moneda),
+      error: () => {},
+    });
+  }
+
+  fmtMoneda(valor: number): string {
+    const simbolo: Record<Moneda, string> = { COP: '$', USD: 'US$', EUR: '€' };
+    return `${simbolo[this._moneda()]} ${valor.toLocaleString('es-CO')}`;
   }
 
   getNotificaciones() {

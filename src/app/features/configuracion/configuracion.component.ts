@@ -7,6 +7,7 @@ import { ConfiguracionSedeComponent } from './configuracion-sede/configuracion-s
 import { ConfiguracionSmtpComponent } from './configuracion-smtp/configuracion-smtp.component';
 import { ConfiguracionBrandingComponent } from './configuracion-branding/configuracion-branding.component';
 import { ConfiguracionNotificacionesComponent } from './configuracion-notificaciones/configuracion-notificaciones.component';
+import { ConfiguracionParametrosComponent } from './configuracion-parametros/configuracion-parametros.component';
 
 interface CfgSection {
   id:    string;
@@ -16,10 +17,11 @@ interface CfgSection {
 }
 
 const SECTIONS: CfgSection[] = [
-  { id: 'sede',            label: 'General',         icon: 'business',        roles: ['ADMIN_GLOBAL', 'ADMIN_SEDE'] },
-  { id: 'smtp',            label: 'SMTP / Correo',   icon: 'mail_outline',    roles: ['ADMIN_GLOBAL'] },
-  { id: 'branding',        label: 'Apariencia',      icon: 'palette',         roles: ['ADMIN_GLOBAL', 'ADMIN_SEDE'] },
-  { id: 'notificaciones',  label: 'Notificaciones',  icon: 'notifications',   roles: ['ADMIN_GLOBAL', 'ADMIN_SEDE'] },
+  { id: 'sede',           label: 'General',         icon: 'business',     roles: ['ADMIN_GLOBAL', 'ADMIN_SEDE'] },
+  { id: 'smtp',           label: 'SMTP / Correo',   icon: 'mail_outline', roles: ['ADMIN_GLOBAL'] },
+  { id: 'branding',       label: 'Apariencia',      icon: 'palette',      roles: ['ADMIN_GLOBAL', 'ADMIN_SEDE'] },
+  { id: 'notificaciones', label: 'Notificaciones',  icon: 'notifications',roles: ['ADMIN_GLOBAL', 'ADMIN_SEDE'] },
+  { id: 'parametros',     label: 'Parámetros',      icon: 'tune',         roles: ['ADMIN_GLOBAL', 'ADMIN_SEDE'] },
 ];
 
 @Component({
@@ -31,6 +33,7 @@ const SECTIONS: CfgSection[] = [
     ConfiguracionSmtpComponent,
     ConfiguracionBrandingComponent,
     ConfiguracionNotificacionesComponent,
+    ConfiguracionParametrosComponent,
   ],
   templateUrl: './configuracion.component.html',
   styleUrl:    './configuracion.component.scss',

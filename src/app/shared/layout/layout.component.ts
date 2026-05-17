@@ -133,6 +133,7 @@ export class LayoutComponent {
     });
 
     this.cfgService.loadBranding();
+    this.cfgService.loadParametros();
   }
 
   get visibleNavItems() {

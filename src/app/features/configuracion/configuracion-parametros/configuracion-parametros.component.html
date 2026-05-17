@@ -1,0 +1,103 @@
+<div class="cp-container">
+
+  @if (loading()) {
+    <div class="loading-center"><mat-spinner /></div>
+  } @else {
+
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>Comportamiento de Miembros</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="form">
+          <div class="params-grid">
+
+            <!-- Estado inicial -->
+            <mat-form-field appearance="outline">
+              <mat-label>Estado inicial al registrar</mat-label>
+              <mat-select formControlName="estadoInicialMiembro">
+                @for (e of estadosIniciales; track e.value) {
+                  <mat-option [value]="e.value">{{ e.label }}</mat-option>
+                }
+              </mat-select>
+              <mat-hint>Estado asignado automáticamente a nuevos miembros</mat-hint>
+            </mat-form-field>
+
+            <!-- Límite miembros célula -->
+            <mat-form-field appearance="outline">
+              <mat-label>Límite de miembros por célula</mat-label>
+              <input matInput type="number" min="0"
+                formControlName="limiteMiembrosCelula" />
+              @if (form.controls.limiteMiembrosCelula.hasError('min')) {
+                <mat-error>El valor mínimo es 0</mat-error>
+              }
+              <mat-hint>0 = sin límite</mat-hint>
+            </mat-form-field>
+
+            <!-- Días sin contacto -->
+            <mat-form-field appearance="outline">
+              <mat-label>Días sin contacto para alerta</mat-label>
+              <input matInput type="number" min="1"
+                formControlName="diasSinContactoAlerta" />
+              @if (form.controls.diasSinContactoAlerta.hasError('required')) {
+                <mat-error>Campo requerido</mat-error>
+              } @else if (form.controls.diasSinContactoAlerta.hasError('min')) {
+                <mat-error>Mínimo 1 día</mat-error>
+              }
+              <mat-hint>Genera alerta de seguimiento pastoral</mat-hint>
+            </mat-form-field>
+
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>Reportes y Moneda</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="form">
+          <div class="params-grid">
+
+            <!-- Moneda -->
+            <mat-form-field appearance="outline">
+              <mat-label>Moneda</mat-label>
+              <mat-select formControlName="moneda">
+                @for (m of monedas; track m.value) {
+                  <mat-option [value]="m.value">{{ m.label }}</mat-option>
+                }
+              </mat-select>
+              <mat-hint>Se usa en el formato de valores monetarios</mat-hint>
+            </mat-form-field>
+
+            <!-- Período reportes -->
+            <mat-form-field appearance="outline">
+              <mat-label>Período predeterminado de reportes</mat-label>
+              <mat-select formControlName="periodoReportesDias">
+                @for (p of periodos; track p) {
+                  <mat-option [value]="p">{{ p }} días</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+          </div>
+        </form>
+      </mat-card-content>
+      <mat-card-actions align="end">
+        <button mat-raised-button color="primary"
+          [disabled]="form.invalid || form.pristine || saving()"
+          (click)="guardar()">
+          @if (saving()) {
+            <mat-spinner diameter="18" class="btn-spinner" />
+          } @else {
+            <mat-icon>save</mat-icon>
+          }
+          Guardar parámetros
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+  }
+
+</div>

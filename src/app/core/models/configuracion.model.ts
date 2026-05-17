@@ -65,6 +65,21 @@ export interface BrandingConfig {
   tieneLogoCompacto:      boolean;
 }
 
+// ── Parámetros ───────────────────────────────────────────────────────────────
+
+export type EstadoInicialMiembro = 'VISITOR' | 'MIEMBRO';
+export type Moneda = 'COP' | 'USD' | 'EUR';
+
+export interface ParametrosResponse {
+  estadoInicialMiembro:  EstadoInicialMiembro;
+  diasSinContactoAlerta: number;
+  moneda:                Moneda;
+  periodoReportesDias:   number;
+  limiteMiembrosCelula:  number;
+}
+
+export type ActualizarParametrosRequest = ParametrosResponse;
+
 // ── Notificaciones ───────────────────────────────────────────────────────────
 
 export interface NotificacionEventoConfig {
