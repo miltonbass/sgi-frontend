@@ -1,0 +1,102 @@
+<div class="cs-container">
+
+  @if (loading()) {
+    <div class="loading-center"><mat-spinner /></div>
+  } @else {
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Políticas de Seguridad</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+
+        @if (showSessionWarning()) {
+          <div class="warning-banner" role="alert">
+            <mat-icon>warning_amber</mat-icon>
+            <span>
+              Al reducir la duración de sesión, los usuarios con sesión activa serán
+              desconectados al expirar su token actual.
+            </span>
+          </div>
+        }
+
+        <form [formGroup]="form">
+          <div class="params-grid">
+
+            <!-- Longitud mínima de contraseña -->
+            <mat-form-field appearance="outline">
+              <mat-label>Longitud mínima de contraseña</mat-label>
+              <mat-icon matPrefix>lock</mat-icon>
+              <input matInput type="number" min="6" max="32"
+                formControlName="longitudMinimaPassword" />
+              @if (form.controls.longitudMinimaPassword.hasError('required')) {
+                <mat-error>Campo requerido</mat-error>
+              } @else if (form.controls.longitudMinimaPassword.hasError('min') ||
+                          form.controls.longitudMinimaPassword.hasError('max')) {
+                <mat-error>Entre 6 y 32 caracteres</mat-error>
+              }
+              <mat-hint>Mínimo 6, máximo 32</mat-hint>
+            </mat-form-field>
+
+            <!-- Expiración de contraseña -->
+            <mat-form-field appearance="outline">
+              <mat-label>Expiración de contraseña (días)</mat-label>
+              <mat-icon matPrefix>event</mat-icon>
+              <input matInput type="number" min="0"
+                formControlName="expiracionPasswordDias" />
+              @if (form.controls.expiracionPasswordDias.hasError('min')) {
+                <mat-error>El valor mínimo es 0</mat-error>
+              }
+              <mat-hint>0 = la contraseña nunca expira</mat-hint>
+            </mat-form-field>
+
+            <!-- Intentos fallidos -->
+            <mat-form-field appearance="outline">
+              <mat-label>Intentos fallidos antes de bloqueo</mat-label>
+              <mat-icon matPrefix>block</mat-icon>
+              <input matInput type="number" min="1" max="20"
+                formControlName="maxIntentosFallidos" />
+              @if (form.controls.maxIntentosFallidos.hasError('required')) {
+                <mat-error>Campo requerido</mat-error>
+              } @else if (form.controls.maxIntentosFallidos.hasError('min') ||
+                          form.controls.maxIntentosFallidos.hasError('max')) {
+                <mat-error>Entre 1 y 20 intentos</mat-error>
+              }
+            </mat-form-field>
+
+            <!-- Duración de sesión -->
+            <mat-form-field appearance="outline">
+              <mat-label>Duración de sesión (horas)</mat-label>
+              <mat-icon matPrefix>schedule</mat-icon>
+              <input matInput type="number" min="1" max="168"
+                formControlName="duracionSesionHoras" />
+              @if (form.controls.duracionSesionHoras.hasError('required')) {
+                <mat-error>Campo requerido</mat-error>
+              } @else if (form.controls.duracionSesionHoras.hasError('min') ||
+                          form.controls.duracionSesionHoras.hasError('max')) {
+                <mat-error>Entre 1 y 168 horas (1 semana)</mat-error>
+              }
+              <mat-hint>Máximo 168 h (1 semana). Afecta nuevos tokens.</mat-hint>
+            </mat-form-field>
+
+          </div>
+        </form>
+
+      </mat-card-content>
+      <mat-card-actions align="end">
+        <button mat-raised-button color="primary"
+          [disabled]="form.invalid || form.pristine || saving()"
+          (click)="guardar()">
+          @if (saving()) {
+            <mat-spinner diameter="18" class="btn-spinner" />
+          } @else {
+            <mat-icon>security</mat-icon>
+          }
+          Guardar políticas
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+  }
+
+</div>

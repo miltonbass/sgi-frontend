@@ -1,0 +1,47 @@
+.cs-container {
+  padding: 24px;
+  max-width: 820px;
+}
+
+mat-card-title {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #718096 !important;
+}
+
+// ── Banner de advertencia ─────────────────────────────────────
+.warning-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #fffbeb;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  color: #92400e;
+
+  mat-icon  { color: #f59e0b; flex-shrink: 0; margin-top: 1px; }
+  span      { font-size: 13px; line-height: 1.5; }
+}
+
+// ── Grid de campos ────────────────────────────────────────────
+.params-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding-top: 8px;
+
+  mat-form-field { width: 100%; }
+}
+
+// ── Shared ────────────────────────────────────────────────────
+.btn-spinner {
+  display: inline-block;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.loading-center { padding: 80px; text-align: center; }

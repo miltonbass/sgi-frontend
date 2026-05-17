@@ -13,6 +13,8 @@ import {
   ActualizarParametrosRequest,
   NotificacionesResponse,
   ActualizarNotificacionesRequest,
+  PoliticasSeguridadResponse,
+  ActualizarSeguridadRequest,
   ConfiguracionSmtpResponse,
   ActualizarSmtpRequest,
   SmtpProbarResponse,
@@ -68,6 +70,14 @@ export class ConfiguracionService {
       }),
       error: () => {},
     });
+  }
+
+  getSeguridad() {
+    return this.http.get<PoliticasSeguridadResponse>(`${this.base}/seguridad`);
+  }
+
+  updateSeguridad(data: ActualizarSeguridadRequest) {
+    return this.http.put<PoliticasSeguridadResponse>(`${this.base}/seguridad`, data);
   }
 
   getParametros() {

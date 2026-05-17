@@ -65,6 +65,17 @@ export interface BrandingConfig {
   tieneLogoCompacto:      boolean;
 }
 
+// ── Seguridad ─────────────────────────────────────────────────────────────────
+
+export interface PoliticasSeguridadResponse {
+  longitudMinimaPassword: number;
+  expiracionPasswordDias: number;
+  maxIntentosFallidos:    number;
+  duracionSesionHoras:    number;
+}
+
+export type ActualizarSeguridadRequest = PoliticasSeguridadResponse;
+
 // ── Parámetros ───────────────────────────────────────────────────────────────
 
 export type EstadoInicialMiembro = 'VISITOR' | 'MIEMBRO';

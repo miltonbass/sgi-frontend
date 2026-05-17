@@ -8,6 +8,7 @@ import { ConfiguracionSmtpComponent } from './configuracion-smtp/configuracion-s
 import { ConfiguracionBrandingComponent } from './configuracion-branding/configuracion-branding.component';
 import { ConfiguracionNotificacionesComponent } from './configuracion-notificaciones/configuracion-notificaciones.component';
 import { ConfiguracionParametrosComponent } from './configuracion-parametros/configuracion-parametros.component';
+import { ConfiguracionSeguridadComponent } from './configuracion-seguridad/configuracion-seguridad.component';
 
 interface CfgSection {
   id:    string;
@@ -22,6 +23,7 @@ const SECTIONS: CfgSection[] = [
   { id: 'branding',       label: 'Apariencia',      icon: 'palette',      roles: ['ADMIN_GLOBAL', 'ADMIN_SEDE'] },
   { id: 'notificaciones', label: 'Notificaciones',  icon: 'notifications',roles: ['ADMIN_GLOBAL', 'ADMIN_SEDE'] },
   { id: 'parametros',     label: 'Parámetros',      icon: 'tune',         roles: ['ADMIN_GLOBAL', 'ADMIN_SEDE'] },
+  { id: 'seguridad',      label: 'Seguridad',       icon: 'shield',       roles: ['ADMIN_GLOBAL'] },
 ];
 
 @Component({
@@ -34,6 +36,7 @@ const SECTIONS: CfgSection[] = [
     ConfiguracionBrandingComponent,
     ConfiguracionNotificacionesComponent,
     ConfiguracionParametrosComponent,
+    ConfiguracionSeguridadComponent,
   ],
   templateUrl: './configuracion.component.html',
   styleUrl:    './configuracion.component.scss',
